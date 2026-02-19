@@ -1,0 +1,1828 @@
+<!doctype html>
+<html lang="es" data-bs-theme="light">    
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Portal Empresa – Convenios & Solicitudes (v1.2)</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+  <style>
+    :root{--shadow-1:0 8px 24px rgba(0,0,0,.08);--shadow-2:0 12px 28px rgba(0,0,0,.12)}
+    body{background:var(--bs-body-bg); padding-top:var(--shell-topbar);}
+    .app-header{position:sticky;top:var(--shell-topbar);z-index:1030;background:var(--bs-body-bg);border-bottom:1px solid var(--bs-border-color);box-shadow:0 4px 12px rgba(0,0,0,.04)}
+    .kpi-card{position:relative;border:0;box-shadow:var(--shadow-1);transition:transform .25s ease,box-shadow .25s ease}
+    .kpi-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-2)}
+    .kpi-card::before{content:"";position:absolute;inset:0 auto 0 0;width:6px;border-radius:6px 0 0 6px;background:var(--bs-primary)}
+    .kpi-meta{font-size:.8rem;opacity:.8}
+    .sticky-toolbar{position:sticky;top:calc(var(--shell-topbar) + 56px);z-index:10;background:var(--bs-body-bg);border-bottom:1px solid var(--bs-border-color)}
+    .sidepanel{
+      position:fixed;
+      top:var(--shell-topbar);
+      right:-520px;
+      width:520px;
+      height:calc(100vh - var(--shell-topbar));
+      background:var(--bs-body-bg);
+      box-shadow:-8px 0 24px rgba(0,0,0,.08);
+      transition:right .3s ease;
+      z-index:1090;
+    }
+    .sidepanel.open{right:0}
+    .sidepanel-header{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;border-bottom:1px solid var(--bs-border-color)}
+    .sidepanel-body{padding:1rem;overflow:auto;height:calc(100% - 56px)}
+    .dep-row{background:var(--bs-tertiary-bg);border-radius:.5rem;padding:.75rem}
+    .file-pill{display:inline-flex;align-items:center;gap:.5rem;padding:.25rem .5rem;border:1px dashed var(--bs-border-color);border-radius:1rem}
+    .doc-pill{display:flex;align-items:center;gap:.5rem;border:1px dashed var(--bs-border-color);border-radius:.5rem;padding:.25rem .5rem}
+    .alert-inline{border-left:4px solid var(--bs-warning-border-subtle)}
+    @media (max-width:576px){.sidepanel{width:100%}}
+  
+  
+  
+  
+  
+  /* ===== Shell de navegación (Topbar + Sidebar) ===== */
+:root{ --shell-topbar:56px; --shell-sidebar:250px; --shell-mini:72px; }
+
+.shell-topbar{
+  position:fixed; top:0; left:0; right:0;
+  z-index:1080; height:var(--shell-topbar);
+  background:#212529; color:#fff;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  box-shadow:0 4px 12px rgba(0,0,0,.25);
+}
+
+/* Botones/menús dentro del topbar (en bloques separados, fuera de .shell-topbar{...}) */
+.shell-topbar .btn{ color:#fff !important; }
+.shell-topbar .dropdown-menu{
+  --bs-dropdown-bg:#2b3035;
+  --bs-dropdown-link-color:#f8f9fa;
+  --bs-dropdown-link-hover-bg:#343a40;
+  --bs-dropdown-link-hover-color:#fff;
+  border-color:rgba(255,255,255,.15);
+}
+
+.shell-btn{ background:none; border:none; color:#fff; font-size:1.35rem; line-height:1; }
+.shell-role{ display:inline-flex; align-items:center; gap:.35rem; border:1px solid rgba(255,255,255,.2); border-radius:999px; padding:.15rem .5rem; }
+.shell-net{ display:inline-flex; align-items:center; gap:.4rem; border:1px solid rgba(255,255,255,.2); border-radius:999px; padding:.15rem .5rem; font-size:.8rem; }
+
+.app-header{ z-index:1020; background:var(--bs-body-bg); }
+/* Evita la línea blanca entre sidebar y contenido */
+.shell-sidebar{
+  border-right: 0;                                   /* quitamos el borde físico */
+  box-shadow: inset -1px 0 0 rgba(255,255,255,.08);  /* línea con sombra (no genera gap) */
+  backface-visibility: hidden;                       /* promueve a su propia capa */
+  transform: translateZ(0);                          /* idem; reduce scroll-tearing */
+  contain: paint;                                    /* aísla repintado al sidebar */
+}
+
+.shell-main{ background:var(--bs-body-bg); } /* evita fugas de color */
+
+.shell-sidebar{ position:fixed; inset:var(--shell-topbar) auto 0 0; width:var(--shell-sidebar);
+  background:#1c1f26; color:#dee2e6; border-right:1px solid rgba(255,255,255,.08); z-index:1070;
+  transition:transform .28s ease, width .28s ease; }
+  
+.shell-brand{ padding:.5rem .75rem; border-bottom:1px dashed rgba(255,255,255,.12); display:flex; align-items:center; gap:.5rem; }
+.shell-avatar{ width:72px; height:72px; border-radius:50%; background:#0b111b; color:#fff; display:grid; place-items:center; margin:0 auto .5rem; font-weight:700; border:2px solid #fff; }
+.shell-user{ padding:1rem .75rem; border-bottom:1px dashed rgba(255,255,255,.1); text-align:center; }
+.shell-title{ color:#adb5bd; font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; padding:.5rem .75rem; }
+.shell-menu{ display:grid; gap:.25rem; padding:.5rem; }
+.shell-link{ display:flex; align-items:center; gap:.75rem; color:#dee2e6; text-decoration:none; padding:.5rem .75rem; border-radius:.5rem; }
+.shell-link .icon{ width:24px; text-align:center; font-size:1.05rem; }
+.shell-link:hover, .shell-link.active{ background:#0d6efd; color:#fff; }
+.shell-submenu .shell-link{ padding-left:2.5rem; }
+
+.shell-overlay{ position:fixed; inset:var(--shell-topbar) 0 0 0; background:rgba(0,0,0,.45); z-index:1060; display:none; }
+
+/* Empuje del contenido (envolvemos TODO lo existente en .shell-main) */
+.shell-main{ margin-top:0; margin-left:var(--shell-sidebar); transition:margin-left .28s ease; min-height:calc(100dvh - var(--shell-topbar)); }
+
+/* Estados */
+
+/* ===== Parches de colapso (sidebar mini, 72px) ===== */
+
+/* El avatar no debe medir 72px cuando la barra mide 72px: se corta. */
+body.sidebar-collapsed .shell-user{ 
+  padding:.5rem 0 !important;             /* quita paddings laterales que provocan overflow */
+}
+body.sidebar-collapsed .shell-avatar{
+  width:40px; height:40px;                 /* reduce tamaño para encajar en 72px */
+  margin:.25rem auto; 
+  border-width:1px;
+}
+
+/* La marca y el menú también ajustan padding para no “empujar” hacia fuera */
+body.sidebar-collapsed .shell-brand{ 
+  padding:.5rem 0 !important; 
+  justify-content:center; 
+}
+body.sidebar-collapsed .shell-menu{ 
+  padding:.25rem !important; 
+}
+
+/* Centrado de íconos (ya tienes parte, refuerzo por si hay reglas que lo pisan) */
+body.sidebar-collapsed .shell-link{ 
+  justify-content:center !important; 
+}
+body.sidebar-collapsed .shell-link .icon{ 
+  width:24px; 
+}
+
+/* Previene cualquier “franja” por alturas o capas */
+.shell-main{ background:var(--bs-body-bg); }
+.app-header{ z-index:1020; background:var(--bs-body-bg); }
+.shell-sidebar{ z-index:1070; overflow-x:hidden; } /* ya lo tienes: lo reafirmo */
+html, body{ overflow-x:hidden; }                   /* anti-scroll horizontal global */
+
+
+
+body.sidebar-collapsed .shell-sidebar{ width:var(--shell-mini); }
+body.sidebar-collapsed .shell-main{ margin-left:var(--shell-mini); }
+
+body.sidebar-collapsed .shell-link .label,
+body.sidebar-collapsed .shell-brand .label,
+body.sidebar-collapsed .shell-title,
+body.sidebar-collapsed .shell-user .info{ display:none !important; }
+body.sidebar-collapsed .shell-link{ justify-content:center; }
+body.sidebar-collapsed .shell-link .icon{ width:24px; }
+
+/* Responsive móvil */
+@media (max-width:768px){
+  .shell-sidebar{ transform:translateX(-100%); width:var(--shell-sidebar); }
+  body.sidebar-open .shell-sidebar{ transform:translateX(0); }
+  .shell-main{ margin-left:0; }
+  body.sidebar-open .shell-overlay{ display:block; }
+}
+
+/* Anti-scroll horizontal cuando colapsa */
+html, body{ overflow-x:hidden; }
+.shell-sidebar{ overflow-x:hidden; }
+
+</style>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<!-- ===== Shell Topbar ===== -->
+<header class="shell-topbar">
+  <div class="container-fluid d-flex align-items-center gap-2" style="height:var(--shell-topbar)">
+    <button class="shell-btn" id="toggleSidebar" aria-label="Menú" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
+    <i class="fa-solid fa-briefcase text-primary"></i>
+    <div class="lh-1">
+      <div class="fw-semibold">Prácticas Laborales</div>
+      <div class="text-white-50 small">Portal Empresa</div>
+    </div>
+    <div class="ms-auto d-flex align-items-center gap-2">
+      <button class="btn btn-sm text-white-50" data-bs-toggle="tooltip" title="Alertas"><i class="fa-regular fa-bell"></i></button>
+      <button class="btn btn-sm text-white-50" data-bs-toggle="tooltip" title="Plataformas"><i class="fa-solid fa-grid-2"></i></button>
+      <span id="netPill" class="shell-net"><i class="fa-solid fa-wifi"></i> <span id="netLabel"></span></span>
+      <div class="dropdown">
+        <button class="btn btn-sm dropdown-toggle shell-role" data-bs-toggle="dropdown"><i class="fa-solid fa-building"></i> <span id="currentRoleLabel">Empresa</span></button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item role-option" href="Empresa_Solicita_Practicantes.html" data-role="Empresa">Empresa</a></li>
+          <li><a class="dropdown-item role-option" href="Estudiante_proceso_practica.html" data-role="Estudiante">Estudiante</a></li>
+          <li><a class="dropdown-item role-option" href="Gestion_Aprobacion_Convenios.html" data-role="Coordinador">Coordinador</a></li>
+        </ul>
+      </div>
+
+
+    </div>
+  </div>
+</header>
+<div class="shell-overlay" id="overlay"></div>
+
+<!-- ===== Shell Sidebar ===== -->
+<aside class="shell-sidebar" id="sidebar">
+  <div class="shell-brand">
+    <i class="fa-solid fa-sitemap"></i>
+    <span class="label">Prácticas Laborales</span>
+  </div>
+  <div class="shell-user">
+    <div class="shell-avatar" aria-hidden="true">EM</div>
+    <div class="info">
+      <div class="fw-semibold">Empresa</div>
+      <div class="text-white-50 small">Perfil activo</div>
+    </div>
+  </div>
+  <div class="shell-title">Navegación</div>
+  <nav class="shell-menu">
+    
+    <a class="shell-link" href="#pane-perfil" data-bs-toggle="tooltip" title="Perfil">
+      <span class="icon"><i class="fa-solid fa-id-card"></i></span><span class="label">Perfil</span>
+    </a>
+<a class="shell-link" href="#pane-lista" data-bs-toggle="tooltip" title="Mis convenios">
+      <span class="icon"><i class="fa-solid fa-table"></i></span><span class="label">Mis convenios</span>
+    </a>
+    <a class="shell-link" href="#pane-convenio" data-bs-toggle="tooltip" title="Solicitar convenio">
+      <span class="icon"><i class="fa-solid fa-file-signature"></i></span><span class="label">Solicitar convenio</span>
+    </a>
+    <a class="shell-link" href="#pane-solicitud" data-bs-toggle="tooltip" title="Solicitud de Practicantes">
+      <span class="icon"><i class="fa-solid fa-user-plus"></i></span><span class="label">Solicitud de Practicantes</span>
+    </a>
+    <a class="shell-link" href="#pane-solicitudes" data-bs-toggle="tooltip" title="Mis solicitudes">
+      <span class="icon"><i class="fa-solid fa-list-check"></i></span><span class="label">Mis solicitudes</span>
+    </a>
+
+  </nav>
+</aside>
+
+<div class="shell-main">
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="container-fluid py-2 d-flex align-items-center gap-2">
+      <i class="bi bi-handshake fs-4 text-primary" aria-hidden="true"></i>
+      <div>
+        <h1 class="h5 mb-0">Portal Empresa</h1>
+        <div class="text-body-secondary small">Convenios y Solicitudes de Practicantes</div>
+      </div>
+      <div class="ms-auto d-flex align-items-center gap-3">
+        <div class="form-check form-switch m-0">
+          <input class="form-check-input" type="checkbox" id="darkModeSwitch"/>
+          <label class="form-check-label" for="darkModeSwitch">Modo oscuro</label>
+        </div>
+            <button id="btnToggleGuideHeader" class="btn btn-outline-secondary btn-sm" type="button">
+        <i class="bi bi-journal-bookmark"></i> Mostrar Guía
+      </button>
+    </div>
+  </div>
+</header>
+
+  <main class="container-fluid my-3">
+    <!-- Guía de uso -->
+    <section class="mb-3" id="guide" aria-labelledby="guideTitle">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <div class="d-flex align-items-start gap-3">
+            <i class="bi bi-compass fs-3 text-primary" aria-hidden="true"></i>
+            <div class="flex-grow-1">
+              <div class="d-flex align-items-center gap-2 mb-1">
+                <h2 class="h6 mb-0" id="guideTitle">Guía rápida – Gestión institucional de convenios</h2>
+                <span class="badge text-bg-success" id="guideState">Visible</span>
+                <button id="btnHideGuide" class="btn btn-outline-secondary btn-sm ms-auto" type="button" aria-controls="guideBody" aria-expanded="true" aria-label="Ocultar guía">
+                  <i class="bi bi-eye-slash"></i> Ocultar guía
+                </button>
+              </div>
+              <div id="guideBody" class="small">
+                <ol class="mb-2 ps-3">
+                  <li><strong>KPI superiores</strong>: resumen de convenios, vacantes y solicitudes; clic para filtrar.</li>
+                  <li><strong>Mis convenios</strong>: filtra por tipo, estado y vigencia; abre el detalle para ver documentos, comentarios e historial.</li>
+                  <li><strong>Solicitud de Practicantes</strong>: formulario con validación; si no hay convenio vigente, verás opciones para trámite o carta de excepción.</li>
+                  <li><strong>Mis solicitudes</strong>: seguimiento por estado (borrador, enviada, en proceso, con candidatos); acceso al detalle y asignaciones.</li>
+                  <li><strong>Accesos rápidos</strong>: modo oscuro, exportación a XLSX/PDF, y persistencia local de tus datos de prueba.</li>
+                </ol>
+                <div class="alert alert-info py-2 mb-0">Tip: usa la columna <em>Acciones</em> para abrir el panel lateral de detalle.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- KPIs -->
+    <section class="mb-3">
+      <div class="row g-3 row-cols-1 row-cols-md-4">
+        <div class="col">
+          <div class="card kpi-card">
+            <div class="card-body">
+              <div class="d-flex align-items-center gap-2 mb-1"><i class="bi bi-file-text text-primary"></i><div class="fw-semibold">Convenios</div></div>
+              <div class="d-flex align-items-center justify-content-between">
+                <div><div class="display-6" id="kpiTotal">—</div><div class="kpi-meta">Totales</div></div>
+                <div class="text-end small"><div>Vigentes: <span id="kpiVig">—</span></div><div>Por vencer: <span id="kpi60">—</span></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card kpi-card">
+            <div class="card-body">
+              <div class="d-flex align-items-center gap-2 mb-1"><i class="bi bi-people text-success"></i><div class="fw-semibold">Vacantes</div></div>
+              <div class="d-flex align-items-center justify-content-between">
+                <div><div class="display-6" id="kpiVacSol">—</div><div class="kpi-meta">Solicitadas</div></div>
+                <div class="text-end small"><div>Asignadas: <span id="kpiVacAsig">—</span></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card kpi-card">
+            <div class="card-body">
+              <div class="d-flex align-items-center gap-2 mb-1"><i class="bi bi-send-check text-info"></i><div class="fw-semibold">Solicitudes</div></div>
+              <div class="d-flex align-items-center justify-content-between">
+                <div><div class="display-6" id="kpiSolEnv">—</div><div class="kpi-meta">Enviadas</div></div>
+                <div class="text-end small"><div>En proceso: <span id="kpiSolProc">—</span></div><div>Con candidatos: <span id="kpiSolCand">—</span></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card kpi-card">
+            <div class="card-body">
+              <div class="d-flex align-items-center gap-2 mb-1"><i class="bi bi-exclamation-triangle text-danger"></i><div class="fw-semibold">Vigencia</div></div>
+              <div class="d-flex align-items-center justify-content-between">
+                <div><div class="display-6" id="kpiPorVencer">—</div><div class="kpi-meta">Convenios ≤60 días</div></div>
+                <div class="text-end small"><div>30 días: <span id="kpi30">—</span></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tabs -->
+    <ul class="nav nav-tabs" id="tabs" role="tablist">
+      <li class="nav-item" role="presentation"><button class="nav-link active" id="tab-lista" data-bs-toggle="tab" data-bs-target="#pane-lista" type="button" role="tab"><i class="bi bi-collection"></i> Mis convenios</button></li>
+      <li class="nav-item" role="presentation"><button class="nav-link" id="tab-convenio" data-bs-toggle="tab" data-bs-target="#pane-convenio" type="button" role="tab"><i class="bi bi-file-earmark-plus"></i> Solicitar convenio</button></li>
+      <li class="nav-item" role="presentation"><button class="nav-link" id="tab-solicitud" data-bs-toggle="tab" data-bs-target="#pane-solicitud" type="button" role="tab"><i class="bi bi-person-plus"></i> Solicitud de Practicantes</button></li>
+      <li class="nav-item" role="presentation"><button class="nav-link" id="tab-solicitudes" data-bs-toggle="tab" data-bs-target="#pane-solicitudes" type="button" role="tab"><i class="bi bi-list-task"></i> Mis solicitudes</button></li>
+      <li class="nav-item" role="presentation">
+        <button class="nav-link" id="tab-perfil" data-bs-toggle="tab" data-bs-target="#pane-perfil" type="button" role="tab">
+          <i class="bi bi-person-vcard"></i> Perfil
+        </button>
+      </li>
+    </ul>
+
+    <div class="tab-content border-start border-end border-bottom p-3 rounded-bottom">
+      <!-- MIS CONVENIOS -->
+      <div class="tab-pane fade show active" id="pane-lista" role="tabpanel" aria-labelledby="tab-lista">
+        <section class="sticky-toolbar py-2 px-2 rounded-3 mb-3">
+          <div class="d-flex align-items-end gap-2 flex-wrap">
+            <div>
+              <label class="form-label" for="fTipo">Tipo</label>
+              <select id="fTipo" class="form-select form-select-sm" style="min-width:14rem"><option value="">Todos</option></select>
+            </div>
+            <div>
+              <label class="form-label" for="fEstado">Estado</label>
+              <select id="fEstado" class="form-select form-select-sm" required>
+                <option value="">Solicitado</option>
+                <option>Solicitado</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label" for="fRango">Vigencia</label>
+              <input id="fRango" class="form-control form-control-sm" placeholder="AAAA-MM a AAAA-MM"/>
+            </div>
+            <div class="ms-auto d-flex align-items-center gap-2">
+              <button id="btnLimpiar" class="btn btn-outline-secondary btn-sm"><i class="bi bi-eraser"></i> Limpiar</button>
+              <button id="btnBuscar" class="btn btn-primary btn-sm"><i class="bi bi-search"></i> Aplicar</button>
+              <button id="btnExportar" class="btn btn-outline-success btn-sm"><i class="bi bi-download"></i> XLSX</button>
+              <button id="btnPDF" class="btn btn-outline-dark btn-sm"><i class="bi bi-file-earmark-pdf"></i> PDF</button>
+            </div>
+          </div>
+        </section>
+
+        <div class="card">
+          <div class="card-header d-flex align-items-center gap-2"><i class="bi bi-table"></i><div class="fw-semibold">Convenios <span class="text-body-secondary small" id="lblCount"></span></div><div class="ms-auto small" id="lblPagina">Página 1</div></div>
+          <div class="table-responsive">
+            <table class="table align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Número</th>
+                  <th>Tipo / Dependencia</th>
+                  <th>Vigencia</th>
+                  <th>Vacantes (Asig./Sol.)</th>
+                  <th>Estado</th>
+                  <th>Comentarios</th>
+                  <th class="text-end">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyLista"></tbody>
+            </table>
+          </div>
+          <div class="card-footer d-flex align-items-center gap-2">
+            <div class="btn-group" role="group" aria-label="Paginación">
+              <button class="btn btn-outline-secondary btn-sm" id="btnPrev"><i class="bi bi-chevron-left"></i></button>
+              <span class="btn btn-light btn-sm disabled" id="lblPaginaBottom">Página 1</span>
+              <button class="btn btn-outline-secondary btn-sm" id="btnNext"><i class="bi bi-chevron-right"></i></button>
+            </div>
+            <select id="pageSize" class="form-select form-select-sm ms-auto" style="width:auto">
+              <option value="10">10</option>
+              <option value="15" selected>15</option>
+              <option value="25">25</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      
+      <!-- SOLICITAR CONVENIO (FORM) -->
+      <div class="tab-pane fade" id="pane-convenio" role="tabpanel" aria-labelledby="tab-convenio">
+        <form id="frmConvenio" class="needs-validation" novalidate>
+          <div class="row g-3">
+            <!-- Datos del convenio / empresa -->
+            <div class="col-12 col-xl-7">
+              <div class="card h-100">
+                <div class="card-header"><i class="bi bi-file-earmark-text"></i> Datos del convenio</div>
+                <div class="card-body">
+                  <div class="row g-2">
+                    <div class="col-12 col-md-4">
+                      <label class="form-label"><span class="text-danger">*</span> Tipo de convenio</label>
+                      <select id="cTipo" class="form-select" required>
+                        <option value="">Seleccione…</option>
+                        <option>Convenio de Cooperación</option>
+                        <option>Convenio Docencia Servicio</option>
+
+                      </select>
+                      <div class="invalid-feedback">Selecciona un tipo</div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                      <label class="form-label"><span class="text-danger">*</span> Objeto del convenio</label>
+                      <select id="cObjeto" class="form-select" required>
+                        <option value="">Seleccione…</option>
+                        <option>Prácticas laborales</option>
+                        <option>Docencia servicio</option>
+                        <option>Voluntariado</option>
+                        <option>Pasantía remunerada</option>
+                        <option>Contrato de aprendizaje</option>
+                      </select>
+                      <div class="invalid-feedback">Obligatorio</div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                      <label class="form-label"><span class="text-danger">*</span> Estado</label>
+                      <select id="cEstado" class="form-select" required>
+                        <option selected>Solicitado</option>
+                      </select>
+                      <div class="invalid-feedback">Obligatorio</div>
+                    </div>
+                  </div>
+
+                  <hr class="my-3">
+
+                  <div class="row g-2">
+                    <div class="col-12 col-md-6">
+                      <label class="form-label"><span class="text-danger">*</span> Nombre convenio (Razón social)</label>
+                      <input id="cNombre" class="form-control" required placeholder="Ej. Tecnologías Ejemplo S.A.S."/>
+                      <div class="invalid-feedback">Obligatorio</div>
+                    </div>
+                    <div class="col-12 col-md-3">
+                      <label class="form-label"><span class="text-danger">*</span> Tipo documento</label>
+                      <select id="cTipoDoc" class="form-select" required>
+                        <option value="">Seleccione…</option>
+                        <option>Numero de Identificación Tributario</option>
+                        <option>Registro Único Tributario
+                      </select>
+                      <div class="invalid-feedback">Obligatorio</div>
+                    </div>
+                    <div class="col-12 col-md-3">
+                      <label class="form-label"><span class="text-danger">*</span> Código </label>
+                      <input id="cNIT" class="form-control" required placeholder="900123456"/>
+                      <div class="invalid-feedback">Obligatorio</div>
+                    </div>
+                  </div>
+
+                  <div class="row g-2 mt-1">
+                    <div class="col-12 col-md-4">
+                      <label class="form-label"><span class="text-danger">*</span> Teléfono</label>
+                      <input id="cTel" class="form-control" required placeholder="(604) 000 0000"/>
+                      <div class="invalid-feedback">Obligatorio</div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                      <label class="form-label">Página web</label>
+                      <input id="cWeb" type="url" class="form-control" placeholder="https://"/>
+                      <div class="invalid-feedback">URL inválida</div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                      <label class="form-label"><span class="text-danger">*</span> Dirección</label>
+                      <input id="cDir" class="form-control" required placeholder="Calle 123 #45-67"/>
+                      <div class="invalid-feedback">Obligatorio</div>
+                    </div>
+                  </div>
+
+                  <div class="row g-2 mt-1">
+                    <div class="col-12 col-md-6">
+                      <label class="form-label">Fecha inicio (propuesta)</label>
+                      <input id="cFIni" type="date" class="form-control"/>
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <label class="form-label">Fecha terminación (propuesta)</label>
+                      <input id="cFFin" type="date" class="form-control"/>
+                    </div>
+                  </div>
+
+                  <div class="mt-2">
+                    <label class="form-label"><span class="text-danger">*</span> Link / adjunto del convenio</label>
+                    <div class="input-group">
+                      <span class="input-group-text"><i class="bi bi-link-45deg"></i></span>
+                      <input id="cLink" class="form-control" required placeholder="Pega un enlace o indica nombre del archivo adjunto"/>
+                      <button class="btn btn-outline-secondary" type="button" id="btnAdjuntarMock"><i class="bi bi-paperclip"></i> Adjuntar</button>
+                    </div>
+                    <div class="form-text">Mockup: el botón “Adjuntar” solo simula carga de archivo (sin backend).</div>
+                    <div class="invalid-feedback">Obligatorio</div>
+                  </div>
+
+                  <div class="alert alert-info alert-inline mt-3 mb-0">
+                    <i class="bi bi-info-circle"></i>
+                    Al enviar, el convenio quedará en estado <b>Solicitado</b> para revisión por Coordinación/Jurídica.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Responsable + Habeas Data + Checklist -->
+            <div class="col-12 col-xl-5">
+              <div class="card h-100">
+                <div class="card-header"><i class="bi bi-person-badge"></i> Responsable del convenio</div>
+                <div class="card-body">
+                  <div class="row g-2">
+                    <div class="col-12 col-md-6">
+                      <label class="form-label"><span class="text-danger">*</span> Tipo documento</label>
+                      <select id="rTipoDoc" class="form-select" required>
+                        <option value="">Seleccione…</option>
+                        <option>CC</option>
+                        <option>CE</option>
+                        <option>Pasaporte</option>
+                      </select>
+                      <div class="invalid-feedback">Obligatorio</div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <label class="form-label"><span class="text-danger">*</span> Documento</label>
+                      <input id="rDoc" class="form-control" required/>
+                      <div class="invalid-feedback">Obligatorio</div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <label class="form-label"><span class="text-danger">*</span> Nombres</label>
+                      <input id="rNom" class="form-control" required/>
+                      <div class="invalid-feedback">Obligatorio</div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <label class="form-label"><span class="text-danger">*</span> Apellidos</label>
+                      <input id="rApe" class="form-control" required/>
+                      <div class="invalid-feedback">Obligatorio</div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <label class="form-label"><span class="text-danger">*</span> Correo Electronico</label>
+                      <input id="rEmail" class="form-control" required/>
+                      <div class="invalid-feedback">Obligatorio</div>
+                    </div>
+                    <div class="col-12 col-md-6">
+                      <label class="form-label">Celular</label>
+                      <input id="rCel" class="form-control"/>
+                    </div>
+                  </div>
+
+                  <hr class="my-3">
+
+                  <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="cHabeas" required>
+                    <label class="form-check-label" for="cHabeas">
+                      <span class="text-danger">*</span> Autorizo tratamiento de datos (Habeas Data)
+                    </label>
+                    <div class="invalid-feedback">Debes aceptar para continuar</div>
+                  </div>
+
+                  <div class="mt-3">
+                    <div class="fw-semibold mb-2"><i class="bi bi-check2-square"></i> Checklist de documentos (mock)</div>
+                    <div class="small text-body-secondary mb-2">Se sugiere según el tipo de convenio seleccionado.</div>
+                    <div id="docsChecklist" class="d-grid gap-2">
+                      <div class="text-body-secondary small">Selecciona un tipo para ver la lista.</div>
+                    </div>
+                  </div>
+
+                  <div class="d-flex align-items-center gap-2 mt-4">
+                    <button id="btnConBorrador" class="btn btn-outline-secondary" type="button"><i class="bi bi-save"></i> Guardar borrador</button>
+                    <button id="btnConEnviar" class="btn btn-primary" type="submit"><i class="bi bi-send"></i> Enviar solicitud</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+
+
+      <!-- SOLICITUD DE PRACTICANTES (FORM) -->
+      <div class="tab-pane fade" id="pane-solicitud" role="tabpanel" aria-labelledby="tab-solicitud">
+        <form id="frmSolicitud" class="needs-validation" novalidate>
+          <div class="row g-3">
+            <!-- Datos de dependencia -->
+            <div class="col-12 col-xl-6">
+              <div class="card h-100">
+                <div class="card-header"><i class="bi bi-building-add"></i> Datos de la dependencia que solicita</div>
+                <div class="card-body">
+                  <div class="mb-2">
+                    <label class="form-label">Área o Dependencia</label>
+                    <input id="sDep" class="form-control" required/>
+                    <div class="invalid-feedback">Obligatorio</div>
+                  </div>
+                  <div class="row g-2">
+                    <div class="col-12 col-md-6">
+                      <label class="form-label">Nombre completo de quien solicita</label>
+                      <input id="sNom" class="form-control" required/>
+                      <div class="invalid-feedback">Obligatorio</div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                      <label class="form-label">Teléfono</label>
+                      <input id="sTel" class="form-control" required/>
+                      <div class="invalid-feedback">Obligatorio</div>
+                    </div>
+                    <div class="col-6 col-md-3">
+                      <label class="form-label">Correo</label>
+                      <input id="sMail" type="email" class="form-control" required/>
+                      <div class="invalid-feedback">Correo inválido</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- Necesidad -->
+            <div class="col-12 col-xl-6">
+              <div class="card h-100">
+                <div class="card-header"><i class="bi bi-clipboard2-plus"></i> Necesidad</div>
+                <div class="card-body">
+                  <div class="row g-2">
+                    <div class="col-6">
+                      <label class="form-label">Fecha requerida</label>
+                      <input id="sFecha" type="date" class="form-control" required/>
+                    </div>
+                    <div class="col-6">
+                      <label class="form-label">Tipo de práctica</label>
+                      <select id="sTipo" class="form-select" required>
+                        <option value="">Seleccione</option>
+                        <option>Escenario interno</option>
+                        <option>Contrato de aprendizaje SENA</option>
+                        <option>Practicas por Resolucion</option>
+                        <option>Convenio de cooperacion voluntariado</option>
+                        <option>Pasantia remunerada</option>
+                        <option>Convenio Docencia Servicio</option>
+                      </select>
+                      <div class="invalid-feedback">Selecciona un tipo</div>
+                    </div>
+                  </div>
+                  <div class="row g-2 mt-1">
+                    <div class="col-8">
+                      <label class="form-label">Programa académico</label>
+                      <select id="sPrograma" class="form-select" required><option value="">Seleccione</option></select>
+                      <div class="invalid-feedback">Seleccione un programa</div>
+                    </div>
+                    <div class="col-4">
+                      <label class="form-label">Cantidad</label>
+                      <input id="sCant" type="number" min="1" class="form-control" required/>
+                      <div class="invalid-feedback">Ingrese una cantidad válida</div>
+                    </div>
+                  </div>
+                  <div class="mt-2">
+                    <label class="form-label">Funciones / Perfil requerido</label>
+                    <textarea id="sDesc" class="form-control" rows="3" required></textarea>
+                    <div class="invalid-feedback">Describe las funciones / perfil</div>
+                  </div>
+                  <div class="alert alert-warning alert-inline mt-3 d-none" id="alertConvenio">No encontramos un convenio **vigente**. Puedes **iniciar trámite de convenio** o **usar Carta (excepción)** para continuar.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="d-flex align-items-center gap-2 mt-3">
+            <button id="btnSolBorrador" class="btn btn-outline-secondary" type="button"><i class="bi bi-save"></i> Guardar borrador</button>
+            <button id="btnSolEnviar" class="btn btn-primary" type="submit"><i class="bi bi-send"></i> Enviar solicitud</button>
+          </div>
+        </form>
+      </div>
+
+      <!-- MIS SOLICITUDES (LISTA) -->
+      <div class="tab-pane fade" id="pane-solicitudes" role="tabpanel" aria-labelledby="tab-solicitudes">
+        <div class="card">
+          <div class="card-header d-flex align-items-center gap-2"><i class="bi bi-list-task"></i><div class="fw-semibold">Solicitudes <span class="text-body-secondary small" id="lblCountSol"></span></div><div class="ms-auto small" id="lblPaginaSol">Página 1</div></div>
+          <div class="table-responsive">
+            <table class="table align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>#</th>
+                  <th>Dependencia</th>
+                  <th>Programa</th>
+                  <th>Tipo práctica</th>
+                  <th>Fecha requerida</th>
+                  <th>Cantidad</th>
+                  <th>Estado</th>
+                  <th>Asignados</th>
+                  <th class="text-end">Acciones</th>
+                </tr>
+              </thead>
+              <tbody id="tbodySol"></tbody>
+            </table>
+          </div>
+          <div class="card-footer d-flex align-items-center gap-2">
+            <div class="btn-group" role="group" aria-label="Paginación">
+              <button class="btn btn-outline-secondary btn-sm" id="btnPrevSol"><i class="bi bi-chevron-left"></i></button>
+              <span class="btn btn-light btn-sm disabled" id="lblPaginaBottomSol">Página 1</span>
+              <button class="btn btn-outline-secondary btn-sm" id="btnNextSol"><i class="bi bi-chevron-right"></i></button>
+            </div>
+            <select id="pageSizeSol" class="form-select form-select-sm ms-auto" style="width:auto">
+              <option value="10">10</option>
+              <option value="15" selected>15</option>
+              <option value="25">25</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <!-- PERFIL (EMPRESA) -->
+      <div class="tab-pane fade" id="pane-perfil" role="tabpanel" aria-labelledby="tab-perfil">
+        <div class="card mb-3">
+          <div class="card-header d-flex align-items-center gap-2">
+            <i class="bi bi-grid-3x3-gap"></i>
+            <div class="fw-semibold">Editar Empresa</div>
+            <div class="ms-auto small text-body-secondary"><span class="text-danger fw-semibold">(*)</span> Campo Obligatorio</div>
+          </div>
+          <div class="card-body">
+            <form id="frmPerfilEmpresa" class="needs-validation" novalidate>
+              <div class="row g-3">
+                <div class="col-12 col-md-4">
+                  <label class="form-label">Perfil</label>
+                  <input class="form-control" value="Tercero" disabled>
+                </div>
+
+                <div class="col-12 col-md-4">
+                  <label class="form-label"><span class="text-danger">*</span> Estado</label>
+                  <select class="form-select perfil-edit" required disabled>
+                    <option selected>Pendiente</option>
+                  </select>
+                  <div class="invalid-feedback">Obligatorio</div>
+                </div>
+
+                <div class="col-12 col-md-4">
+                  <label class="form-label"><span class="text-danger">*</span> Tipo empresa</label>
+                  <select class="form-select perfil-edit" required disabled>
+                    <option selected>Tipo empresa…</option>
+                    <option>Privada</option>
+                    <option>Pública</option>
+                  </select>
+                  <div class="invalid-feedback">Obligatorio</div>
+                </div>
+
+                <div class="col-12 col-md-6">
+                  <label class="form-label"><span class="text-danger">*</span> Razón social</label>
+                  <input class="form-control perfil-edit" id="pRazon" required disabled value="Tecnologías Ejemplo S.A.S.">
+                  <div class="invalid-feedback">Obligatorio</div>
+                </div>
+
+                <div class="col-6 col-md-3 d-flex align-items-center gap-2">
+                  <div class="form-check mt-4">
+                    <input class="form-check-input perfil-edit" type="checkbox" id="pEps" disabled>
+                    <label class="form-check-label" for="pEps"><span class="text-danger">*</span> ¿Es Eps?</label>
+                  </div>
+                </div>
+                <div class="col-6 col-md-3 d-flex align-items-center gap-2">
+                  <div class="form-check mt-4">
+                    <input class="form-check-input perfil-edit" type="checkbox" id="pConvenio" disabled checked>
+                    <label class="form-check-label" for="pConvenio"><span class="text-danger">*</span> ¿Es Convenio?</label>
+                  </div>
+                </div>
+
+                <div class="col-12 col-md-4">
+                  <label class="form-label"><span class="text-danger">*</span> Tipo documento</label>
+                  <select class="form-select" disabled>
+                    <option selected>Número de Identificación Tributario</option>
+                  </select>
+                </div>
+                <div class="col-12 col-md-4">
+                  <label class="form-label"><span class="text-danger">*</span> Número de documento</label>
+                  <input class="form-control" disabled value="900123456">
+                </div>
+                <div class="col-12 col-md-4">
+                  <label class="form-label">Ciudad expedición</label>
+                  <select class="form-select perfil-edit" disabled>
+                    <option selected>Seleccione…</option>
+                    <option>Medellín</option>
+                    <option>Bogotá</option>
+                    <option>Cali</option>
+                  </select>
+                </div>
+
+                <div class="col-12 col-md-3">
+                  <label class="form-label"><span class="text-danger">*</span> Teléfono1</label>
+                  <input class="form-control perfil-edit" required disabled placeholder="Teléfono1">
+                  <div class="invalid-feedback">Obligatorio</div>
+                </div>
+                <div class="col-12 col-md-3">
+                  <label class="form-label">Teléfono2</label>
+                  <input class="form-control perfil-edit" disabled placeholder="Teléfono2">
+                </div>
+                <div class="col-12 col-md-3">
+                  <label class="form-label">Fax</label>
+                  <input class="form-control perfil-edit" disabled placeholder="Fax">
+                </div>
+                <div class="col-12 col-md-3">
+                  <label class="form-label">Móvil</label>
+                  <input class="form-control perfil-edit" disabled placeholder="Móvil">
+                </div>
+
+                <div class="col-12 col-md-4">
+                  <label class="form-label">Sitio web</label>
+                  <input class="form-control perfil-edit" disabled placeholder="https://">
+                </div>
+                <div class="col-12 col-md-4">
+                  <label class="form-label"><span class="text-danger">*</span> Email</label>
+                  <input class="form-control perfil-edit" type="email" required disabled value="contacto@empresa.com">
+                  <div class="invalid-feedback">Correo inválido</div>
+                </div>
+
+                <div class="col-12">
+                  <label class="form-label"><span class="text-danger">*</span> Dirección</label>
+                  <div class="row g-2">
+                    <div class="col-12 col-md-3">
+                      <select class="form-select perfil-edit" required disabled>
+                        <option selected>Calle</option>
+                        <option>Carrera</option>
+                        <option>Avenida</option>
+                      </select>
+                      <div class="invalid-feedback">Obligatorio</div>
+                    </div>
+                    <div class="col-4 col-md-1"><input class="form-control perfil-edit" required disabled value="123"></div>
+                    <div class="col-4 col-md-1"><input class="form-control perfil-edit" disabled placeholder="Letra"></div>
+                    <div class="col-12 col-md-3">
+                      <select class="form-select perfil-edit" required disabled>
+                        <option selected>Carrera</option>
+                        <option>Calle</option>
+                      </select>
+                      <div class="invalid-feedback">Obligatorio</div>
+                    </div>
+                    <div class="col-4 col-md-1"><input class="form-control perfil-edit" required disabled value="45"></div>
+                    <div class="col-4 col-md-1"><input class="form-control perfil-edit" disabled placeholder="Letra"></div>
+                    <div class="col-4 col-md-1"><input class="form-control perfil-edit" disabled value="67"></div>
+                    <div class="col-12 col-md-2"><input class="form-control perfil-edit" disabled placeholder="Otras características"></div>
+                    <div class="col-12 col-md-12">
+                      <select class="form-select perfil-edit" required disabled>
+                        <option selected>Colombia - Antioquia - Medellín</option>
+                        <option>Colombia - Cundinamarca - Bogotá</option>
+                      </select>
+                      <div class="invalid-feedback">Obligatorio</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Sector</label>
+                  <select class="form-select perfil-edit" disabled>
+                    <option selected>Seleccione…</option>
+                    <option>Servicios</option>
+                    <option>Industria</option>
+                  </select>
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Sub Sector</label>
+                  <select class="form-select perfil-edit" disabled>
+                    <option selected>Seleccione…</option>
+                    <option>Educación</option>
+                    <option>Tecnología</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="mt-2">
+                                <div class="fw-semibold mb-2">Contactos</div>
+
+                
+<!-- Contactos (múltiples) -->
+<div id="contactosContainer" class="d-grid gap-3">
+  <!-- Contacto #1 -->
+  <div class="border rounded p-3 bg-body-tertiary contact-card" data-index="0">
+    <div class="row g-3">
+      <div class="col-12 col-md-6">
+        <label class="form-label">Nombre completo</label>
+        <input class="form-control perfil-edit" id="contactoNombre_0" disabled placeholder="Ej. Juan Pérez">
+      </div>
+
+      <div class="col-12 col-md-3">
+        <label class="form-label">Tipo de documento</label>
+        <select class="form-select perfil-edit" id="contactoTipoDoc_0" disabled>
+          <option value="">Seleccione…</option>
+          <option>CC</option>
+          <option>CE</option>
+          <option>Pasaporte</option>
+          <option>NIT</option>
+        </select>
+      </div>
+
+      <div class="col-12 col-md-3">
+        <label class="form-label">Documento de identidad</label>
+        <input class="form-control perfil-edit" id="contactoDocumento_0" disabled placeholder="Ej. 123456789">
+      </div>
+
+      <div class="col-12 col-md-6">
+        <label class="form-label">Cargo desempeñado dentro de la empresa</label>
+        <input class="form-control perfil-edit" id="contactoCargo_0" disabled placeholder="Ej. Coordinador de Talento Humano">
+      </div>
+
+      <div class="col-12 col-md-3">
+        <label class="form-label">Celular</label>
+        <input class="form-control perfil-edit" id="contactoCelular_0" disabled placeholder="Ej. 3001234567">
+      </div>
+
+      <div class="col-12 col-md-3">
+        <label class="form-label">Correo electrónico</label>
+        <input class="form-control perfil-edit" id="contactoCorreo_0" type="email" disabled placeholder="contacto@empresa.com">
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="d-flex justify-content-end">
+  <button class="btn btn-outline-primary btn-sm d-none" type="button" id="btnAddContacto">
+    <i class="bi bi-plus-circle me-1"></i> Añadir otro contacto
+  </button>
+</div>
+</div>
+</div>
+
+              <div class="d-flex justify-content-end gap-2 mt-4">
+                <button class="btn btn-outline-secondary d-none" type="button" id="btnCancelarPerfil">Cancelar</button>
+                <button class="btn btn-primary" type="button" id="btnEditarPerfil">
+                  <i class="bi bi-pencil-square me-1"></i> Editar
+                </button>
+                <button class="btn btn-success d-none" type="submit" id="btnGuardarPerfil">
+                  <i class="bi bi-check2-circle me-1"></i> Guardar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Sidepanel detalle (reusa para convenio/solicitud) -->
+  <aside class="sidepanel" id="sidepanel" aria-labelledby="sideTitle" aria-modal="true" role="dialog">
+    <div class="sidepanel-header">
+      <div class="fw-semibold" id="sideTitle">Detalle</div>
+      <button class="btn btn-sm btn-light" id="btnCloseSide"><i class="bi bi-x"></i></button>
+    </div>
+    <div class="sidepanel-body" id="sideBody">
+      <!-- Dinámico -->
+    </div>
+  </aside>
+
+  <!-- Toast -->
+  <div class="position-fixed bottom-0 end-0 p-3" style="z-index:1080">
+    <div id="toast" class="toast align-items-center text-bg-primary border-0" role="status" aria-live="polite" aria-atomic="true">
+      <div class="d-flex"><div class="toast-body" id="toastMsg">Hecho</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // ====== Utils ======
+    const toastEl=document.getElementById('toast');
+    const toastMsg=document.getElementById('toastMsg');
+    const toast=new bootstrap.Toast(toastEl);
+    const showToast=(m,v='primary')=>{toastEl.className='toast align-items-center text-bg-'+v+' border-0';toastMsg.textContent=m;toast.show();};
+    const fmt=(d)=> new Date(d).toLocaleDateString('es-CO');
+    const withinDays=(d,days)=>{const dd=new Date(d); const now=new Date(); const diff=(dd-now)/(1000*60*60*24); return diff>=0 && diff<=days;};
+
+    // ====== Demo data y catálogos ======
+    const TIPOS=['Escenario','Autónoma','Cooperación'];
+    const DOCS_BY_TIPO={
+      'Escenario':['Minuta propuesta','Política de datos','Cámara de Comercio','ARL'],
+      'Autónoma':['Carta de intención','Política de datos','RUT','ARL'],
+      'Cooperación':['Propuesta técnica','Acta de compromiso','RUT']
+    };
+    const FACULTADES={
+      'Ingeniería':['Ingeniería de Sistemas','Ingeniería Industrial','Ingeniería Civil'],
+      'Salud':['Enfermería','Fisioterapia'],
+      'Ciencias Económicas':['Administración de Empresas','Contaduría'],
+      'Educación':['Lic. Matemáticas','Lic. Lengua']
+    };
+    const PROGRAMAS=Object.values(FACULTADES).flat();
+
+    // ====== Estado persistente ======
+    const storeKey='empresa.portal.v12';
+    let DATA=JSON.parse(localStorage.getItem(storeKey)||'null');
+    if(!DATA){
+      DATA={
+        empresa:{nit:'900123456',razon:'Tecnologías Ejemplo S.A.S.',rep:'María Pérez',direccion:'Calle 123 #45-67'},
+        convenios:[
+          {id:'CNV-2025-001',tipo:'Escenario',dependencia:'Operaciones',fini:'2025-02-01',ffin:'2025-12-31',vacSol:10,vacAsig:6,estado:'Vigente',docs:['Minuta propuesta','Política de datos','Cámara de Comercio'],comentarios:[{txt:'Aprobado por jurídica',ts:'2025-01-15'}]},
+          {id:'CNV-2024-112',tipo:'Autónoma',dependencia:'TI',fini:'2024-03-01',ffin:'2025-01-31',vacSol:4,vacAsig:4,estado:'Cerrado',docs:['Carta de intención','Política de datos','RUT','ARL'],comentarios:[]},
+          {id:'CNV-2025-015',tipo:'Cooperación',dependencia:'Talento',fini:'2025-08-01',ffin:'2026-07-31',vacSol:3,vacAsig:1,estado:'Solicitado',docs:['Propuesta técnica'],comentarios:[]}
+        ],
+        solicitudes:[
+          {id:'SOL-2025-1001',dependencia:'Operaciones',solicitante:'Carlos Gómez',correo:'carlos@ejemplo.com',telefono:'3001112233',fecha:'2025-11-01',programa:'Ingeniería de Sistemas',tipo:'Contrato de aprendizaje SENA',cantidad:3,descripcion:'Soporte N1 y automatización',estado:'Enviada',asignados:0},
+          {id:'SOL-2025-1002',dependencia:'TI',solicitante:'Ana Ruiz',correo:'ana@ejemplo.com',telefono:'3002223344',fecha:'2025-10-20',programa:'Administración de Empresas',tipo:'Pasantia remunerada',cantidad:2,descripcion:'Gestión documental y BI',estado:'En proceso',asignados:1}
+        ]
+      };
+      localStorage.setItem(storeKey,JSON.stringify(DATA));
+    }
+
+    // ====== Estado UI (convenios) ======
+    let filters={tipo:'',estado:'',rango:''};
+    let page=1; let pageSize=15;
+
+    // ====== Estado UI (solicitudes) ======
+    let pageSol=1; let pageSizeSol=15;
+// ====== Modo oscuro/claro con persistencia ======
+(function(){
+  const KEY='ui.theme';
+  const root=document.documentElement;
+  const sw=document.getElementById('darkModeSwitch');
+  function apply(theme){
+    const t=(theme==='dark')?'dark':'light';
+    root.setAttribute('data-bs-theme', t);
+    if(sw) sw.checked = (t==='dark');
+    localStorage.setItem(KEY, t);
+  }
+  const saved = localStorage.getItem(KEY) || (root.getAttribute('data-bs-theme')||'light');
+  apply(saved);
+  if(sw){
+    sw.addEventListener('change', ()=> apply(sw.checked?'dark':'light'));
+  }
+})();
+
+
+
+    // ====== Guía (persistencia mostrar/ocultar) ======
+    (function(){
+      const KEY='institucional.guide.hidden';
+      const sec=document.getElementById('guide');
+      const badge=document.getElementById('guideState');
+      const btn=document.getElementById('btnHideGuide');
+      const body=document.getElementById('guideBody');
+      function apply(){
+        const hidden=localStorage.getItem(KEY)==='1';
+        if(!sec||!badge||!body) return;
+        if(hidden){
+          body.classList.add('d-none'); // ocultamos SOLO el cuerpo, no toda la sección
+          badge.textContent='Oculta';
+          badge.className='badge text-bg-secondary';
+          if(btn){ btn.innerHTML='<i class="bi bi-eye"></i> Mostrar guía'; btn.setAttribute('aria-label','Mostrar guía'); btn.setAttribute('aria-expanded','false'); }
+        } else {
+          body.classList.remove('d-none');
+          badge.textContent='Visible';
+          badge.className='badge text-bg-success';
+          if(btn){ btn.innerHTML='<i class="bi bi-eye-slash"></i> Ocultar guía'; btn.setAttribute('aria-label','Ocultar guía'); btn.setAttribute('aria-expanded','true'); }
+        }
+      }
+      if(btn){
+        btn.addEventListener('click',()=>{
+          const hidden=localStorage.getItem(KEY)==='1';
+          localStorage.setItem(KEY, hidden?'0':'1');
+          apply();
+        });
+      }
+      apply();
+    })();
+
+    // ====== KPIs ======
+    function refreshKPIs(){
+      const arr=datasetConv();
+      const total=arr.length; const vig=arr.filter(c=>c.estado==='Vigente').length; const por60=arr.filter(c=>withinDays(c.ffin,60)).length; const por30=arr.filter(c=>withinDays(c.ffin,30)).length;
+      const vacSol=arr.reduce((a,c)=>a+(c.vacSol||0),0); const vacAsig=arr.reduce((a,c)=>a+(c.vacAsig||0),0);
+      const sol=DATA.solicitudes; const env=sol.filter(s=>['Enviada','Recibida por Coordinador'].includes(s.estado)).length; const proc=sol.filter(s=>s.estado==='En proceso').length; const cand=sol.filter(s=>s.estado==='Con candidatos').length;
+      document.getElementById('kpiTotal').textContent=total; document.getElementById('kpiVig').textContent=vig; document.getElementById('kpi60').textContent=por60; document.getElementById('kpiPorVencer').textContent=por60; document.getElementById('kpi30').textContent=por30;
+      document.getElementById('kpiVacSol').textContent=vacSol; document.getElementById('kpiVacAsig').textContent=vacAsig;
+      document.getElementById('kpiSolEnv').textContent=env; document.getElementById('kpiSolProc').textContent=proc; document.getElementById('kpiSolCand').textContent=cand;
+    }
+
+    // ====== Dataset convenios ======
+    function datasetConv(){
+      const fromTo=(r)=>{const m=r.match(/^(\d{4})-(\d{2})\s*a\s*(\d{4})-(\d{2})$/); if(!m) return null; return {y1:+m[1],m1:+m[2],y2:+m[3],m2:+m[4]};};
+      return DATA.convenios.filter(c=> (
+        (!filters.tipo || c.tipo===filters.tipo) &&
+        (!filters.estado || c.estado===filters.estado) &&
+        (!filters.rango || ( ()=>{ const R=fromTo(filters.rango); if(!R) return true; const ci=new Date(c.fini); const cf=new Date(c.ffin); const r1=new Date(R.y1, R.m1-1, 1); const r2=new Date(R.y2, R.m2-1, 1); return (ci<=r2 && cf>=r1); })() )
+      ));
+    }
+
+    // ====== Render tabla convenios ======
+    function renderTablaConv(){
+      const arr=datasetConv();
+      const tbody=document.getElementById('tbodyLista'); tbody.innerHTML='';
+      const totalPages=Math.max(1,Math.ceil(arr.length/pageSize)); if(page>totalPages) page=totalPages; const start=(page-1)*pageSize; const pageData=arr.slice(start,start+pageSize);
+      pageLabels(totalPages);
+      document.getElementById('lblCount').textContent=`(${arr.length})`;
+      pageData.forEach(c=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML=`
+          <td><div class="fw-semibold">${c.id}</div><div class="small text-body-secondary">${DATA.empresa.razon}</div></td>
+          <td><div class="fw-semibold">${c.tipo}</div><div class="small text-body-secondary">${c.dependencia}</div></td>
+          <td>${fmt(c.fini)} → ${fmt(c.ffin)}</td>
+          <td><span class="badge text-bg-primary">${c.vacAsig||0}</span> / <span class="badge text-bg-secondary">${c.vacSol||0}</span></td>
+          <td><span class="badge ${badgeEstadoConv(c.estado)}">${c.estado}</span></td>
+          <td>${(c.comentarios?.length||0)} comentarios</td>
+          <td class="text-end"><button class="btn btn-outline-secondary btn-sm" data-action="ver"><i class="bi bi-eye"></i></button></td>`;
+        tr.querySelector('[data-action="ver"]').addEventListener('click',()=> openSidepanelConvenio(c));
+        tbody.appendChild(tr);
+      });
+    }
+    function badgeEstadoConv(est){
+      const map={ 'Solicitado':'text-bg-secondary','En revisión':'text-bg-warning text-dark','Aprobado':'text-bg-info','Vigente':'text-bg-success','Vencido':'text-bg-danger','Cerrado':'text-bg-dark','Rechazado':'text-bg-danger'};
+      return map[est]||'text-bg-light';
+    }
+    function pageLabels(total){ const label=`Página ${page} de ${total}`; document.getElementById('lblPagina').textContent=label; document.getElementById('lblPaginaBottom').textContent=label; }
+
+    // ====== Sidepanel Convenio ======
+    const side=document.getElementById('sidepanel');
+    const sideBody=document.getElementById('sideBody');
+    document.getElementById('btnCloseSide').addEventListener('click',()=> side.classList.remove('open'));
+    function openSidepanelConvenio(c){
+      sideBody.innerHTML=`
+        <div class="mb-2 small text-body-secondary">Convenio</div>
+        <div class="mb-2"><b>${c.id}</b> – ${DATA.empresa.razon}</div>
+        <div><b>Tipo:</b> ${c.tipo} • <b>Dependencia:</b> ${c.dependencia}</div>
+        <div><b>Vigencia:</b> ${fmt(c.fini)} → ${fmt(c.ffin)}</div>
+        <hr/>
+        <div class="mb-2 small text-body-secondary">Documentos</div>
+        <div class="d-flex flex-column gap-2">${(c.docs||[]).map(n=>`<div class='doc-pill'><i class="bi bi-file-earmark"></i> ${n}</div>`).join('')}</div>
+        <hr/>
+        <div class="mb-2 small text-body-secondary">Comentarios</div>
+        <div class="d-flex flex-column gap-2" id="comentarios">${(c.comentarios||[]).map(cm=>`<div class='border rounded p-2 small'><b>${cm.ts}</b><br/>${cm.txt}</div>`).join('')||'<div class="text-body-secondary small">Sin comentarios</div>'}</div>
+      `;
+      side.classList.add('open');
+    }
+
+    // ====== Solicitud de Practicantes: catálogo programas ======
+    const selPrograma=document.getElementById('sPrograma');
+    PROGRAMAS.forEach(p=>{ const o=document.createElement('option'); o.value=p; o.textContent=p; selPrograma.appendChild(o); });
+
+    // ====== Helpers: convenio vigente para fecha dada ======
+    function hayConvenioVigente(fechaISO){
+      const f=new Date(fechaISO);
+      return DATA.convenios.some(c=> c.estado==='Vigente' && new Date(c.fini)<=f && f<=new Date(c.ffin));
+    }
+
+    // ====== Form Solicitud: eventos ======
+    document.getElementById('frmSolicitud').addEventListener('submit',(e)=>{
+      e.preventDefault();
+      // validación nativa
+      const form=e.target; if(!form.checkValidity()){ form.classList.add('was-validated'); return; }
+      const dep=document.getElementById('sDep').value.trim();
+      const nom=document.getElementById('sNom').value.trim();
+      const tel=document.getElementById('sTel').value.trim();
+      const mail=document.getElementById('sMail').value.trim();
+      const fecha=document.getElementById('sFecha').value;
+      const tipo=document.getElementById('sTipo').value;
+      const programa=document.getElementById('sPrograma').value;
+      const cant=+document.getElementById('sCant').value;
+      const desc=document.getElementById('sDesc').value.trim();
+
+      const id='SOL-'+ new Date().getFullYear() + '-' + String(Math.floor(Math.random()*9000)+1000);
+      const vigente=hayConvenioVigente(fecha);
+      const estado= vigente? 'Enviada':'En espera de convenio';
+      if(!vigente){ document.getElementById('alertConvenio').classList.remove('d-none'); }
+
+      DATA.solicitudes.unshift({id,dependencia:dep,solicitante:nom,correo:mail,telefono:tel,fecha:fecha,programa:programa,tipo:tipo,cantidad:cant,descripcion:desc,estado:estado,asignados:0});
+      localStorage.setItem(storeKey, JSON.stringify(DATA));
+      showToast('Solicitud registrada','success');
+      document.getElementById('tab-solicitudes').click();
+      renderTablaSol(); refreshKPIs();
+    });
+    document.getElementById('btnSolBorrador').addEventListener('click',()=>{ showToast('Borrador guardado localmente','secondary'); });
+
+    // ====== Solicitar Convenio: UI + eventos ======
+
+    const docsChecklist=document.getElementById('docsChecklist');
+    const selCTipo=document.getElementById('cTipo');
+
+    function renderDocsChecklist(tipo){
+      if(!docsChecklist) return;
+      const docs = DOCS_BY_TIPO[tipo] || [];
+      if(!docs.length){
+        docsChecklist.innerHTML = '<div class="text-body-secondary small">Selecciona un tipo para ver la lista.</div>';
+        return;
+      }
+      docsChecklist.innerHTML = docs.map((d,i)=>`
+        <div class="form-check border rounded p-2">
+          <input class="form-check-input" type="checkbox" id="doc_${i}" checked>
+          <label class="form-check-label" for="doc_${i}"><i class="bi bi-file-earmark"></i> ${d}</label>
+        </div>
+      `).join('');
+    }
+    selCTipo?.addEventListener('change', (e)=> renderDocsChecklist(e.target.value));
+
+    document.getElementById('btnAdjuntarMock')?.addEventListener('click', ()=>{
+      showToast('Adjunto cargado (mockup)','secondary');
+    });
+
+    document.getElementById('btnConBorrador')?.addEventListener('click', ()=>{
+      showToast('Borrador de convenio guardado localmente','secondary');
+    });
+
+    document.getElementById('frmConvenio')?.addEventListener('submit',(e)=>{
+      e.preventDefault();
+      const form=e.target;
+      if(!form.checkValidity()){
+        form.classList.add('was-validated');
+        showToast('Revisa los campos obligatorios','danger');
+        return;
+      }
+
+      const tipo=document.getElementById('cTipo').value;
+      const objeto=document.getElementById('cObjeto').value;
+      const estado=document.getElementById('cEstado').value || 'Solicitado';
+      const nombre=document.getElementById('cNombre').value.trim();
+      const tipoDoc=document.getElementById('cTipoDoc').value;
+      const nit=document.getElementById('cNIT').value.trim();
+      const tel=document.getElementById('cTel').value.trim();
+      const web=document.getElementById('cWeb').value.trim();
+      const dir=document.getElementById('cDir').value.trim();
+      const fini=document.getElementById('cFIni').value || new Date().toISOString().slice(0,10);
+      const ffin=document.getElementById('cFFin').value || new Date(new Date().getFullYear(),11,31).toISOString().slice(0,10);
+      const link=document.getElementById('cLink').value.trim();
+
+      // Responsable (mock)
+      const r = {
+        tipoDoc: document.getElementById('rTipoDoc').value,
+        doc: document.getElementById('rDoc').value.trim(),
+        nombres: document.getElementById('rNom').value.trim(),
+        apellidos: document.getElementById('rApe').value.trim(),
+        telefono: document.getElementById('rTel').value.trim(),
+        celular: document.getElementById('rCel').value.trim(),
+        habeas: document.getElementById('cHabeas').checked
+      };
+
+      // Docs seleccionados (mock)
+      const docsSel = Array.from(docsChecklist?.querySelectorAll('input[type="checkbox"]')||[])
+        .filter(x=>x.checked)
+        .map(x=>x.nextElementSibling?.innerText?.replace('📄','').trim())
+        .map(t=>t?.replace(/^/,'').trim())
+        .filter(Boolean);
+
+      const id='CNV-'+ new Date().getFullYear() + '-' + String(Math.floor(Math.random()*900)+100).padStart(3,'0');
+
+      // Persistimos en la misma data demo
+      DATA.empresa = {
+        ...DATA.empresa,
+        nit: nit || DATA.empresa.nit,
+        razon: nombre || DATA.empresa.razon,
+        direccion: dir || DATA.empresa.direccion
+      };
+
+      DATA.convenios.unshift({
+        id,
+        tipo,
+        dependencia: '—',
+        fini,
+        ffin,
+        vacSol: 0,
+        vacAsig: 0,
+        estado: estado==='Vigente'?'Solicitado':estado, // en mock lo dejamos solicitado al enviar
+        docs: docsSel.length?docsSel:['Documento convenio'],
+        comentarios: [{txt:`Solicitud creada por empresa. Objeto: ${objeto}. Link/Adjunto: ${link}. Web: ${web||'—'}. Tel: ${tel}. Responsable: ${r.nombres} ${r.apellidos} (${r.doc}).`, ts:new Date().toISOString().slice(0,10)}]
+      });
+
+      localStorage.setItem(storeKey, JSON.stringify(DATA));
+      showToast('Convenio solicitado','success');
+
+      // Navega a lista y refresca
+      document.getElementById('tab-lista')?.click();
+      refreshKPIs(); renderTablaConv();
+
+      // limpia (opcional)
+      form.reset();
+      renderDocsChecklist('');
+      form.classList.remove('was-validated');
+    });
+
+
+    // ====== Tabla Solicitudes ======
+    function renderTablaSol(){
+      const arr=DATA.solicitudes;
+      const tbody=document.getElementById('tbodySol'); tbody.innerHTML='';
+      const totalPages=Math.max(1,Math.ceil(arr.length/pageSizeSol)); if(pageSol>totalPages) pageSol=totalPages; const start=(pageSol-1)*pageSizeSol; const pageData=arr.slice(start,start+pageSizeSol);
+      document.getElementById('lblCountSol').textContent=`(${arr.length})`;
+      const label=`Página ${pageSol} de ${totalPages}`; document.getElementById('lblPaginaSol').textContent=label; document.getElementById('lblPaginaBottomSol').textContent=label;
+      pageData.forEach(s=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML=`
+          <td>${s.id}</td>
+          <td>${s.dependencia}</td>
+          <td>${s.programa}</td>
+          <td>${s.tipo}</td>
+          <td>${fmt(s.fecha)}</td>
+          <td>${s.cantidad}</td>
+          <td><span class="badge ${badgeEstadoSol(s.estado)}">${s.estado}</span></td>
+          <td>${s.asignados||0}</td>
+          <td class="text-end"><button class="btn btn-outline-secondary btn-sm" data-action="ver"><i class="bi bi-eye"></i></button></td>`;
+        tr.querySelector('[data-action="ver"]').addEventListener('click',()=> openSidepanelSolicitud(s));
+        tbody.appendChild(tr);
+      });
+    }
+    function badgeEstadoSol(est){
+      const map={ 'Borrador':'text-bg-secondary','Enviada':'text-bg-info','Recibida por Coordinador':'text-bg-primary','En proceso':'text-bg-warning text-dark','Con candidatos':'text-bg-success','Cerrada':'text-bg-dark','En espera de convenio':'text-bg-danger'};
+      return map[est]||'text-bg-light';
+    }
+
+    // ====== Sidepanel Solicitud ======
+    function openSidepanelSolicitud(s){
+      sideBody.innerHTML=`
+        <div class="mb-2 small text-body-secondary">Solicitud</div>
+        <div class="mb-2"><b>${s.id}</b> – ${DATA.empresa.razon}</div>
+        <div><b>Dependencia:</b> ${s.dependencia}</div>
+        <div><b>Solicitante:</b> ${s.solicitante} • ${s.telefono} • ${s.correo}</div>
+        <div><b>Programa:</b> ${s.programa} • <b>Tipo:</b> ${s.tipo}</div>
+        <div><b>Fecha requerida:</b> ${fmt(s.fecha)} • <b>Cantidad:</b> ${s.cantidad}</div>
+        <hr/>
+        <div class="mb-2 small text-body-secondary">Descripción</div>
+        <div class="border rounded p-2 small">${s.descripcion||''}</div>
+        <hr/>
+        <div class="mb-2 small text-body-secondary">Asignaciones</div>
+        <div class="small">Estudiantes asignados: <b>${s.asignados||0}</b></div>
+      `;
+      side.classList.add('open');
+    }
+
+    // ====== Filtros y acciones de lista (convenios) ======
+    document.getElementById('btnBuscar').addEventListener('click', applyFilters);
+    document.getElementById('btnLimpiar').addEventListener('click', clearFilters);
+    document.getElementById('btnExportar').addEventListener('click', ()=> showToast('Exportación XLSX (integrar servidor/SaaS)','primary'));
+    document.getElementById('btnPDF').addEventListener('click', ()=> showToast('Exportación PDF (integrar servidor)','primary'));
+    document.getElementById('btnPrev').addEventListener('click', ()=>{ if(page>1){ page--; renderTablaConv(); }});
+    document.getElementById('btnNext').addEventListener('click', ()=>{ const totalPages=Math.max(1,Math.ceil(datasetConv().length/pageSize)); if(page<totalPages){ page++; renderTablaConv(); }});
+    document.getElementById('pageSize').addEventListener('change', (e)=>{ pageSize=+e.target.value; page=1; renderTablaConv(); });
+
+    function applyFilters(){ page=1; refreshKPIs(); renderTablaConv(); }
+    function clearFilters(){ filters={tipo:'',estado:'',rango:''}; document.getElementById('fTipo').value=''; document.getElementById('fEstado').value=''; document.getElementById('fRango').value=''; applyFilters(); }
+
+    document.getElementById('fTipo').addEventListener('change', e=>{ filters.tipo=e.target.value; });
+    document.getElementById('fEstado').addEventListener('change', e=>{ filters.estado=e.target.value; });
+    document.getElementById('fRango').addEventListener('input', e=>{ filters.rango=e.target.value.trim(); });
+
+    // ====== Paginación solicitudes ======
+    document.getElementById('btnPrevSol').addEventListener('click', ()=>{ if(pageSol>1){ pageSol--; renderTablaSol(); }});
+    document.getElementById('btnNextSol').addEventListener('click', ()=>{ const totalPages=Math.max(1,Math.ceil(DATA.solicitudes.length/pageSizeSol)); if(pageSol<totalPages){ pageSol++; renderTablaSol(); }});
+    document.getElementById('pageSizeSol').addEventListener('change', (e)=>{ pageSizeSol=+e.target.value; pageSol=1; renderTablaSol(); });
+
+    // ====== Init ======
+    function init(){
+      // fill filtros tipo
+      TIPOS.forEach(t=>{ const o=document.createElement('option'); o.value=t; o.textContent=t; document.getElementById('fTipo').appendChild(o); });
+      // defaults formulario convenio
+      try{
+        document.getElementById('cNombre').value = DATA.empresa.razon || '';
+        document.getElementById('cNIT').value = DATA.empresa.nit || '';
+        document.getElementById('cDir').value = DATA.empresa.direccion || '';
+      }catch(e){}
+
+      refreshKPIs(); renderTablaConv(); renderTablaSol();
+    }
+    init();
+
+// ====== Navegación por hash (soporta links del sidebar a tabs) ======
+function activateTabFromHash(){
+  const h = (location.hash || '').replace('#','');
+  if(!h) return;
+  const pane = document.getElementById(h);
+  if(!pane) return;
+  const btn = document.querySelector(`[data-bs-target="#${h}"]`);
+  if(btn){
+    try{ bootstrap.Tab.getOrCreateInstance(btn).show(); }catch(e){}
+  }
+}
+window.addEventListener('hashchange', activateTabFromHash);
+
+// ====== Perfil: modo ver/editar (mock) ======
+(function(){
+  const form = document.getElementById('frmPerfilEmpresa');
+  const btnEdit = document.getElementById('btnEditarPerfil');
+  const btnSave = document.getElementById('btnGuardarPerfil');
+  const btnCancel = document.getElementById('btnCancelarPerfil');
+  const editables = ()=> Array.from(document.querySelectorAll('.perfil-edit'));
+  let snapshot = null;
+
+  const CONTACTS_KEY = 'empresa.perfil.contactos.v2';
+  const CONTACT_KEY_LEGACY = 'empresa.perfil.contacto.v1';
+
+  const contactosContainer = document.getElementById('contactosContainer');
+  const btnAddContacto = document.getElementById('btnAddContacto');
+
+  let editMode = false;
+
+  function q(id){ return document.getElementById(id); }
+
+  function getContactPayloadByIndex(i){
+    return {
+      nombre: (q(`contactoNombre_${i}`)?.value || '').trim(),
+      tipoDoc: (q(`contactoTipoDoc_${i}`)?.value || '').trim(),
+      documento: (q(`contactoDocumento_${i}`)?.value || '').trim(),
+      cargo: (q(`contactoCargo_${i}`)?.value || '').trim(),
+      celular: (q(`contactoCelular_${i}`)?.value || '').trim(),
+      correo: (q(`contactoCorreo_${i}`)?.value || '').trim()
+    };
+  }
+
+  function setContactPayloadByIndex(i, data){
+    if(!data) return;
+    const set=(id,val)=>{ const el=q(id); if(el) el.value = val ?? ''; };
+    set(`contactoNombre_${i}`, data.nombre);
+    set(`contactoTipoDoc_${i}`, data.tipoDoc);
+    set(`contactoDocumento_${i}`, data.documento);
+    set(`contactoCargo_${i}`, data.cargo);
+    set(`contactoCelular_${i}`, data.celular);
+    set(`contactoCorreo_${i}`, data.correo);
+  }
+
+  function hasAnyData(d){
+    return !!(d && (d.nombre || d.tipoDoc || d.documento || d.cargo || d.celular || d.correo));
+  }
+
+  function makeContactCard(i, data){
+    const div = document.createElement('div');
+    div.className = 'border rounded p-3 bg-body-tertiary contact-card';
+    div.dataset.index = String(i);
+    div.innerHTML = `
+      <div class="d-flex align-items-center justify-content-between mb-2">
+        <div class="fw-semibold small text-body-secondary">Contacto #${i+1}</div>
+        <button type="button" class="btn btn-outline-danger btn-sm btn-del-contacto ${editMode?'':'d-none'}" data-index="${i}">
+          <i class="bi bi-trash"></i> Eliminar
+        </button>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-12 col-md-6">
+          <label class="form-label">Nombre completo</label>
+          <input class="form-control perfil-edit" id="contactoNombre_${i}" ${editMode?'':'disabled'} placeholder="Ej. Juan Pérez">
+        </div>
+
+        <div class="col-12 col-md-3">
+          <label class="form-label">Tipo de documento</label>
+          <select class="form-select perfil-edit" id="contactoTipoDoc_${i}" ${editMode?'':'disabled'}>
+            <option value="">Seleccione…</option>
+            <option>CC</option>
+            <option>CE</option>
+            <option>Pasaporte</option>
+            <option>NIT</option>
+          </select>
+        </div>
+
+        <div class="col-12 col-md-3">
+          <label class="form-label">Documento de identidad</label>
+          <input class="form-control perfil-edit" id="contactoDocumento_${i}" ${editMode?'':'disabled'} placeholder="Ej. 123456789">
+        </div>
+
+        <div class="col-12 col-md-6">
+          <label class="form-label">Cargo desempeñado dentro de la empresa</label>
+          <input class="form-control perfil-edit" id="contactoCargo_${i}" ${editMode?'':'disabled'} placeholder="Ej. Coordinador de Talento Humano">
+        </div>
+
+        <div class="col-12 col-md-3">
+          <label class="form-label">Celular</label>
+          <input class="form-control perfil-edit" id="contactoCelular_${i}" ${editMode?'':'disabled'} placeholder="Ej. 3001234567">
+        </div>
+
+        <div class="col-12 col-md-3">
+          <label class="form-label">Correo electrónico</label>
+          <input class="form-control perfil-edit" id="contactoCorreo_${i}" type="email" ${editMode?'':'disabled'} placeholder="contacto@empresa.com">
+        </div>
+      </div>
+    `;
+    if(data) setContactPayloadByIndex(i, data);
+    return div;
+  }
+
+  function renderContacts(list){
+    if(!contactosContainer) return;
+    contactosContainer.innerHTML = '';
+    const safe = Array.isArray(list) ? list : [];
+    const use = safe.length ? safe : [ {} ]; // siempre al menos 1
+    use.forEach((d, idx)=>{
+      contactosContainer.appendChild(makeContactCard(idx, d));
+    });
+  }
+
+  function readContactsListFromLS(){
+    // v2 (lista)
+    try{
+      const raw = localStorage.getItem(CONTACTS_KEY);
+      if(raw){
+        const parsed = JSON.parse(raw);
+        if(Array.isArray(parsed)) return parsed;
+      }
+    }catch(e){}
+
+    // legacy v1 (1 contacto)
+    try{
+      const legacy = localStorage.getItem(CONTACT_KEY_LEGACY);
+      if(legacy){
+        const one = JSON.parse(legacy);
+        const list = hasAnyData(one) ? [one] : [];
+        localStorage.setItem(CONTACTS_KEY, JSON.stringify(list)); // migración suave
+        return list;
+      }
+    }catch(e){}
+
+    return [];
+  }
+
+  function loadContactsFromLS(){
+    const list = readContactsListFromLS();
+    renderContacts(list.length ? list : [ {} ]);
+  }
+
+  function saveContactsToLS(){
+    const cards = Array.from(document.querySelectorAll('.contact-card'));
+    const list = cards.map(card=>{
+      const i = Number(card.dataset.index || '0');
+      return getContactPayloadByIndex(i);
+    }).filter(hasAnyData);
+
+    // si no hay datos, igual dejamos lista vacía
+    localStorage.setItem(CONTACTS_KEY, JSON.stringify(list));
+  }
+
+  function addNewContact(){
+    if(!contactosContainer) return;
+    const next = Array.from(contactosContainer.querySelectorAll('.contact-card')).length;
+    contactosContainer.appendChild(makeContactCard(next, {}));
+  }
+
+  btnAddContacto?.addEventListener('click', ()=>{
+    addNewContact();
+    showToast('Nuevo contacto agregado','secondary');
+  });
+
+  // Eliminar contacto (sin límite de contactos, mínimo 1 visible)
+  function removeContactAt(index){
+    const cards = Array.from(document.querySelectorAll('.contact-card'));
+    const listAll = cards.map(card=>{
+      const i = Number(card.dataset.index || '0');
+      return getContactPayloadByIndex(i);
+    });
+    if(index < 0 || index >= listAll.length) return;
+
+    // 1) UI: removemos del DOM (mínimo 1 tarjeta visible)
+    if(listAll.length === 1){
+      renderContacts([{}]);
+    } else {
+      listAll.splice(index, 1);
+      renderContacts(listAll);
+    }
+
+    // 2) Persistencia inmediata SOLO para borrado:
+    //    actualizamos la lista base (lo que estaba guardado) y lo escribimos en localStorage.
+    //    Si el contacto borrado era "nuevo" (no estaba en base), no tocamos el LS.
+    if(index < (contactsBaseline?.length || 0)){
+      contactsBaseline.splice(index, 1);
+      localStorage.setItem(CONTACTS_KEY, JSON.stringify(contactsBaseline));
+    } else if((contactsBaseline?.length || 0) === 1 && index === 0){
+      // Caso borde: si había 1 guardado y se borra, dejamos lista vacía.
+      contactsBaseline = [];
+      localStorage.setItem(CONTACTS_KEY, JSON.stringify([]));
+    }
+
+    // Mantener visibilidad del botón "Añadir" (solo en edición)
+    if(btnAddContacto) btnAddContacto.classList.toggle('d-none', !editMode);
+
+    showToast('Contacto eliminado','secondary');
+  }
+
+  contactosContainer?.addEventListener('click', (ev)=>{
+    if(!editMode) return;
+    const btn = ev.target.closest('.btn-del-contacto');
+    if(!btn) return;
+    const idx = Number(btn.getAttribute('data-index') || btn.closest('.contact-card')?.dataset?.index || '0');
+    removeContactAt(idx);
+  });
+
+function setEditMode(on){
+    editMode = !!on;
+    editables().forEach(el=>{ el.disabled = !on; });
+    if(btnAddContacto) btnAddContacto.classList.toggle('d-none', !on);
+    // Botón eliminar: solo visible/habilitado en modo edición
+    document.querySelectorAll('.btn-del-contacto').forEach(b=>{
+      b.classList.toggle('d-none', !on);
+      b.disabled = !on;
+    });
+
+    editables().forEach(el=>{ el.disabled = !on; });
+    if(btnEdit) btnEdit.classList.toggle('d-none', on);
+    if(btnSave) btnSave.classList.toggle('d-none', !on);
+    if(btnCancel) btnCancel.classList.toggle('d-none', !on);
+  }
+
+  function takeSnapshot(){
+    snapshot = editables().map(el=>({
+      id: el.id,
+      type: el.type,
+      value: (el.type==='checkbox') ? el.checked : el.value
+    }));
+  }
+  function restoreSnapshot(){
+    if(!snapshot) return;
+    snapshot.forEach(s=>{
+      const el = s.id ? document.getElementById(s.id) : null;
+      if(!el) return;
+      if(el.type==='checkbox') el.checked = !!s.value;
+      else el.value = s.value ?? '';
+    });
+  }
+
+  btnEdit?.addEventListener('click', ()=>{
+    takeSnapshot();
+    // Base guardada (sirve para que ELIMINAR persista sin requerir Guardar)
+    contactsBaseline = (readContactsListFromLS() || []).slice();
+    setEditMode(true);
+    showToast('Edición habilitada (mockup)','secondary');
+  });
+
+  btnCancel?.addEventListener('click', ()=>{
+    restoreSnapshot();
+    
+    loadContactsFromLS();
+setEditMode(false);
+    showToast('Cambios descartados','secondary');
+    form?.classList.remove('was-validated');
+  });
+
+  form?.addEventListener('submit', (e)=>{
+    e.preventDefault();
+    if(!form.checkValidity()){
+      form.classList.add('was-validated');
+      showToast('Revisa los campos obligatorios','danger');
+      return;
+    }
+    saveContactsToLS();
+    setEditMode(false);
+    showToast('Perfil actualizado (mockup)','success');
+  });
+
+  // Inicial
+  loadContactsFromLS();
+  activateTabFromHash();
+})();
+
+  
+// ====== Botón "Mostrar Guía" en la barra superior (sincronizado) ======
+(function(){
+  const KEY='institucional.guide.hidden';
+  const hdrBtn=document.getElementById('btnToggleGuideHeader');
+  if(!hdrBtn) return;
+  function syncButtons(){
+    const hidden=localStorage.getItem(KEY)==='1';
+    hdrBtn.innerHTML = hidden ? '<i class="bi bi-journal-bookmark"></i> Mostrar Guía'
+                              : '<i class="bi bi-journal-x"></i> Ocultar Guía';
+  }
+  function applyToGuide(){
+    const hidden=localStorage.getItem(KEY)==='1';
+    const body=document.getElementById('guideBody');
+    const badge=document.getElementById('guideState');
+    const btn=document.getElementById('btnHideGuide');
+    if(body && badge){
+      if(hidden){
+        body.classList.add('d-none');
+        badge.textContent='Oculta';
+        badge.className='badge text-bg-secondary';
+      } else {
+        body.classList.remove('d-none');
+        badge.textContent='Visible';
+        badge.className='badge text-bg-success';
+      }
+    }
+    if(btn){
+      if(hidden){
+        btn.innerHTML='<i class="bi bi-eye"></i> Mostrar guía';
+        btn.setAttribute('aria-label','Mostrar guía');
+        btn.setAttribute('aria-expanded','false');
+      } else {
+        btn.innerHTML='<i class="bi bi-eye-slash"></i> Ocultar guía';
+        btn.setAttribute('aria-label','Ocultar guía');
+        btn.setAttribute('aria-expanded','true');
+      }
+    }
+  }
+  hdrBtn.addEventListener('click', ()=>{
+    const hidden=localStorage.getItem(KEY)==='1';
+    localStorage.setItem(KEY, hidden?'0':'1');
+    applyToGuide();
+    syncButtons();
+  });
+  // Inicial
+  applyToGuide();
+  syncButtons();
+})();
+
+</script>
+
+</div><!-- /.shell-main -->
+<script>
+// ===== Shell: lógica de navegación unificada =====
+(function(){
+  const body=document.body;
+  const btn=document.getElementById('toggleSidebar');
+  const overlay=document.getElementById('overlay');
+  const LS_KEY='sidebar-state';
+  const ROLE_KEY='active-role';
+  const THEME_KEY='ui.theme';
+  const darkTop=document.getElementById('darkModeSwitchTop');
+  const darkOld=document.getElementById('darkModeSwitch'); // compat con página
+  const isMobile=()=> window.matchMedia('(max-width:768px)').matches;
+
+  function setBtn(){
+    const isOpen=body.classList.contains('sidebar-open');
+    const isCollapsed=body.classList.contains('sidebar-collapsed');
+    const html = isMobile() ? (isOpen?'<i class="fa-solid fa-xmark"></i>':'<i class="fa-solid fa-bars"></i>')
+                            : (isCollapsed?'<i class="fa-solid fa-bars"></i>':'<i class="fa-solid fa-xmark"></i>');
+    if(btn){ btn.innerHTML = html; btn.setAttribute('aria-expanded', (isMobile()?isOpen:!isCollapsed) ? 'true':'false'); }
+  }
+  function applyDesktopState(){
+    const saved=localStorage.getItem(LS_KEY)||'collapsed';
+    if(saved==='expanded') body.classList.remove('sidebar-collapsed');
+    else body.classList.add('sidebar-collapsed');
+  }
+  function openMobile(){ body.classList.add('sidebar-open'); }
+  function closeMobile(){ body.classList.remove('sidebar-open'); }
+  function toggle(){
+    if(isMobile()){
+      body.classList.contains('sidebar-open') ? closeMobile() : openMobile();
+    } else {
+      body.classList.toggle('sidebar-collapsed');
+      localStorage.setItem(LS_KEY, body.classList.contains('sidebar-collapsed')?'collapsed':'expanded');
+    }
+    setBtn();
+  }
+  function initTooltips(){
+    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el=>{ try{ new bootstrap.Tooltip(el);}catch(e){} });
+  }
+  function applyTheme(t){
+    const theme=(t==='dark')?'dark':'light';
+    document.documentElement.setAttribute('data-bs-theme', theme);
+    if(darkTop) darkTop.checked = (theme==='dark');
+    if(darkOld) darkOld.checked = (theme==='dark');
+    localStorage.setItem(THEME_KEY, theme);
+  }
+  function initTheme(){
+    const saved=localStorage.getItem(THEME_KEY) || document.documentElement.getAttribute('data-bs-theme') || 'light';
+    applyTheme(saved);
+    if(darkTop) darkTop.addEventListener('change', ()=> applyTheme(darkTop.checked?'dark':'light'));
+    if(darkOld) darkOld.addEventListener('change', ()=> applyTheme(darkOld.checked?'dark':'light'));
+  }
+function initRole(){
+  const roleLabel = document.getElementById('currentRoleLabel');
+  const applyRole = (r)=>{ 
+    if(roleLabel) roleLabel.textContent = r; 
+    localStorage.setItem('active-role', r); 
+  };
+
+  // Cargar rol guardado
+  applyRole(localStorage.getItem('active-role') || 'Empresa');
+
+  // Manejo de clics: guardar rol y *permitir* la navegación si hay href real
+  document.querySelectorAll('.role-option').forEach(a=>{
+    a.addEventListener('click', (e)=>{
+      const r   = a.getAttribute('data-role');
+      const url = a.getAttribute('href');
+
+      if(r) applyRole(r); // persistimos antes de salir
+
+      // Si hay URL real y no es "#", dejamos que el navegador navegue.
+      // Respetamos Ctrl/⌘-click y target="_blank".
+      const hasRealHref = url && url !== '#';
+      const newTab = e.metaKey || e.ctrlKey || a.target === '_blank';
+      if (hasRealHref && !newTab) {
+        // NO hacemos preventDefault -> deja navegar normalmente
+        return;
+      }
+
+      // Solo evitamos por completo si no hay destino real
+      e.preventDefault();
+    });
+  });
+}
+
+function initNet(){
+  const pill=document.getElementById('netPill');
+  const lbl=document.getElementById('netLabel');
+  const update=()=>{ 
+    const on=navigator.onLine;
+    if(lbl) lbl.textContent = on ? 'Online' : 'Offline';
+    if(pill) pill.className = 'shell-net ' + (on ? 'text-bg-success' : 'text-bg-danger');
+  };
+  window.addEventListener('online', update);
+  window.addEventListener('offline', update);
+  update();
+}
+
+  function initGuideSync(){
+    const KEY='institucional.guide.hidden';
+    const hdrBtn=document.getElementById('btnToggleGuideHeader');
+    const body=document.getElementById('guideBody');
+    const badge=document.getElementById('guideState');
+    const btn=document.getElementById('btnHideGuide');
+    function apply(){
+      const hidden=localStorage.getItem(KEY)==='1';
+      if(body && badge){
+        if(hidden){ body.classList.add('d-none'); badge.textContent='Oculta'; badge.className='badge text-bg-secondary'; }
+        else { body.classList.remove('d-none'); badge.textContent='Visible'; badge.className='badge text-bg-success'; }
+      }
+      if(hdrBtn) hdrBtn.innerHTML = hidden ? '<i class="fa-solid fa-book"></i> Mostrar Guía' : '<i class="fa-solid fa-book-open"></i> Ocultar Guía';
+      if(btn){
+        if(hidden){ btn.innerHTML='<i class="bi bi-eye"></i> Mostrar guía'; btn.setAttribute('aria-expanded','false'); }
+        else { btn.innerHTML='<i class="bi bi-eye-slash"></i> Ocultar guía'; btn.setAttribute('aria-expanded','true'); }
+      }
+    }
+    if(hdrBtn){ hdrBtn.addEventListener('click', ()=>{ const hidden=localStorage.getItem(KEY)==='1'; localStorage.setItem(KEY, hidden?'0':'1'); apply(); }); }
+    apply();
+  }
+  function init(){
+    if(isMobile()){ closeMobile(); } else { applyDesktopState(); }
+    if(btn) btn.addEventListener('click', toggle);
+    if(overlay) overlay.addEventListener('click', ()=>{ if(isMobile()){ closeMobile(); setBtn(); } });
+    window.addEventListener('resize', ()=>{ if(isMobile()){ closeMobile(); } else { body.classList.remove('sidebar-open'); applyDesktopState(); } setBtn(); });
+    initTooltips(); initTheme(); initRole(); initNet(); initGuideSync(); setBtn();
+  }
+  init();
+
+// Activo en sidebar según hash
+function syncSidebarActive(){
+  const h = location.hash || '';
+  document.querySelectorAll('.shell-menu .shell-link').forEach(a=>a.classList.remove('active'));
+  const sel = document.querySelector(`.shell-menu .shell-link[href$="${h}"]`);
+  if(sel) sel.classList.add('active');
+}
+window.addEventListener('hashchange', syncSidebarActive);
+syncSidebarActive();
+})();
+</script>
+</html>

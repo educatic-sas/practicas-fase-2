@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Proceso de Práctica — con barra unificada</title>
+  <!-- Mantengo versiones originales para evitar conflictos -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+  <style>
+    :root{
+      --sidebar-w: 250px;
+      --sidebar-mini: 72px;
+      --sidebar-bg: #1c1f26;
+      --topbar-h: 56px;
+    }
+    html, body { height: 100%; }
+    body{ background:#f7f9fb; margin:0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; }
+
+    /* ===== Topbar ===== */
+    .topbar{ height:var(--topbar-h); background:#212529; color:#fff; display:flex; align-items:center; gap:.75rem; padding:0 1rem; position:sticky; top:0; z-index:1080; box-shadow:0 2px 8px rgba(0,0,0,.12); }
+    .btn-toggle{ background:none; border:none; color:#fff; font-size:1.35rem; line-height:1; padding:.25rem .5rem; border-radius:.5rem; }
+
+    /* ===== Sidebar ===== */
+    .sidebar{ position:fixed; inset:var(--topbar-h) auto 0 0; width:var(--sidebar-w); background:var(--sidebar-bg); color:#fff; padding:1rem .75rem; overflow-y:auto; transition: transform .28s ease, width .28s ease; z-index:1070; }
+    .brand{ padding:.25rem .5rem .75rem; margin-bottom:.25rem; border-bottom:1px dashed rgba(255,255,255,.08); }
+    .nav-section-title{ color:#adb5bd; font-size:.75rem; letter-spacing:.08em; text-transform:uppercase; padding:.5rem .75rem; }
+    .menu{ display:grid; gap:.25rem; margin:.25rem 0 1.25rem; }
+    .menu-link{ display:flex; align-items:center; gap:.75rem; color:#e9ecef; text-decoration:none; padding:.5rem .75rem; border-radius:.5rem; transition: background .2s, color .2s; }
+    .menu-link .icon{ width:24px; text-align:center; font-size:1.05rem; }
+    .menu-link .label{ white-space:nowrap; }
+    .menu-link:hover{ background:#0d6efd; color:#fff; }
+    .menu-link.active{ background:#0d6efd; color:#fff; }
+    .submenu .menu-link{ padding-left:2.5rem; }
+
+    /* ===== Avatar compuesto (fallback + badge de rol) ===== */
+    .avatar-wrapper{ width:80px; height:80px; margin:0 auto; position:relative; }
+    .avatar-fallback{ width:100%; height:100%; background:#0b111a; border:2px solid #fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:1.5rem; color:#fff; }
+    .avatar-img{ width:100%; height:100%; object-fit:cover; border-radius:50%; border:2px solid #fff; }
+    .role-badge{ position:absolute; bottom:-6px; right:-6px; background:#0d6efd; color:#fff; font-size:.65rem; padding:.2rem .45rem; border-radius:999px; box-shadow:0 2px 6px rgba(0,0,0,.3); white-space:nowrap; }
+
+    /* ===== Main ===== */
+    .main-content{ padding:1.25rem; margin-top:var(--topbar-h); margin-left:var(--sidebar-w); transition: margin-left .28s ease; min-height:calc(100dvh - var(--topbar-h)); }
+    /* Mantengo estilos propios de la página original */
+    .container-narrow{ max-width:1100px; }
+    .stepper{ display:flex; gap:.5rem; flex-wrap:wrap; align-items:center; }
+    .step{ padding:.35rem .7rem; border-radius:.6rem; background:#6c757d; color:#fff; font-weight:600; }
+    .step.active{ background:#198754; }
+    .card-rounded{ border-radius:1rem; }
+    .prereq-list{ list-style:none; padding:0; margin:0; }
+    .prereq-list li{ display:flex; justify-content:space-between; align-items:center; padding:.5rem 0; border-bottom:1px solid #dee2e6; }
+    .prereq-list li:last-child{ border-bottom:none; }
+
+    /* ===== Overlay (móvil) ===== */
+    .overlay{ position:fixed; inset:var(--topbar-h) 0 0 0; background:rgba(0,0,0,.45); z-index:1060; display:none; }
+
+    /* ===== Estados ===== */
+    body.sidebar-collapsed .sidebar{ width:var(--sidebar-mini); }
+    body.sidebar-collapsed .main-content{ margin-left:var(--sidebar-mini); }
+    body.sidebar-collapsed .menu-link .label,
+    body.sidebar-collapsed .user-info,
+    body.sidebar-collapsed .brand .label,
+    body.sidebar-collapsed .nav-section-title{ display:none !important; }
+
+    @media (max-width:768px){
+      .sidebar{ transform:translateX(-100%); width:var(--sidebar-w); }
+      body.sidebar-open .sidebar{ transform:translateX(0); }
+      .main-content{ margin-left:0; }
+      body.sidebar-open .overlay{ display:block; }
+    }
+    @media (prefers-reduced-motion:reduce){ .sidebar, .main-content{ transition:none; } }
+  
+/* ========== Patch anti-scroll horizontal en colapso ========== */
+html, body { overflow-x: hidden; }
+.sidebar { overflow-x: hidden; }
+
+body.sidebar-collapsed .menu-link{
+  justify-content: center;           /* centra solo el ícono */
+  padding-left: .5rem !important;    /* elimina padding lateral excesivo */
+  padding-right: .5rem !important;
+}
+body.sidebar-collapsed .submenu .menu-link{
+  padding-left: .5rem !important;    /* quita la indentación del submenú en mini */
+}
+body.sidebar-collapsed .menu-link .label{ display:none !important; }
+body.sidebar-collapsed .menu-link .icon{ width:24px; }
+
+/* Evita que un submenu abierto empuje el ancho en modo mini */
+body.sidebar-collapsed .submenu .collapse.show{
+  display: none !important;
+}
+</style>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+<style>
+    :root{--shadow-1:0 8px 24px rgba(0,0,0,.08);--shadow-2:0 12px 28px rgba(0,0,0,.12)}
+    body{background:var(--bs-body-bg)}
+    .app-header{position:sticky;top:0;z-index:1030;background:var(--bs-body-bg);border-bottom:1px solid var(--bs-border-color);box-shadow:0 4px 12px rgba(0,0,0,.04)}
+    .kpi-card{position:relative;border:0;box-shadow:var(--shadow-1);transition:transform .25s ease,box-shadow .25s ease}
+    .kpi-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-2)}
+    .kpi-card::before{content:"";position:absolute;inset:0 auto 0 0;width:6px;border-radius:6px 0 0 6px;background:var(--bs-primary)}
+    .kpi-meta{font-size:.8rem;opacity:.8}
+    .sticky-toolbar{position:sticky;top:64px;z-index:10;background:var(--bs-body-bg);border-bottom:1px solid var(--bs-border-color)}
+    .sidepanel{position:fixed;top:0;right:-520px;width:520px;height:100vh;background:var(--bs-body-bg);box-shadow:-8px 0 24px rgba(0,0,0,.08);transition:right .3s ease;z-index:1055}
+    .sidepanel.open{right:0}
+    .sidepanel-header{display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;border-bottom:1px solid var(--bs-border-color)}
+    .sidepanel-body{padding:1rem;overflow:auto;height:calc(100vh - 56px)}
+    .dep-row{background:var(--bs-tertiary-bg);border-radius:.5rem;padding:.75rem}
+    .file-pill{display:inline-flex;align-items:center;gap:.5rem;padding:.25rem .5rem;border:1px dashed var(--bs-border-color);border-radius:1rem}
+    .doc-pill{display:flex;align-items:center;gap:.5rem;border:1px dashed var(--bs-border-color);border-radius:.5rem;padding:.25rem .5rem}
+    .alert-inline{border-left:4px solid var(--bs-warning-border-subtle)}
+    @media (max-width:576px){.sidepanel{width:100%}}
+  
+  
+  
+  
+  
+  /* ===== Shell de navegación (Topbar + Sidebar) ===== */
+:root{ --shell-topbar:56px; --shell-sidebar:250px; --shell-mini:72px; }
+
+.shell-topbar{
+  position:sticky; top:0; z-index:1080; height:var(--shell-topbar);
+  background:#212529; color:#fff;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  box-shadow:0 4px 12px rgba(0,0,0,.25);
+}
+
+/* Botones/menús dentro del topbar (en bloques separados, fuera de .shell-topbar{...}) */
+.shell-topbar .btn{ color:#fff !important; }
+.shell-topbar .dropdown-menu{
+  --bs-dropdown-bg:#2b3035;
+  --bs-dropdown-link-color:#f8f9fa;
+  --bs-dropdown-link-hover-bg:#343a40;
+  --bs-dropdown-link-hover-color:#fff;
+  border-color:rgba(255,255,255,.15);
+}
+
+.shell-btn{ background:none; border:none; color:#fff; font-size:1.35rem; line-height:1; }
+.shell-role{ display:inline-flex; align-items:center; gap:.35rem; border:1px solid rgba(255,255,255,.2); border-radius:999px; padding:.15rem .5rem; }
+.shell-net{ display:inline-flex; align-items:center; gap:.4rem; border:1px solid rgba(255,255,255,.2); border-radius:999px; padding:.15rem .5rem; font-size:.8rem; }
+
+.app-header{ z-index:1020; background:var(--bs-body-bg); }
+/* Evita la línea blanca entre sidebar y contenido */
+.shell-sidebar{
+  border-right: 0;                                   /* quitamos el borde físico */
+  box-shadow: inset -1px 0 0 rgba(255,255,255,.08);  /* línea con sombra (no genera gap) */
+  backface-visibility: hidden;                       /* promueve a su propia capa */
+  transform: translateZ(0);                          /* idem; reduce scroll-tearing */
+  contain: paint;                                    /* aísla repintado al sidebar */
+}
+
+.shell-main{ background:var(--bs-body-bg); } /* evita fugas de color */
+
+.shell-sidebar{ position:fixed; inset:var(--shell-topbar) auto 0 0; width:var(--shell-sidebar);
+  background:#1c1f26; color:#dee2e6; border-right:1px solid rgba(255,255,255,.08); z-index:1070;
+  transition:transform .28s ease, width .28s ease; }
+  
+.shell-brand{ padding:.5rem .75rem; border-bottom:1px dashed rgba(255,255,255,.12); display:flex; align-items:center; gap:.5rem; }
+.shell-avatar{ width:72px; height:72px; border-radius:50%; background:#0b111b; color:#fff; display:grid; place-items:center; margin:0 auto .5rem; font-weight:700; border:2px solid #fff; }
+.shell-user{ padding:1rem .75rem; border-bottom:1px dashed rgba(255,255,255,.1); text-align:center; }
+.shell-title{ color:#adb5bd; font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; padding:.5rem .75rem; }
+.shell-menu{ display:grid; gap:.25rem; padding:.5rem; }
+.shell-link{ display:flex; align-items:center; gap:.75rem; color:#dee2e6; text-decoration:none; padding:.5rem .75rem; border-radius:.5rem; }
+.shell-link .icon{ width:24px; text-align:center; font-size:1.05rem; }
+.shell-link:hover, .shell-link.active{ background:#0d6efd; color:#fff; }
+.shell-submenu .shell-link{ padding-left:2.5rem; }
+
+.shell-overlay{ position:fixed; inset:var(--shell-topbar) 0 0 0; background:rgba(0,0,0,.45); z-index:1060; display:none; }
+
+/* Empuje del contenido (envolvemos TODO lo existente en .shell-main) */
+.shell-main{ margin-top:var(--shell-topbar); margin-left:var(--shell-sidebar); transition:margin-left .28s ease; min-height:calc(100dvh - var(--shell-topbar)); }
+
+/* Estados */
+
+/* ===== Parches de colapso (sidebar mini, 72px) ===== */
+
+/* El avatar no debe medir 72px cuando la barra mide 72px: se corta. */
+body.sidebar-collapsed .shell-user{ 
+  padding:.5rem 0 !important;             /* quita paddings laterales que provocan overflow */
+}
+body.sidebar-collapsed .shell-avatar{
+  width:40px; height:40px;                 /* reduce tamaño para encajar en 72px */
+  margin:.25rem auto; 
+  border-width:1px;
+}
+
+/* La marca y el menú también ajustan padding para no “empujar” hacia fuera */
+body.sidebar-collapsed .shell-brand{ 
+  padding:.5rem 0 !important; 
+  justify-content:center; 
+}
+body.sidebar-collapsed .shell-menu{ 
+  padding:.25rem !important; 
+}
+
+/* Centrado de íconos (ya tienes parte, refuerzo por si hay reglas que lo pisan) */
+body.sidebar-collapsed .shell-link{ 
+  justify-content:center !important; 
+}
+body.sidebar-collapsed .shell-link .icon{ 
+  width:24px; 
+}
+
+/* Previene cualquier “franja” por alturas o capas */
+.shell-main{ background:var(--bs-body-bg); }
+.app-header{ z-index:1020; background:var(--bs-body-bg); }
+.shell-sidebar{ z-index:1070; overflow-x:hidden; } /* ya lo tienes: lo reafirmo */
+html, body{ overflow-x:hidden; }                   /* anti-scroll horizontal global */
+
+
+
+body.sidebar-collapsed .shell-sidebar{ width:var(--shell-mini); }
+body.sidebar-collapsed .shell-main{ margin-left:var(--shell-mini); }
+
+body.sidebar-collapsed .shell-link .label,
+body.sidebar-collapsed .shell-brand .label,
+body.sidebar-collapsed .shell-title,
+body.sidebar-collapsed .shell-user .info{ display:none !important; }
+body.sidebar-collapsed .shell-link{ justify-content:center; }
+body.sidebar-collapsed .shell-link .icon{ width:24px; }
+
+/* Responsive móvil */
+@media (max-width:768px){
+  .shell-sidebar{ transform:translateX(-100%); width:var(--shell-sidebar); }
+  body.sidebar-open .shell-sidebar{ transform:translateX(0); }
+  .shell-main{ margin-left:0; }
+  body.sidebar-open .shell-overlay{ display:block; }
+}
+
+/* Anti-scroll horizontal cuando colapsa */
+html, body{ overflow-x:hidden; }
+.shell-sidebar{ overflow-x:hidden; }
+</style>
+</head>
+<body><header class="shell-topbar">
+  <div class="container-fluid d-flex align-items-center gap-2" style="height:var(--shell-topbar)">
+    <button class="shell-btn" id="toggleSidebar" aria-label="Menú" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
+    <i class="fa-solid fa-briefcase text-primary"></i>
+    <div class="lh-1">
+      <div class="fw-semibold">Prácticas Laborales</div>
+      <div class="text-white-50 small">Portal Estudiante</div>
+    </div>
+    <div class="ms-auto d-flex align-items-center gap-2">
+      <button class="btn btn-sm text-white-50" data-bs-toggle="tooltip" title="Alertas"><i class="fa-regular fa-bell"></i></button>
+      <button class="btn btn-sm text-white-50" data-bs-toggle="tooltip" title="Plataformas"><i class="fa-solid fa-grid-2"></i></button>
+      <span id="netPill" class="shell-net"><i class="fa-solid fa-wifi"></i> <span id="netLabel"></span></span>
+      <div class="dropdown">
+        <button class="btn btn-sm dropdown-toggle shell-role" data-bs-toggle="dropdown"><i class="fa-solid fa-building"></i> <span id="currentRoleLabel">Estudiante</span></button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item role-option" href="Empresa_Solicita_Practicantes.html" data-role="Empresa">Empresa</a></li>
+          <li><a class="dropdown-item role-option" href="Estudiante_proceso_practica.html" data-role="Estudiante">Estudiante</a></li>
+          <li><a class="dropdown-item role-option" href="Gestion_Aprobacion_Convenios.html" data-role="Coordinador">Coordinador</a></li>
+        </ul>
+      </div>
+
+
+    </div>
+  </div>
+</header>
+<header class="app-header">
+    <div class="container-fluid py-2 d-flex align-items-center gap-2">
+      <i class="bi bi-handshake fs-4 text-primary" aria-hidden="true"></i>
+      <div>
+        <h1 class="h5 mb-0">Portal Estudiante</h1>
+        <div class="text-body-secondary small">Convenios y Solicitudes de Practicantes</div>
+      </div>
+      <div class="ms-auto d-flex align-items-center gap-3">
+        <div class="form-check form-switch m-0">
+          <input class="form-check-input" type="checkbox" id="darkModeSwitch"/>
+          <label class="form-check-label" for="darkModeSwitch">Modo oscuro</label>
+        </div>
+            <button id="btnToggleGuideHeader" class="btn btn-outline-secondary btn-sm" type="button">
+        <i class="bi bi-journal-bookmark"></i> Mostrar Guía
+      </button>
+    </div>
+  </div>
+</header><aside class="shell-sidebar" id="sidebar">
+  <div class="shell-brand">
+    <i class="fa-solid fa-sitemap"></i>
+    <span class="label">Prácticas Laborales</span>
+  </div>
+  <div class="shell-user">
+    <div class="shell-avatar" aria-hidden="true">ES</div>
+    <div class="info">
+      <div class="fw-semibold">Estudiante</div>
+      <div class="text-white-50 small">Perfil activo</div>
+    </div>
+  </div>
+  <div class="shell-title">Navegación</div>
+  <nav class="shell-menu">
+
+    <a class="shell-link" href="Estudiante_proceso_practica.html" data-bs-toggle="tooltip" title="Solicitud de Práctica">
+      <span class="icon"><i class="fa-solid fa-user-plus"></i></span><span class="label">Solicitud de Práctica</span>
+    </a>
+
+
+  </nav>
+</aside>
+<aside class="sidepanel" id="sidepanel" aria-labelledby="sideTitle" aria-modal="true" role="dialog">
+    <div class="sidepanel-header">
+      <div class="fw-semibold" id="sideTitle">Detalle</div>
+      <button class="btn btn-sm btn-light" id="btnCloseSide"><i class="bi bi-x"></i></button>
+    </div>
+    <div class="sidepanel-body" id="sideBody">
+      <!-- Dinámico -->
+    </div>
+  </aside>
+<div class="shell-main">
+
+<body class="sidebar-collapsed">
+
+
+  <!-- Sidebar -->
+  
+
+  <!-- Overlay móvil -->
+  <div class="overlay" id="overlay"></div>
+
+  <!-- ===== Contenido original envuelto sin modificar ===== -->
+  <main class="main-content">
+    <div class="container container-narrow py-3">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex align-items-center gap-3">
+          <span class="badge text-bg-primary">Paso 1</span>
+          <h1 class="h5 m-0">Validación de prerrequisitos</h1>
+        </div>
+        <!-- Stepper reducido a 3 formularios -->
+        <div class="stepper">
+          <span class="step active">1</span>
+          <span class="step">2</span>
+          <span class="step">3</span>
+        </div>
+      </div>
+
+      <div class="card card-rounded shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title mb-3">Estado de prerrequisitos</h5>
+
+          <ul class="prereq-list mb-3">
+            <li>Haber cursado asignatura de acercamiento <i class="fas fa-xmark text-danger"></i></li>
+            <li>Haber cursado asignaturas básicas <i class="fas fa-check text-success"></i></li>
+            <li>Estar matriculado en el programa <i class="fas fa-check text-success"></i></li>
+            <li>No tener sanciones académicas <i class="fas fa-xmark text-danger"></i></li>
+            <li>Contar con seguro estudiantil <i class="fas fa-check text-success"></i></li>
+          </ul>
+
+          <div class="alert alert-warning d-flex align-items-center" role="alert">
+            <i class="fas fa-exclamation-triangle me-2"></i>
+            Al no haber cursado la asignatura <strong>“Acercamiento a prácticas”</strong>, solo podrá acceder a la <strong>modalidad Autónoma</strong>.
+          </div>
+
+          <p class="mb-3">
+            Al iniciar el proceso, usted manifiesta su intención de participar activamente en todas las actividades del escenario de práctica, cumplir con los objetivos académicos y
+            reportar oportunamente cualquier situación que afecte su desarrollo. Los datos suministrados se usarán con fines académicos y administrativos conforme a las políticas institucionales.
+          </p>
+
+          <div class="alert alert-info" role="alert">
+            <i class="fa-solid fa-circle-info me-2"></i>
+            Recuerde que en el <strong>Paso 2</strong> deberá verificar/actualizar sus datos y la información requerida para la <strong>ARL</strong>. La exactitud de la información permite la gestión oportuna del inicio de su práctica.
+          </div>
+
+          <div class="form-check mb-3">
+            <input class="form-check-input" type="checkbox" id="acceptCheck">
+            <label class="form-check-label" for="acceptCheck">
+              He leído, entiendo y acepto las condiciones del proceso de práctica
+            </label>
+          </div>
+
+          <div class="d-flex justify-content-end">
+            <button class="btn btn-success" id="btnContinue" disabled>
+              <i class="fas fa-arrow-right me-1"></i> Continuar al Paso 2
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Scripts originales + layout -->
+  
+
+  
+  
+
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // ====== Utils ======
+    const toastEl=document.getElementById('toast');
+    const toastMsg=document.getElementById('toastMsg');
+    const toast=new bootstrap.Toast(toastEl);
+    const showToast=(m,v='primary')=>{toastEl.className='toast align-items-center text-bg-'+v+' border-0';toastMsg.textContent=m;toast.show();};
+    const fmt=(d)=> new Date(d).toLocaleDateString('es-CO');
+    const withinDays=(d,days)=>{const dd=new Date(d); const now=new Date(); const diff=(dd-now)/(1000*60*60*24); return diff>=0 && diff<=days;};
+
+    // ====== Demo data y catálogos ======
+    const TIPOS=['Escenario','Autónoma','Cooperación'];
+    const DOCS_BY_TIPO={
+      'Escenario':['Minuta propuesta','Política de datos','Cámara de Comercio','ARL'],
+      'Autónoma':['Carta de intención','Política de datos','RUT','ARL'],
+      'Cooperación':['Propuesta técnica','Acta de compromiso','RUT']
+    };
+    const FACULTADES={
+      'Ingeniería':['Ingeniería de Sistemas','Ingeniería Industrial','Ingeniería Civil'],
+      'Salud':['Enfermería','Fisioterapia'],
+      'Ciencias Económicas':['Administración de Empresas','Contaduría'],
+      'Educación':['Lic. Matemáticas','Lic. Lengua']
+    };
+    const PROGRAMAS=Object.values(FACULTADES).flat();
+
+    // ====== Estado persistente ======
+    const storeKey='empresa.portal.v12';
+    let DATA=JSON.parse(localStorage.getItem(storeKey)||'null');
+    if(!DATA){
+      DATA={
+        empresa:{nit:'900123456',razon:'Tecnologías Ejemplo S.A.S.',rep:'María Pérez',direccion:'Calle 123 #45-67'},
+        convenios:[
+          {id:'CNV-2025-001',tipo:'Escenario',dependencia:'Operaciones',fini:'2025-02-01',ffin:'2025-12-31',vacSol:10,vacAsig:6,estado:'Vigente',docs:['Minuta propuesta','Política de datos','Cámara de Comercio'],comentarios:[{txt:'Aprobado por jurídica',ts:'2025-01-15'}]},
+          {id:'CNV-2024-112',tipo:'Autónoma',dependencia:'TI',fini:'2024-03-01',ffin:'2025-01-31',vacSol:4,vacAsig:4,estado:'Cerrado',docs:['Carta de intención','Política de datos','RUT','ARL'],comentarios:[]},
+          {id:'CNV-2025-015',tipo:'Cooperación',dependencia:'Talento',fini:'2025-08-01',ffin:'2026-07-31',vacSol:3,vacAsig:1,estado:'Solicitado',docs:['Propuesta técnica'],comentarios:[]}
+        ],
+        solicitudes:[
+          {id:'SOL-2025-1001',dependencia:'Operaciones',solicitante:'Carlos Gómez',correo:'carlos@ejemplo.com',telefono:'3001112233',fecha:'2025-11-01',programa:'Ingeniería de Sistemas',tipo:'Contrato de aprendizaje SENA',cantidad:3,descripcion:'Soporte N1 y automatización',estado:'Enviada',asignados:0},
+          {id:'SOL-2025-1002',dependencia:'TI',solicitante:'Ana Ruiz',correo:'ana@ejemplo.com',telefono:'3002223344',fecha:'2025-10-20',programa:'Administración de Empresas',tipo:'Pasantia remunerada',cantidad:2,descripcion:'Gestión documental y BI',estado:'En proceso',asignados:1}
+        ]
+      };
+      localStorage.setItem(storeKey,JSON.stringify(DATA));
+    }
+
+    // ====== Estado UI (convenios) ======
+    let filters={tipo:'',estado:'',rango:''};
+    let page=1; let pageSize=15;
+
+    // ====== Estado UI (solicitudes) ======
+    let pageSol=1; let pageSizeSol=15;
+// ====== Modo oscuro/claro con persistencia ======
+(function(){
+  const KEY='ui.theme';
+  const root=document.documentElement;
+  const sw=document.getElementById('darkModeSwitch');
+  function apply(theme){
+    const t=(theme==='dark')?'dark':'light';
+    root.setAttribute('data-bs-theme', t);
+    if(sw) sw.checked = (t==='dark');
+    localStorage.setItem(KEY, t);
+  }
+  const saved = localStorage.getItem(KEY) || (root.getAttribute('data-bs-theme')||'light');
+  apply(saved);
+  if(sw){
+    sw.addEventListener('change', ()=> apply(sw.checked?'dark':'light'));
+  }
+})();
+
+
+
+    // ====== Guía (persistencia mostrar/ocultar) ======
+    (function(){
+      const KEY='institucional.guide.hidden';
+      const sec=document.getElementById('guide');
+      const badge=document.getElementById('guideState');
+      const btn=document.getElementById('btnHideGuide');
+      const body=document.getElementById('guideBody');
+      function apply(){
+        const hidden=localStorage.getItem(KEY)==='1';
+        if(!sec||!badge||!body) return;
+        if(hidden){
+          body.classList.add('d-none'); // ocultamos SOLO el cuerpo, no toda la sección
+          badge.textContent='Oculta';
+          badge.className='badge text-bg-secondary';
+          if(btn){ btn.innerHTML='<i class="bi bi-eye"></i> Mostrar guía'; btn.setAttribute('aria-label','Mostrar guía'); btn.setAttribute('aria-expanded','false'); }
+        } else {
+          body.classList.remove('d-none');
+          badge.textContent='Visible';
+          badge.className='badge text-bg-success';
+          if(btn){ btn.innerHTML='<i class="bi bi-eye-slash"></i> Ocultar guía'; btn.setAttribute('aria-label','Ocultar guía'); btn.setAttribute('aria-expanded','true'); }
+        }
+      }
+      if(btn){
+        btn.addEventListener('click',()=>{
+          const hidden=localStorage.getItem(KEY)==='1';
+          localStorage.setItem(KEY, hidden?'0':'1');
+          apply();
+        });
+      }
+      apply();
+    })();
+
+    // ====== KPIs ======
+    function refreshKPIs(){
+      const arr=datasetConv();
+      const total=arr.length; const vig=arr.filter(c=>c.estado==='Vigente').length; const por60=arr.filter(c=>withinDays(c.ffin,60)).length; const por30=arr.filter(c=>withinDays(c.ffin,30)).length;
+      const vacSol=arr.reduce((a,c)=>a+(c.vacSol||0),0); const vacAsig=arr.reduce((a,c)=>a+(c.vacAsig||0),0);
+      const sol=DATA.solicitudes; const env=sol.filter(s=>['Enviada','Recibida por Coordinador'].includes(s.estado)).length; const proc=sol.filter(s=>s.estado==='En proceso').length; const cand=sol.filter(s=>s.estado==='Con candidatos').length;
+      document.getElementById('kpiTotal').textContent=total; document.getElementById('kpiVig').textContent=vig; document.getElementById('kpi60').textContent=por60; document.getElementById('kpiPorVencer').textContent=por60; document.getElementById('kpi30').textContent=por30;
+      document.getElementById('kpiVacSol').textContent=vacSol; document.getElementById('kpiVacAsig').textContent=vacAsig;
+      document.getElementById('kpiSolEnv').textContent=env; document.getElementById('kpiSolProc').textContent=proc; document.getElementById('kpiSolCand').textContent=cand;
+    }
+
+    // ====== Dataset convenios ======
+    function datasetConv(){
+      const fromTo=(r)=>{const m=r.match(/^(\d{4})-(\d{2})\s*a\s*(\d{4})-(\d{2})$/); if(!m) return null; return {y1:+m[1],m1:+m[2],y2:+m[3],m2:+m[4]};};
+      return DATA.convenios.filter(c=> (
+        (!filters.tipo || c.tipo===filters.tipo) &&
+        (!filters.estado || c.estado===filters.estado) &&
+        (!filters.rango || ( ()=>{ const R=fromTo(filters.rango); if(!R) return true; const ci=new Date(c.fini); const cf=new Date(c.ffin); const r1=new Date(R.y1, R.m1-1, 1); const r2=new Date(R.y2, R.m2-1, 1); return (ci<=r2 && cf>=r1); })() )
+      ));
+    }
+
+    // ====== Render tabla convenios ======
+    function renderTablaConv(){
+      const arr=datasetConv();
+      const tbody=document.getElementById('tbodyLista'); tbody.innerHTML='';
+      const totalPages=Math.max(1,Math.ceil(arr.length/pageSize)); if(page>totalPages) page=totalPages; const start=(page-1)*pageSize; const pageData=arr.slice(start,start+pageSize);
+      pageLabels(totalPages);
+      document.getElementById('lblCount').textContent=`(${arr.length})`;
+      pageData.forEach(c=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML=`
+          <td><div class="fw-semibold">${c.id}</div><div class="small text-body-secondary">${DATA.empresa.razon}</div></td>
+          <td><div class="fw-semibold">${c.tipo}</div><div class="small text-body-secondary">${c.dependencia}</div></td>
+          <td>${fmt(c.fini)} → ${fmt(c.ffin)}</td>
+          <td><span class="badge text-bg-primary">${c.vacAsig||0}</span> / <span class="badge text-bg-secondary">${c.vacSol||0}</span></td>
+          <td><span class="badge ${badgeEstadoConv(c.estado)}">${c.estado}</span></td>
+          <td>${(c.comentarios?.length||0)} comentarios</td>
+          <td class="text-end"><button class="btn btn-outline-secondary btn-sm" data-action="ver"><i class="bi bi-eye"></i></button></td>`;
+        tr.querySelector('[data-action="ver"]').addEventListener('click',()=> openSidepanelConvenio(c));
+        tbody.appendChild(tr);
+      });
+    }
+    function badgeEstadoConv(est){
+      const map={ 'Solicitado':'text-bg-secondary','En revisión':'text-bg-warning text-dark','Aprobado':'text-bg-info','Vigente':'text-bg-success','Vencido':'text-bg-danger','Cerrado':'text-bg-dark','Rechazado':'text-bg-danger'};
+      return map[est]||'text-bg-light';
+    }
+    function pageLabels(total){ const label=`Página ${page} de ${total}`; document.getElementById('lblPagina').textContent=label; document.getElementById('lblPaginaBottom').textContent=label; }
+
+    // ====== Sidepanel Convenio ======
+    const side=document.getElementById('sidepanel');
+    const sideBody=document.getElementById('sideBody');
+    document.getElementById('btnCloseSide').addEventListener('click',()=> side.classList.remove('open'));
+    function openSidepanelConvenio(c){
+      sideBody.innerHTML=`
+        <div class="mb-2 small text-body-secondary">Convenio</div>
+        <div class="mb-2"><b>${c.id}</b> – ${DATA.empresa.razon}</div>
+        <div><b>Tipo:</b> ${c.tipo} • <b>Dependencia:</b> ${c.dependencia}</div>
+        <div><b>Vigencia:</b> ${fmt(c.fini)} → ${fmt(c.ffin)}</div>
+        <hr/>
+        <div class="mb-2 small text-body-secondary">Documentos</div>
+        <div class="d-flex flex-column gap-2">${(c.docs||[]).map(n=>`<div class='doc-pill'><i class="bi bi-file-earmark"></i> ${n}</div>`).join('')}</div>
+        <hr/>
+        <div class="mb-2 small text-body-secondary">Comentarios</div>
+        <div class="d-flex flex-column gap-2" id="comentarios">${(c.comentarios||[]).map(cm=>`<div class='border rounded p-2 small'><b>${cm.ts}</b><br/>${cm.txt}</div>`).join('')||'<div class="text-body-secondary small">Sin comentarios</div>'}</div>
+      `;
+      side.classList.add('open');
+    }
+
+    // ====== Solicitud de Practicantes: catálogo programas ======
+    const selPrograma=document.getElementById('sPrograma');
+    PROGRAMAS.forEach(p=>{ const o=document.createElement('option'); o.value=p; o.textContent=p; selPrograma.appendChild(o); });
+
+    // ====== Helpers: convenio vigente para fecha dada ======
+    function hayConvenioVigente(fechaISO){
+      const f=new Date(fechaISO);
+      return DATA.convenios.some(c=> c.estado==='Vigente' && new Date(c.fini)<=f && f<=new Date(c.ffin));
+    }
+
+    // ====== Form Solicitud: eventos ======
+    document.getElementById('frmSolicitud').addEventListener('submit',(e)=>{
+      e.preventDefault();
+      // validación nativa
+      const form=e.target; if(!form.checkValidity()){ form.classList.add('was-validated'); return; }
+      const dep=document.getElementById('sDep').value.trim();
+      const nom=document.getElementById('sNom').value.trim();
+      const tel=document.getElementById('sTel').value.trim();
+      const mail=document.getElementById('sMail').value.trim();
+      const fecha=document.getElementById('sFecha').value;
+      const tipo=document.getElementById('sTipo').value;
+      const programa=document.getElementById('sPrograma').value;
+      const cant=+document.getElementById('sCant').value;
+      const desc=document.getElementById('sDesc').value.trim();
+
+      const id='SOL-'+ new Date().getFullYear() + '-' + String(Math.floor(Math.random()*9000)+1000);
+      const vigente=hayConvenioVigente(fecha);
+      const estado= vigente? 'Enviada':'En espera de convenio';
+      if(!vigente){ document.getElementById('alertConvenio').classList.remove('d-none'); }
+
+      DATA.solicitudes.unshift({id,dependencia:dep,solicitante:nom,correo:mail,telefono:tel,fecha:fecha,programa:programa,tipo:tipo,cantidad:cant,descripcion:desc,estado:estado,asignados:0});
+      localStorage.setItem(storeKey, JSON.stringify(DATA));
+      showToast('Solicitud registrada','success');
+      document.getElementById('tab-solicitudes').click();
+      renderTablaSol(); refreshKPIs();
+    });
+    document.getElementById('btnSolBorrador').addEventListener('click',()=>{ showToast('Borrador guardado localmente','secondary'); });
+
+    // ====== Tabla Solicitudes ======
+    function renderTablaSol(){
+      const arr=DATA.solicitudes;
+      const tbody=document.getElementById('tbodySol'); tbody.innerHTML='';
+      const totalPages=Math.max(1,Math.ceil(arr.length/pageSizeSol)); if(pageSol>totalPages) pageSol=totalPages; const start=(pageSol-1)*pageSizeSol; const pageData=arr.slice(start,start+pageSizeSol);
+      document.getElementById('lblCountSol').textContent=`(${arr.length})`;
+      const label=`Página ${pageSol} de ${totalPages}`; document.getElementById('lblPaginaSol').textContent=label; document.getElementById('lblPaginaBottomSol').textContent=label;
+      pageData.forEach(s=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML=`
+          <td>${s.id}</td>
+          <td>${s.dependencia}</td>
+          <td>${s.programa}</td>
+          <td>${s.tipo}</td>
+          <td>${fmt(s.fecha)}</td>
+          <td>${s.cantidad}</td>
+          <td><span class="badge ${badgeEstadoSol(s.estado)}">${s.estado}</span></td>
+          <td>${s.asignados||0}</td>
+          <td class="text-end"><button class="btn btn-outline-secondary btn-sm" data-action="ver"><i class="bi bi-eye"></i></button></td>`;
+        tr.querySelector('[data-action="ver"]').addEventListener('click',()=> openSidepanelSolicitud(s));
+        tbody.appendChild(tr);
+      });
+    }
+    function badgeEstadoSol(est){
+      const map={ 'Borrador':'text-bg-secondary','Enviada':'text-bg-info','Recibida por Coordinador':'text-bg-primary','En proceso':'text-bg-warning text-dark','Con candidatos':'text-bg-success','Cerrada':'text-bg-dark','En espera de convenio':'text-bg-danger'};
+      return map[est]||'text-bg-light';
+    }
+
+    // ====== Sidepanel Solicitud ======
+    function openSidepanelSolicitud(s){
+      sideBody.innerHTML=`
+        <div class="mb-2 small text-body-secondary">Solicitud</div>
+        <div class="mb-2"><b>${s.id}</b> – ${DATA.empresa.razon}</div>
+        <div><b>Dependencia:</b> ${s.dependencia}</div>
+        <div><b>Solicitante:</b> ${s.solicitante} • ${s.telefono} • ${s.correo}</div>
+        <div><b>Programa:</b> ${s.programa} • <b>Tipo:</b> ${s.tipo}</div>
+        <div><b>Fecha requerida:</b> ${fmt(s.fecha)} • <b>Cantidad:</b> ${s.cantidad}</div>
+        <hr/>
+        <div class="mb-2 small text-body-secondary">Descripción</div>
+        <div class="border rounded p-2 small">${s.descripcion||''}</div>
+        <hr/>
+        <div class="mb-2 small text-body-secondary">Asignaciones</div>
+        <div class="small">Estudiantes asignados: <b>${s.asignados||0}</b></div>
+      `;
+      side.classList.add('open');
+    }
+
+    // ====== Filtros y acciones de lista (convenios) ======
+    document.getElementById('btnBuscar').addEventListener('click', applyFilters);
+    document.getElementById('btnLimpiar').addEventListener('click', clearFilters);
+    document.getElementById('btnExportar').addEventListener('click', ()=> showToast('Exportación XLSX (integrar servidor/SaaS)','primary'));
+    document.getElementById('btnPDF').addEventListener('click', ()=> showToast('Exportación PDF (integrar servidor)','primary'));
+    document.getElementById('btnPrev').addEventListener('click', ()=>{ if(page>1){ page--; renderTablaConv(); }});
+    document.getElementById('btnNext').addEventListener('click', ()=>{ const totalPages=Math.max(1,Math.ceil(datasetConv().length/pageSize)); if(page<totalPages){ page++; renderTablaConv(); }});
+    document.getElementById('pageSize').addEventListener('change', (e)=>{ pageSize=+e.target.value; page=1; renderTablaConv(); });
+
+    function applyFilters(){ page=1; refreshKPIs(); renderTablaConv(); }
+    function clearFilters(){ filters={tipo:'',estado:'',rango:''}; document.getElementById('fTipo').value=''; document.getElementById('fEstado').value=''; document.getElementById('fRango').value=''; applyFilters(); }
+
+    document.getElementById('fTipo').addEventListener('change', e=>{ filters.tipo=e.target.value; });
+    document.getElementById('fEstado').addEventListener('change', e=>{ filters.estado=e.target.value; });
+    document.getElementById('fRango').addEventListener('input', e=>{ filters.rango=e.target.value.trim(); });
+
+    // ====== Paginación solicitudes ======
+    document.getElementById('btnPrevSol').addEventListener('click', ()=>{ if(pageSol>1){ pageSol--; renderTablaSol(); }});
+    document.getElementById('btnNextSol').addEventListener('click', ()=>{ const totalPages=Math.max(1,Math.ceil(DATA.solicitudes.length/pageSizeSol)); if(pageSol<totalPages){ pageSol++; renderTablaSol(); }});
+    document.getElementById('pageSizeSol').addEventListener('change', (e)=>{ pageSizeSol=+e.target.value; pageSol=1; renderTablaSol(); });
+
+    // ====== Init ======
+    function init(){
+      // fill filtros tipo
+      TIPOS.forEach(t=>{ const o=document.createElement('option'); o.value=t; o.textContent=t; document.getElementById('fTipo').appendChild(o); });
+      refreshKPIs(); renderTablaConv(); renderTablaSol();
+    }
+    init();
+  
+// ====== Botón "Mostrar Guía" en la barra superior (sincronizado) ======
+(function(){
+  const KEY='institucional.guide.hidden';
+  const hdrBtn=document.getElementById('btnToggleGuideHeader');
+  if(!hdrBtn) return;
+  function syncButtons(){
+    const hidden=localStorage.getItem(KEY)==='1';
+    hdrBtn.innerHTML = hidden ? '<i class="bi bi-journal-bookmark"></i> Mostrar Guía'
+                              : '<i class="bi bi-journal-x"></i> Ocultar Guía';
+  }
+  function applyToGuide(){
+    const hidden=localStorage.getItem(KEY)==='1';
+    const body=document.getElementById('guideBody');
+    const badge=document.getElementById('guideState');
+    const btn=document.getElementById('btnHideGuide');
+    if(body && badge){
+      if(hidden){
+        body.classList.add('d-none');
+        badge.textContent='Oculta';
+        badge.className='badge text-bg-secondary';
+      } else {
+        body.classList.remove('d-none');
+        badge.textContent='Visible';
+        badge.className='badge text-bg-success';
+      }
+    }
+    if(btn){
+      if(hidden){
+        btn.innerHTML='<i class="bi bi-eye"></i> Mostrar guía';
+        btn.setAttribute('aria-label','Mostrar guía');
+        btn.setAttribute('aria-expanded','false');
+      } else {
+        btn.innerHTML='<i class="bi bi-eye-slash"></i> Ocultar guía';
+        btn.setAttribute('aria-label','Ocultar guía');
+        btn.setAttribute('aria-expanded','true');
+      }
+    }
+  }
+  hdrBtn.addEventListener('click', ()=>{
+    const hidden=localStorage.getItem(KEY)==='1';
+    localStorage.setItem(KEY, hidden?'0':'1');
+    applyToGuide();
+    syncButtons();
+  });
+  // Inicial
+  applyToGuide();
+  syncButtons();
+})();
+
+</script>
+<script>
+// ===== Shell: lógica de navegación unificada =====
+(function(){
+  const body=document.body;
+  const btn=document.getElementById('toggleSidebar');
+  const overlay=document.getElementById('overlay');
+  const LS_KEY='sidebar-state';
+  const ROLE_KEY='active-role';
+  const THEME_KEY='ui.theme';
+  const darkTop=document.getElementById('darkModeSwitchTop');
+  const darkOld=document.getElementById('darkModeSwitch'); // compat con página
+  const isMobile=()=> window.matchMedia('(max-width:768px)').matches;
+
+  function setBtn(){
+    const isOpen=body.classList.contains('sidebar-open');
+    const isCollapsed=body.classList.contains('sidebar-collapsed');
+    const html = isMobile() ? (isOpen?'<i class="fa-solid fa-xmark"></i>':'<i class="fa-solid fa-bars"></i>')
+                            : (isCollapsed?'<i class="fa-solid fa-bars"></i>':'<i class="fa-solid fa-xmark"></i>');
+    if(btn){ btn.innerHTML = html; btn.setAttribute('aria-expanded', (isMobile()?isOpen:!isCollapsed) ? 'true':'false'); }
+  }
+  function applyDesktopState(){
+    const saved=localStorage.getItem(LS_KEY)||'collapsed';
+    if(saved==='expanded') body.classList.remove('sidebar-collapsed');
+    else body.classList.add('sidebar-collapsed');
+  }
+  function openMobile(){ body.classList.add('sidebar-open'); }
+  function closeMobile(){ body.classList.remove('sidebar-open'); }
+  function toggle(){
+    if(isMobile()){
+      body.classList.contains('sidebar-open') ? closeMobile() : openMobile();
+    } else {
+      body.classList.toggle('sidebar-collapsed');
+      localStorage.setItem(LS_KEY, body.classList.contains('sidebar-collapsed')?'collapsed':'expanded');
+    }
+    setBtn();
+  }
+  function initTooltips(){
+    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el=>{ try{ new bootstrap.Tooltip(el);}catch(e){} });
+  }
+  function applyTheme(t){
+    const theme=(t==='dark')?'dark':'light';
+    document.documentElement.setAttribute('data-bs-theme', theme);
+    if(darkTop) darkTop.checked = (theme==='dark');
+    if(darkOld) darkOld.checked = (theme==='dark');
+    localStorage.setItem(THEME_KEY, theme);
+  }
+  function initTheme(){
+    const saved=localStorage.getItem(THEME_KEY) || document.documentElement.getAttribute('data-bs-theme') || 'light';
+    applyTheme(saved);
+    if(darkTop) darkTop.addEventListener('change', ()=> applyTheme(darkTop.checked?'dark':'light'));
+    if(darkOld) darkOld.addEventListener('change', ()=> applyTheme(darkOld.checked?'dark':'light'));
+  }
+function initRole(){
+  const roleLabel = document.getElementById('currentRoleLabel');
+  const applyRole = (r)=>{ 
+    if(roleLabel) roleLabel.textContent = r; 
+    localStorage.setItem('active-role', r); 
+  };
+
+  // Cargar rol guardado
+  applyRole(localStorage.getItem('active-role') || 'Empresa');
+
+  // Manejo de clics: guardar rol y *permitir* la navegación si hay href real
+  document.querySelectorAll('.role-option').forEach(a=>{
+    a.addEventListener('click', (e)=>{
+      const r   = a.getAttribute('data-role');
+      const url = a.getAttribute('href');
+
+      if(r) applyRole(r); // persistimos antes de salir
+
+      // Si hay URL real y no es "#", dejamos que el navegador navegue.
+      // Respetamos Ctrl/⌘-click y target="_blank".
+      const hasRealHref = url && url !== '#';
+      const newTab = e.metaKey || e.ctrlKey || a.target === '_blank';
+      if (hasRealHref && !newTab) {
+        // NO hacemos preventDefault -> deja navegar normalmente
+        return;
+      }
+
+      // Solo evitamos por completo si no hay destino real
+      e.preventDefault();
+    });
+  });
+}
+
+function initNet(){
+  const pill=document.getElementById('netPill');
+  const lbl=document.getElementById('netLabel');
+  const update=()=>{ 
+    const on=navigator.onLine;
+    if(lbl) lbl.textContent = on ? 'Online' : 'Offline';
+    if(pill) pill.className = 'shell-net ' + (on ? 'text-bg-success' : 'text-bg-danger');
+  };
+  window.addEventListener('online', update);
+  window.addEventListener('offline', update);
+  update();
+}
+
+  function initGuideSync(){
+    const KEY='institucional.guide.hidden';
+    const hdrBtn=document.getElementById('btnToggleGuideHeader');
+    const body=document.getElementById('guideBody');
+    const badge=document.getElementById('guideState');
+    const btn=document.getElementById('btnHideGuide');
+    function apply(){
+      const hidden=localStorage.getItem(KEY)==='1';
+      if(body && badge){
+        if(hidden){ body.classList.add('d-none'); badge.textContent='Oculta'; badge.className='badge text-bg-secondary'; }
+        else { body.classList.remove('d-none'); badge.textContent='Visible'; badge.className='badge text-bg-success'; }
+      }
+      if(hdrBtn) hdrBtn.innerHTML = hidden ? '<i class="fa-solid fa-book"></i> Mostrar Guía' : '<i class="fa-solid fa-book-open"></i> Ocultar Guía';
+      if(btn){
+        if(hidden){ btn.innerHTML='<i class="bi bi-eye"></i> Mostrar guía'; btn.setAttribute('aria-expanded','false'); }
+        else { btn.innerHTML='<i class="bi bi-eye-slash"></i> Ocultar guía'; btn.setAttribute('aria-expanded','true'); }
+      }
+    }
+    if(hdrBtn){ hdrBtn.addEventListener('click', ()=>{ const hidden=localStorage.getItem(KEY)==='1'; localStorage.setItem(KEY, hidden?'0':'1'); apply(); }); }
+    apply();
+  }
+  function init(){
+    if(isMobile()){ closeMobile(); } else { applyDesktopState(); }
+    if(btn) btn.addEventListener('click', toggle);
+    if(overlay) overlay.addEventListener('click', ()=>{ if(isMobile()){ closeMobile(); setBtn(); } });
+    window.addEventListener('resize', ()=>{ if(isMobile()){ closeMobile(); } else { body.classList.remove('sidebar-open'); applyDesktopState(); } setBtn(); });
+    initTooltips(); initTheme(); initRole(); initNet(); initGuideSync(); setBtn();
+  }
+  init();
+})();
+</script></body>
+</html>

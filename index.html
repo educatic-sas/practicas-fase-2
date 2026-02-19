@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Guía de Afinación del Mockup | Prácticas Laborales</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet"/>
+  <style>
+    /* ===== Shell (topbar + sidebar) ===== */
+    :root{ --shell-topbar:56px; --shell-sidebar:250px; --shell-mini:72px; }
+    body{ background:#f7f9fb; }
+    .shell-topbar{ position:sticky; top:0; z-index:1080; height:var(--shell-topbar);
+      background:#212529; color:#fff; border-bottom:1px solid rgba(255,255,255,.08);
+      box-shadow:0 4px 12px rgba(0,0,0,.25); }
+    .shell-btn{ background:none; border:none; color:#fff; font-size:1.35rem; line-height:1; }
+
+    .shell-sidebar{ position:fixed; inset:var(--shell-topbar) auto 0 0; width:var(--shell-sidebar);
+      background:#1c1f26; color:#dee2e6; border-right:1px solid rgba(255,255,255,.08); z-index:1070;
+      transition:transform .28s ease, width .28s ease; overflow-x:hidden; }
+    .shell-brand{ padding:.5rem .75rem; border-bottom:1px dashed rgba(255,255,255,.12); display:flex; align-items:center; gap:.5rem; }
+    .shell-user{ padding:1rem .75rem; border-bottom:1px dashed rgba(255,255,255,.1); text-align:center; }
+    .shell-avatar{ width:72px; height:72px; border-radius:50%; background:#0b111b; color:#fff; display:grid; place-items:center; margin:0 auto .5rem; font-weight:700; border:2px solid #fff; }
+    .shell-title{ color:#adb5bd; font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; padding:.5rem .75rem; }
+    .shell-menu{ display:grid; gap:.25rem; padding:.5rem; }
+    .shell-link{ display:flex; align-items:center; gap:.75rem; color:#dee2e6; text-decoration:none; padding:.5rem .75rem; border-radius:.5rem; }
+    .shell-link .icon{ width:24px; text-align:center; }
+    .shell-link:hover, .shell-link.active{ background:#0d6efd; color:#fff; }
+
+    .shell-main{ margin-top:var(--shell-topbar); margin-left:var(--shell-sidebar); transition:margin-left .28s ease; min-height:calc(100dvh - var(--shell-topbar)); }
+    .shell-overlay{ position:fixed; inset:var(--shell-topbar) 0 0 0; background:rgba(0,0,0,.45); z-index:1060; display:none; }
+
+    /* Estados colapsado/abierto */
+    body.sidebar-collapsed .shell-sidebar{ width:var(--shell-mini); }
+    body.sidebar-collapsed .shell-main{ margin-left:var(--shell-mini); }
+    body.sidebar-collapsed .shell-link .label,
+    body.sidebar-collapsed .shell-brand .label,
+    body.sidebar-collapsed .shell-title,
+    body.sidebar-collapsed .shell-user .info{ display:none !important; }
+    body.sidebar-collapsed .shell-link{ justify-content:center; }
+    body.sidebar-collapsed .shell-link .icon{ width:24px; }
+    body.sidebar-collapsed .shell-avatar{ width:40px; height:40px; font-size:.85rem; margin:.5rem auto; border-width:1px; }
+
+    @media (max-width:992px){
+      .shell-sidebar{ transform:translateX(-100%); width:var(--shell-sidebar); }
+      body.sidebar-open .shell-sidebar{ transform:translateX(0); }
+      .shell-main{ margin-left:0; }
+      body.sidebar-open .shell-overlay{ display:block; }
+    }
+
+    html, body{ overflow-x:hidden; }
+
+    /* ===== Page content ===== */
+    .container-narrow{ max-width:1100px; }
+    .guide-card{ border-radius:1rem; }
+    .intro-section{ background:#fff; border:1px solid #e9ecef; border-radius:1rem; padding:1.25rem; }
+    .intro-section h4{ color:#0d6efd; }
+    .kpi-pill{ display:inline-flex; align-items:center; gap:.5rem; border:1px solid #dee2e6; padding:.35rem .6rem; border-radius:999px; background:#fff; }
+  </style>
+</head>
+<body class="sidebar-collapsed">
+  <!-- Topbar -->
+  <header class="shell-topbar">
+    <div class="container-fluid d-flex align-items-center gap-2" style="height:var(--shell-topbar)">
+      <button class="shell-btn" id="toggleSidebar" aria-label="Menú" aria-expanded="false"><i class="fa-solid fa-bars"></i></button>
+      <i class="fa-solid fa-briefcase text-primary" aria-hidden="true"></i>
+      <div class="lh-1">
+        <div class="fw-semibold">Prácticas Laborales</div>
+        <div class="text-white-50 small">Guía de Afinación del Mockup</div>
+      </div>
+      <div class="ms-auto d-flex align-items-center gap-2">
+        <div class="dropdown">
+          <button class="btn btn-sm dropdown-toggle" id="roleBtn" style="color:#fff;border:1px solid rgba(255,255,255,.2); border-radius:999px; padding:.15rem .5rem" data-bs-toggle="dropdown" aria-label="Cambiar rol">
+            <i class="fa-solid fa-user-graduate" aria-hidden="true"></i> <span id="roleName">Estudiante</span>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" href="Estudiante_proceso_practica.html" data-role="Estudiante">Estudiante</a></li>
+            <li><a class="dropdown-item" href="Empresa_Solicita_Practicantes.html" data-role="Empresa">Empresa</a></li>
+            <li><a class="dropdown-item" href="Gestion_Aprobacion_Convenios.html" data-role="Coordinador">Coordinador</a></li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sidebar -->
+  <aside class="shell-sidebar" id="sidebar">
+    <div class="shell-brand">
+      <i class="fa-solid fa-sitemap" aria-hidden="true"></i>
+      <span class="label">Prácticas Laborales</span>
+    </div>
+    <div class="shell-user">
+      <div class="shell-avatar" id="avatarInitials" aria-hidden="true">ES</div>
+      <div class="info">
+        <div class="fw-semibold" id="sidebarRole">Estudiante</div>
+        <div class="text-white-50 small">Perfil activo</div>
+      </div>
+    </div>
+    <div class="shell-title">Flujos</div>
+    <nav class="shell-menu">
+      <a class="shell-link" href="Estudiante_proceso_practica.html"><span class="icon"><i class="fa-solid fa-id-card-clip"></i></span><span class="label">Escenario Solicitud (Est.)</span></a>
+      <a class="shell-link" href="Empresa_Solicita_Practicantes.html"><span class="icon"><i class="fa-solid fa-building"></i></span><span class="label">Escenario Solicitud (Empresa)</span></a>
+      <a class="shell-link" href="Gestion_Aprobacion_Convenios.html"><span class="icon"><i class="fa-solid fa-user-tie"></i></span><span class="label">Orquestación (Coordinador)</span></a>
+    </nav>
+    <div class="shell-title">Recursos</div>
+    <nav class="shell-menu">
+      <a class="shell-link active" href="#"><span class="icon"><i class="fa-solid fa-lightbulb"></i></span><span class="label">Guía de Afinación</span></a>
+    </nav>
+  </aside>
+  <div class="shell-overlay" id="overlay"></div>
+
+  <!-- Main -->
+  <main class="shell-main">
+    <div class="container container-narrow py-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <h1 class="h4 m-0">Guía de Afinación del Mockup</h1>
+          <div class="text-muted">Proceso integral — de la solicitud empresarial al cierre académico</div>
+        </div>
+        <div class="d-flex gap-2 flex-wrap">
+          <span class="kpi-pill"><i class="fa-solid fa-list-check"></i><span id="kpiChecklist">0%</span> checklist</span>
+          <span class="kpi-pill"><i class="fa-solid fa-user-gear"></i><span id="kpiRol">Estudiante</span></span>
+        </div>
+      </div>
+
+      <!-- Intro destacada -->
+      <section class="intro-section mb-4">
+        <h4 class="mb-1"><i class="fa-solid fa-diagram-project me-2"></i>Prácticas y convenios articulados</h4>
+        <p class="mb-2"><strong>De la solicitud empresarial al cierre académico.</strong></p>
+        <p class="mb-2">Gestiona de manera integral los convenios con empresas y sus solicitudes de practicantes. Administra las ofertas y los cupos disponibles por periodo académico, asigna estudiantes según perfil y disponibilidad, y formaliza la instalación mediante firma digital.</p>
+        <p class="mb-0">Supervisa el proceso con evaluaciones de seguimiento <strong>S5</strong> y <strong>S15</strong>, garantiza el cumplimiento de los objetivos académicos y consolida el cierre con indicadores y reportes estratégicos para la toma de decisiones institucionales.</p>
+      </section>
+
+      <!-- Guía central -->
+      <div class="card guide-card shadow-sm mb-4" id="introGuide">
+        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+          <span><i class="fa-solid fa-lightbulb me-2"></i> Guía central de afinación</span>
+          <button class="btn btn-sm btn-light" data-bs-toggle="collapse" data-bs-target="#introBody" aria-expanded="true"><i class="fa-solid fa-chevron-down"></i></button>
+        </div>
+        <div id="introBody" class="collapse show">
+          <div class="card-body">
+            <p class="mb-2">Usa este guion para validar <strong>flujo</strong>, <strong>contenido</strong> y <strong>experiencia</strong> de los tres actores: Estudiante, Empresa y Coordinador.</p>
+            <ul class="mb-0">
+              <li>Información mínima y acciones claras por paso.</li>
+              <li>Mensajes/estados correctos (prerrequisitos, curso de acercamiento, ARL, modalidad).</li>
+              <li>Rol activo coherente por página y navegación consistente.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
+        <li class="nav-item" role="presentation">
+          <button class="nav-link active" id="pills-estudiante-tab" data-bs-toggle="pill" data-bs-target="#pills-estudiante" type="button" role="tab">Estudiante</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="pills-empresa-tab" data-bs-toggle="pill" data-bs-target="#pills-empresa" type="button" role="tab">Empresa</button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" id="pills-orq-tab" data-bs-toggle="pill" data-bs-target="#pills-orq" type="button" role="tab">Orquestación</button>
+        </li>
+      </ul>
+
+      <div class="tab-content" id="pills-tabContent">
+        <!-- Estudiante -->
+        <div class="tab-pane fade show active" id="pills-estudiante" role="tabpanel">
+          <div class="row g-3">
+            <div class="col-lg-7">
+              <div class="card shadow-sm guide-card">
+                <div class="card-body">
+                  <h5 class="card-title">Checklist de revisión (Estudiante)</h5>
+                  <div class="vstack gap-2">
+                    <label class="form-check"><input class="form-check-input me-2 ck" type="checkbox" data-key="st_prerreq"> Validación de prerrequisitos (íconos, colores, estados).</label>
+                    <label class="form-check"><input class="form-check-input me-2 ck" type="checkbox" data-key="st_alertas"> Alertas: curso de acercamiento, ARL y recordatorios con salto.</label>
+                    <label class="form-check"><input class="form-check-input me-2 ck" type="checkbox" data-key="st_flujo"> Paso 1→2→3 conserva rol y contexto (localStorage).</label>
+                    <label class="form-check"><input class="form-check-input me-2 ck" type="checkbox" data-key="st_guardar"> Guardar/Continuar con validaciones oportunas.</label>
+                  </div>
+                </div>
+                <div class="card-footer bg-body">
+                  <a href="Estudiante_proceso_practica.html" class="btn btn-primary btn-sm"><i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Abrir flujo Estudiante</a>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-5">
+              <div class="card shadow-sm guide-card h-100">
+                <div class="card-body">
+                  <h5 class="card-title">Notas rápidas</h5>
+                  <textarea id="notesStudent" class="form-control" rows="10" placeholder="Hallazgos de UX, textos por mejorar, estados faltantes…"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Empresa -->
+        <div class="tab-pane fade" id="pills-empresa" role="tabpanel">
+          <div class="row g-3">
+            <div class="col-lg-7">
+              <div class="card shadow-sm guide-card">
+                <div class="card-body">
+                  <h5 class="card-title">Checklist de revisión (Empresa)</h5>
+                  <div class="vstack gap-2">
+                    <label class="form-check"><input class="form-check-input me-2 ck" type="checkbox" data-key="em_form"> Formulario simple y validación de campos críticos.</label>
+                    <label class="form-check"><input class="form-check-input me-2 ck" type="checkbox" data-key="em_feedback"> Confirmaciones (toast/alert) y radicado/seguimiento.</label>
+                    <label class="form-check"><input class="form-check-input me-2 ck" type="checkbox" data-key="em_privacy"> Tratamiento de datos visible (aviso/consentimiento).</label>
+                    <label class="form-check"><input class="form-check-input me-2 ck" type="checkbox" data-key="em_estado"> Estados de solicitud visibles (aceptada, en revisión, observada).</label>
+                  </div>
+                </div>
+                <div class="card-footer bg-body">
+                  <a href="Empresa_Solicita_Practicantes.html" class="btn btn-primary btn-sm"><i class="fa-solid fa-arrow-up-right-from-square me-1"></i> Abrir flujo Empresa</a>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-5">
+              <div class="card shadow-sm guide-card h-100">
+                <div class="card-body">
+                  <h5 class="card-title">Notas rápidas</h5>
+                  <textarea id="notesCompany" class="form-control" rows="10" placeholder="Hallazgos de UX para Empresas…"></textarea>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Orquestación -->
+        <div class="tab-pane fade" id="pills-orq" role="tabpanel">
+          <div class="row g-3">
+            <div class="col-lg-7">
+              <div class="card shadow-sm guide-card">
+                <div class="card-body">
+                  <h5 class="card-title">Orquestación y handoffs</h5>
+                  <p>Valida reglas de negocio y transiciones entre actores:</p>
+                  <div class="vstack gap-2">
+                    <label class="form-check"><input class="form-check-input me-2 ck" type="checkbox" data-key="orq_role"> Rol activo coherente por página (forzado por URL).</label>
+                    <label class="form-check"><input class="form-check-input me-2 ck" type="checkbox" data-key="orq_acerc"> Matrícula automática a <strong>Acercamiento a Prácticas</strong> y condición para Modalidad en Escenario.</label>
+                    <label class="form-check"><input class="form-check-input me-2 ck" type="checkbox" data-key="orq_arl"> Paso 2 captura datos/soportes para ARL (completitud y calidad).</label>
+                    <label class="form-check"><input class="form-check-input me-2 ck" type="checkbox" data-key="orq_estado"> Estados y notificaciones: estudiante ↔ empresa ↔ coordinador.</label>
+                    <label class="form-check"><input class="form-check-input me-2 ck" type="checkbox" data-key="orq_logs"> Trazabilidad (radicados, auditoría, fechas clave) para coordinador.</label>
+                  </div>
+                </div>
+                <div class="card-footer bg-body d-flex gap-2 flex-wrap">
+                  <a href="Gestion_Aprobacion_Convenios.html" class="btn btn-outline-primary btn-sm"><i class="fa-solid fa-user-tie me-1"></i> Panel Coordinador</a>
+                  <a href="disponibilidadModalidad.html" class="btn btn-outline-secondary btn-sm"><i class="fa-solid fa-clipboard-check me-1"></i> Paso 3</a>
+                </div>
+              </div>
+            </div>
+            <div class="col-lg-5">
+              <div class="card shadow-sm guide-card h-100">
+                <div class="card-body">
+                  <h5 class="card-title">Guion de referencia</h5>
+                  <p class="small text-muted">Si YouTube bloquea la reproducción (p.ej., <em>Error 153</em>), usa el video local.</p>
+                  <div class="mb-2">
+                    <div class="btn-group btn-group-sm" role="group" aria-label="selector de fuente de video">
+                      <input type="radio" class="btn-check" name="srcVideo" id="srcYt" autocomplete="off" checked>
+                      <label class="btn btn-outline-primary" for="srcYt"><i class="fa-brands fa-youtube me-1"></i> YouTube</label>
+                      <input type="radio" class="btn-check" name="srcVideo" id="srcLocal" autocomplete="off">
+                      <label class="btn btn-outline-secondary" for="srcLocal"><i class="fa-solid fa-file-video me-1"></i> Local</label>
+                    </div>
+                  </div>
+                  <div class="ratio ratio-16x9 rounded overflow-hidden border" id="videoWrap">
+                    <iframe id="ytFrame" src="https://www.youtube-nocookie.com/embed/LQPGlwTA660" title="Video guía — Prácticas Reinventadas" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                  </div>
+                  <video id="localVideo" class="w-100 mt-2 d-none" controls preload="metadata">
+                    <source src="Reinventadas.mp4" type="video/mp4"/>
+                    Tu navegador no soporta video HTML5.
+                  </video>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-end mt-3 gap-2">
+        <button class="btn btn-outline-secondary btn-sm" id="resetGuide"><i class="fa-solid fa-rotate-left me-1"></i> Reiniciar checklist</button>
+        <button class="btn btn-success btn-sm" id="exportNotes"><i class="fa-solid fa-file-export me-1"></i> Exportar notas</button>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    (function(){
+      const body=document.body;
+      const btn=document.getElementById('toggleSidebar');
+      const overlay=document.getElementById('overlay');
+      const roleName=document.getElementById('roleName');
+      const sidebarRole=document.getElementById('sidebarRole');
+      const avatarInitials=document.getElementById('avatarInitials');
+      const ROLE_KEY='active-role';
+
+      const isMobile=()=> window.matchMedia('(max-width:992px)').matches;
+      function setBtn(){
+        const isOpen=body.classList.contains('sidebar-open');
+        const isCollapsed=body.classList.contains('sidebar-collapsed');
+        const html = isMobile() ? (isOpen?'<i class="fa-solid fa-xmark"></i>':'<i class="fa-solid fa-bars"></i>')
+                                : (isCollapsed?'<i class="fa-solid fa-bars"></i>':'<i class="fa-solid fa-xmark"></i>');
+        if(btn){ btn.innerHTML = html; btn.setAttribute('aria-expanded', (isMobile()?isOpen:!isCollapsed) ? 'true':'false'); }
+      }
+      function applyDesktopState(){
+        const saved=localStorage.getItem('sidebar-state')||'collapsed';
+        if(saved==='expanded') body.classList.remove('sidebar-collapsed');
+        else body.classList.add('sidebar-collapsed');
+      }
+      function openMobile(){ body.classList.add('sidebar-open'); }
+      function closeMobile(){ body.classList.remove('sidebar-open'); }
+      function toggle(){
+        if(isMobile()){ body.classList.contains('sidebar-open') ? closeMobile() : openMobile(); }
+        else{
+          body.classList.toggle('sidebar-collapsed');
+          localStorage.setItem('sidebar-state', body.classList.contains('sidebar-collapsed')?'collapsed':'expanded');
+        }
+        setBtn();
+      }
+      if(btn) btn.addEventListener('click', toggle);
+      if(overlay) overlay.addEventListener('click', ()=>{ if(isMobile()){ closeMobile(); setBtn(); } });
+      window.addEventListener('resize', ()=>{ if(isMobile()){ closeMobile(); } setBtn(); });
+      if(!isMobile()) applyDesktopState();
+      setBtn();
+
+      // Rol persistente + iniciales
+      function setRole(role){
+        localStorage.setItem(ROLE_KEY, role);
+        roleName.textContent=role; sidebarRole.textContent=role;
+        avatarInitials.textContent = (role==='Empresa'?'EM':role==='Coordinador'?'CO':'ES');
+        document.getElementById('kpiRol').textContent = role;
+      }
+	  document.querySelectorAll('.dropdown-menu [data-role]')?.forEach(a=>{
+  a.addEventListener('click', (e)=>{
+    e.preventDefault(); 
+    setRole(a.dataset.role);
+    window.location.href = a.getAttribute('href');
+  });
+});
+
+
+      // Checklist: persistencia + KPI
+      function updateKpi(){
+        const all = document.querySelectorAll('.ck');
+        const checked = Array.from(all).filter(x=>x.checked).length;
+        const pct = Math.round((checked / all.length) * 100);
+        document.getElementById('kpiChecklist').textContent = (isNaN(pct)?0:pct) + '%';
+      }
+      document.querySelectorAll('.ck').forEach(ch=>{
+        const key = 'ck_'+ch.dataset.key;
+        ch.checked = localStorage.getItem(key)==='1';
+        ch.addEventListener('change', ()=>{ localStorage.setItem(key, ch.checked?'1':'0'); updateKpi(); });
+      });
+      updateKpi();
+
+      // Notas persistentes
+      function bindNotes(id, key){
+        const el = document.getElementById(id); if(!el) return;
+        el.value = localStorage.getItem(key)||'';
+        el.addEventListener('input', ()=> localStorage.setItem(key, el.value));
+      }
+      bindNotes('notesStudent','notes_student');
+      bindNotes('notesCompany','notes_company');
+
+      document.getElementById('resetGuide').addEventListener('click', ()=>{
+        document.querySelectorAll('.ck').forEach(ch=>{ ch.checked=false; localStorage.removeItem('ck_'+ch.dataset.key); });
+        updateKpi();
+      });
+
+      document.getElementById('exportNotes').addEventListener('click', ()=>{
+        const data = {
+          rol: localStorage.getItem(ROLE_KEY)||'Estudiante',
+          checklist: Array.from(document.querySelectorAll('.ck')).map(ch=>({key:ch.dataset.key, checked: ch.checked})),
+          notes_student: localStorage.getItem('notes_student')||'',
+          notes_company: localStorage.getItem('notes_company')||''
+        };
+        const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a'); a.href=url; a.download='guia_afinacion_practicas.json'; a.click(); URL.revokeObjectURL(url);
+      });
+
+      // Selector de fuente de video (YouTube / Local)
+      const srcYt=document.getElementById('srcYt');
+      const srcLocal=document.getElementById('srcLocal');
+      const ytFrame=document.getElementById('ytFrame');
+      const localVideo=document.getElementById('localVideo');
+      function setVideo(){
+        if(srcLocal.checked){ ytFrame.parentElement.classList.add('d-none'); ytFrame.src = ytFrame.src; localVideo.classList.remove('d-none'); }
+        else{ localVideo.classList.add('d-none'); localVideo.pause(); ytFrame.parentElement.classList.remove('d-none'); }
+      }
+      srcYt?.addEventListener('change', setVideo);
+      srcLocal?.addEventListener('change', setVideo);
+      setVideo();
+    })();
+  </script>
+</body>
+</html>

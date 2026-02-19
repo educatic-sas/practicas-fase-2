@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Disponibilidad, Modalidad y Confirmación - v3</title>
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet">
+  <style>
+    :root{
+      --brand-primary:#0d6efd;
+      --brand-success:#198754;
+      --brand-dark:#0b2239;
+    }
+    body{ background:#f7f9fb; }
+    .container-narrow{ max-width: 980px; }
+    .stepper{ display:flex; gap:.5rem; align-items:center; }
+    .step{
+      padding:.35rem .7rem; border-radius:1rem; background:#e9ecef; font-weight:600; color:#455a64;
+    }
+    .step.active{ background:var(--brand-success); color:#fff; box-shadow:0 0 0 .2rem rgba(25,135,84,.18); }
+    .step.inactive{ opacity:.6; }
+    /* Sticky header for Section 4 */
+    .sticky-4{
+      position: sticky; top:0; z-index: 1030;
+      background:#fff; border-bottom:1px solid #dee2e6;
+    }
+    .card-rounded{ border-radius:1rem; }
+    .section-title{
+      color: var(--brand-dark);
+      font-weight: 700;
+    }
+    .form-help{ font-size:.9rem; color:#6c757d; }
+    .hidden{ display:none !important; }
+    .download-box{
+      border:1px dashed #6c757d; border-radius:.75rem; padding:1rem; background:#fff;
+    }
+    .badge-soft{
+      background:#e7f1ff; color:#084298; border:1px solid #cfe2ff; font-weight:600;
+    }
+    .footer-actions{
+      position:sticky; bottom:0; background:#ffffffc9; backdrop-filter: blur(4px);
+      border-top:1px solid #e9ecef; padding:.75rem;
+    }
+    .upload-area{
+      background: #f8f9fa; border:1px dashed #ced4da; border-radius:.75rem; padding:1rem;
+    }
+    .small-muted{ font-size:.9rem; color:#6c757d; }
+  </style>
+</head>
+<body>
+  <div class="sticky-4">
+    <div class="container container-narrow py-3">
+      <div class="d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-3">
+          <span class="badge rounded-pill text-bg-success">Paso 3</span>
+          <h1 class="h5 m-0 section-title">Disponibilidad, modalidad y confirmación</h1>
+        </div>
+        <div class="stepper">
+          <span class="step inactive">1</span>
+          <span class="step inactive">2</span>
+          <span class="step active">3</span>
+          
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main class="container container-narrow my-4">
+    <!-- Intro -->
+    <div class="alert alert-info card-rounded" role="alert">
+      <div class="d-flex align-items-start gap-3">
+        <i class="fa-solid fa-circle-info fs-4"></i>
+        <div>
+          <strong>Instrucciones:</strong> primero elige tu <em>disponibilidad por jornada</em>, luego selecciona la <em>modalidad</em>. Según tu elección, te mostraremos las opciones de <em>tipo de práctica</em> o el <em>formato para practicante trabajador</em>.
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulario -->
+    <form id="form-disponibilidad" class="card card-rounded shadow-sm">
+      <div class="card-body p-4">
+
+        <!-- DISPONIBILIDAD -->
+        <section aria-labelledby="lblDisponibilidad" class="mb-4">
+          <h2 id="lblDisponibilidad" class="h6 text-uppercase text-muted mb-3">Disponibilidad por jornada laboral</h2>
+          <div class="row g-3">
+            <div class="col-12">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="disponibilidad" id="dispMedio" value="medio" required>
+                <label class="form-check-label" for="dispMedio">
+                  Medio tiempo
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="disponibilidad" id="dispCompleto" value="completo">
+                <label class="form-check-label" for="dispCompleto">
+                  Tiempo completo
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="disponibilidad" id="dispSin" value="sin">
+                <label class="form-check-label" for="dispSin">
+                  Sin disponibilidad horaria por jornada laboral
+                </label>
+              </div>
+              <div class="form-help mt-1">Esta selección define tu régimen de dedicación para la práctica.</div>
+            </div>
+          </div>
+        </section>
+
+        <hr class="my-4">
+
+        <!-- MODALIDAD -->
+        <section aria-labelledby="lblModalidad" class="mb-4">
+          <h2 id="lblModalidad" class="h6 text-uppercase text-muted mb-3">Modalidad</h2>
+          <div class="row g-3">
+            <div class="col-md-6">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="modalidad" id="modEscenario" value="escenario" required>
+                <label class="form-check-label" for="modEscenario">Escenario</label>
+              </div>
+            </div>
+            <div class="col-md-6">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="modalidad" id="modAutonoma" value="autonoma">
+                <label class="form-check-label" for="modAutonoma">Autónoma</label>
+              </div>
+            </div>
+          </div>
+          <div class="form-help mt-1">Selecciona dónde desarrollarás tu práctica.</div>
+        </section>
+
+        <!-- TIPO (Autónoma) -->
+        <section id="secTipoAutonoma" class="mb-4 hidden" aria-labelledby="lblTipoAutonoma">
+          <h2 id="lblTipoAutonoma" class="h6 text-uppercase text-muted mb-3">Tipo de práctica (para modalidad Autónoma)</h2>
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label" for="tipoAutonoma">Elige el tipo de práctica</label>
+              <select id="tipoAutonoma" class="form-select">
+                <option value="" selected disabled>Selecciona una opción…</option>
+                <option value="Investigativa">Investigativa</option>
+                <option value="Emprendimiento">Práctica de Emprendimiento, Transferencia e Innovación</option>
+                <option value="Creacion">Práctica de creación</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <!-- PRACTICANTE TRABAJADOR (Escenario + Sin disponibilidad) -->
+        <section id="secTrabajador" class="mb-4 hidden" aria-labelledby="lblTrabajador">
+          <h2 id="lblTrabajador" class="h6 text-uppercase text-muted mb-3">Tipo asignado</h2>
+
+          <div class="alert alert-success d-flex align-items-start gap-2" role="status">
+            <i class="fa-solid fa-user-check mt-1"></i>
+            <div>
+              <p class="mb-1">
+                Se asignó automáticamente el <span class="badge badge-soft">Tipo: Practicante trabajador</span>.
+              </p>
+              <p class="mb-0">
+                Descargue el <strong>modelo establecido</strong>, diligéncielo y cargue el formato en este paso para continuar con la validación <strong>(sujeto a aprobación)</strong>.
+              </p>
+            </div>
+          </div>
+
+          <div class="download-box mb-3">
+            <div class="d-flex flex-wrap align-items-center justify-content-between gap-3">
+              <div>
+                <p class="mb-1 fw-semibold"><i class="fa-solid fa-file-arrow-down me-2"></i>Formato para practicante trabajador</p>
+                <p class="m-0 text-muted">Descargue, complete y adjunte el documento firmado.</p>
+              </div>
+              <a id="btnDescargarFormato" class="btn btn-outline-primary" href="Carta solicitud para practicante trabajador,docx" download>
+                Descargar modelo
+              </a>
+            </div>
+          </div>
+
+          <!-- Upload area -->
+          <div class="upload-area">
+            <div class="mb-2 fw-semibold"><i class="fa-solid fa-upload me-2"></i>Cargar formato diligenciado</div>
+            <div class="row g-2 align-items-center">
+              <div class="col-md-8">
+                <input class="form-control" type="file" id="fileTrabajador" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                <div class="small-muted mt-1">Formatos permitidos: PDF, DOC, DOCX. Tamaño máximo: 10&nbsp;MB.</div>
+              </div>
+              <div class="col-md-4 d-grid">
+                <button type="button" class="btn btn-primary" id="btnCargarDoc" disabled>
+                  Cargar documento
+                </button>
+              </div>
+            </div>
+            <div id="uploadFeedback" class="small-muted mt-2"></div>
+          </div>
+        </section>
+
+        <!-- Observaciones -->
+        <section class="mb-2">
+          <label for="observaciones" class="form-label">Observaciones (opcional)</label>
+          <textarea id="observaciones" class="form-control" rows="3" placeholder="Agregue comentarios relevantes…"></textarea>
+        </section>
+
+      </div>
+
+      <!-- Footer acciones -->
+      <div class="footer-actions d-flex justify-content-end gap-2">
+        <button type="button" class="btn btn-outline-secondary" id="btnCancelar">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-success" id="btnConfirmar">
+          <i class="fa-solid fa-check me-1"></i> Confirmar
+        </button>
+      </div>
+    </form>
+  </main>
+
+  <!-- Toasts -->
+  <div class="position-fixed bottom-0 end-0 p-3" style="z-index:1080">
+    <div id="toastOk" class="toast align-items-center text-bg-success border-0 mb-2" role="status" aria-live="polite" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body">
+          Tu selección fue guardada correctamente.
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+      </div>
+    </div>
+    <div id="toastUpload" class="toast align-items-center text-bg-success border-0" role="status" aria-live="polite" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body">
+          Documento cargado correctamente.
+        </div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    (function(){
+      const form = document.getElementById('form-disponibilidad');
+      const secTipoAutonoma = document.getElementById('secTipoAutonoma');
+      const tipoAutonoma = document.getElementById('tipoAutonoma');
+      const secTrabajador = document.getElementById('secTrabajador');
+      const fileTrabajador = document.getElementById('fileTrabajador');
+      const btnCargarDoc = document.getElementById('btnCargarDoc');
+      const uploadFeedback = document.getElementById('uploadFeedback');
+
+      const radiosDispon = document.querySelectorAll('input[name="disponibilidad"]');
+      const radiosMod = document.querySelectorAll('input[name="modalidad"]');
+
+      function getDispon(){ return (document.querySelector('input[name="disponibilidad"]:checked')||{}).value; }
+      function getModalidad(){ return (document.querySelector('input[name="modalidad"]:checked')||{}).value; }
+
+      function updateUI(){
+        const disp = getDispon();
+        const mod  = getModalidad();
+
+        // Reset visibility
+        secTipoAutonoma.classList.add('hidden');
+        secTrabajador.classList.add('hidden');
+
+        if(mod === 'autonoma'){
+          // Show type list
+          secTipoAutonoma.classList.remove('hidden');
+        }
+
+        if(mod === 'escenario' && disp === 'sin'){
+          // Assign Practicante trabajador
+          secTrabajador.classList.remove('hidden');
+        }
+      }
+
+      radiosDispon.forEach(r => r.addEventListener('change', updateUI));
+      radiosMod.forEach(r => r.addEventListener('change', updateUI));
+
+      // Habilitar botón de carga cuando hay archivo
+      fileTrabajador && fileTrabajador.addEventListener('change', () => {
+        btnCargarDoc.disabled = !fileTrabajador.files.length;
+        uploadFeedback.textContent = fileTrabajador.files.length ? fileTrabajador.files[0].name : '';
+      });
+
+      // Cargar documento (simulación + postMessage con metadata y base64)
+      btnCargarDoc && btnCargarDoc.addEventListener('click', async () => {
+        const f = fileTrabajador.files[0];
+        if(!f){ alert('Seleccione un archivo.'); return; }
+        if(f.size > 10*1024*1024){ alert('El archivo supera 10 MB.'); return; }
+
+        const reader = new FileReader();
+        reader.onload = function(){
+          const base64 = reader.result.split(',')[1];
+          // Emit to parent (ajuste a tu dominio en producción)
+          try{
+            parent.postMessage({
+              action: 'uploadDocumentoPracticanteTrabajador',
+              file: { name: f.name, type: f.type, size: f.size, base64 }
+            }, '*');
+          }catch(err){ /* noop */ }
+
+          const toastEl = document.getElementById('toastUpload');
+          const toast = new bootstrap.Toast(toastEl);
+          toast.show();
+        };
+        reader.readAsDataURL(f);
+      });
+
+      // Submit
+      form.addEventListener('submit', function(e){
+        e.preventDefault();
+        const disp = getDispon();
+        const mod  = getModalidad();
+
+        if(!disp || !mod){
+          alert('Por favor, elige tu disponibilidad y modalidad.');
+          return;
+        }
+
+        // Business rules:
+        // - Escenario + Sin disponibilidad -> tipo = Practicante trabajador
+        // - Escenario + (Medio|Completo) -> no se visualiza tipo
+        // - Autónoma -> debe elegir tipo
+        let tipo = null;
+        if(mod === 'escenario' && disp === 'sin'){
+          tipo = 'Practicante trabajador';
+        } else if(mod === 'autonoma'){
+          tipo = tipoAutonoma.value || '';
+          if(!tipo){
+            alert('Selecciona el tipo de práctica para modalidad Autónoma.');
+            return;
+          }
+        }
+
+        const payload = {
+          disponibilidad: disp,
+          modalidad: mod,
+          tipo: tipo,
+          documentoAdjunto: !!(fileTrabajador && fileTrabajador.files.length),
+          observaciones: document.getElementById('observaciones').value.trim()
+        };
+
+        // Emit to parent if embedded
+        try{
+          parent.postMessage({ action: 'seleccionDisponibilidadModalidad', data: payload }, '*');
+        }catch(err){ /* noop */ }
+
+        // Toast feedback
+        const toastEl = document.getElementById('toastOk');
+        const toast = new bootstrap.Toast(toastEl);
+        toast.show();
+      });
+
+      // Cancelar: cerrar modal/iframe si aplica
+      document.getElementById('btnCancelar').addEventListener('click', () => {
+        try{
+          parent.postMessage({ action: 'closeModal' }, '*');
+        }catch(err){ /* noop */ }
+      });
+
+      // Init
+      updateUI();
+    })();
+  </script>
+</body>
+</html>

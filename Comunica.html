@@ -1,0 +1,675 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Portal | Menú 3 niveles + utilitarios</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+
+  <style>
+    :root{
+      --edu-primary: #0B7A83;
+      --edu-primary-2: #0A6B73;
+      --edu-accent: #EB8810;
+
+      --edu-bg: #F6F7FB;
+      --edu-surface: #FFFFFF;
+      --edu-text: #0F172A;
+      --edu-muted: #64748B;
+      --edu-border: #E6E8EF;
+
+      --edu-shadow: 0 12px 34px rgba(15,23,42,.10);
+      --edu-shadow-soft: 0 8px 18px rgba(15,23,42,.08);
+
+      --edu-radius-xl: 18px;
+      --edu-radius-lg: 14px;
+
+      --topbar-h: 64px;
+      --sidebar-w: 320px;
+      --sidebar-mini-w: 92px;
+
+      --focus: 0 0 0 .22rem rgba(11,122,131,.20);
+    }
+
+    html, body{ height:100%; }
+    body{
+      margin:0;
+      background:var(--edu-bg);
+      color:var(--edu-text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    }
+
+    /* ===== TOPBAR ===== */
+    .topbar{
+      position: sticky; top: 0; z-index: 1040;
+      height: var(--topbar-h);
+      background: linear-gradient(90deg, var(--edu-primary), var(--edu-primary-2));
+      box-shadow: 0 2px 16px rgba(2,8,23,.16);
+      color:#fff;
+    }
+    .brand-mark{
+      width: 42px; height: 42px; border-radius: 14px;
+      display:inline-flex; align-items:center; justify-content:center;
+      background: rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.22);
+      box-shadow: 0 10px 22px rgba(0,0,0,.12);
+    }
+    .brand-title{ font-weight: 900; letter-spacing:.02em; }
+    .brand-sub{ opacity:.88; font-size:.82rem; margin-top:-2px; }
+
+    .topbar-btn{
+      width: 42px; height: 42px; border-radius: 14px;
+      display:inline-flex; align-items:center; justify-content:center;
+      color:#fff;
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.18);
+      transition: transform .12s ease, background .12s ease;
+    }
+    .topbar-btn:hover{ background: rgba(255,255,255,.16); transform: translateY(-1px); }
+    .topbar-btn:focus{ outline:none; box-shadow: 0 0 0 .22rem rgba(255,255,255,.22); }
+
+    .badge-dot{
+      position:absolute; top:-4px; right:-4px;
+      width: 18px; height: 18px; border-radius:999px;
+      background: var(--edu-accent);
+      color:#fff; font-size:.70rem; font-weight:900;
+      display:flex; align-items:center; justify-content:center;
+      border: 2px solid rgba(11,122,131,.60);
+    }
+
+    .topbar-search{ max-width: 560px; width: 100%; }
+    .topbar-search .form-control{
+      background: rgba(255,255,255,.14);
+      border: 1px solid rgba(255,255,255,.20);
+      color:#fff;
+      border-radius: 16px;
+      padding-left: 42px;
+      height: 42px;
+    }
+    .topbar-search .form-control::placeholder{ color: rgba(255,255,255,.80); }
+    .topbar-search .form-control:focus{ box-shadow: 0 0 0 .22rem rgba(255,255,255,.18); border-color: rgba(255,255,255,.34); }
+    .topbar-search .search-ico{
+      position:absolute; left: 14px; top: 50%;
+      transform: translateY(-50%);
+      color: rgba(255,255,255,.86);
+      pointer-events:none;
+    }
+
+    .role-pill{
+      height: 42px;
+      border-radius: 16px;
+      padding: .55rem .75rem;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.18);
+      color:#fff;
+      font-weight: 800;
+      display:flex; align-items:center; gap:.5rem;
+      white-space: nowrap;
+    }
+
+    /* ===== LAYOUT ===== */
+    .layout{ display:flex; min-height: calc(100vh - var(--topbar-h)); }
+
+    /* ===== SIDEBAR ===== */
+    .sidebar{
+      width: var(--sidebar-w);
+      background: var(--edu-surface);
+      border-right: 1px solid var(--edu-border);
+      padding: 14px;
+      position: sticky;
+      top: var(--topbar-h);
+      height: calc(100vh - var(--topbar-h));
+      overflow:auto;
+      transition: width .18s ease;
+    }
+    .sidebar.mini{ width: var(--sidebar-mini-w); padding: 12px 10px; }
+
+    .sidebar-card{
+      border-radius: var(--edu-radius-xl);
+      border: 1px solid var(--edu-border);
+      background: #fff;
+      box-shadow: var(--edu-shadow-soft);
+      overflow:hidden;
+      margin-bottom: 12px;
+    }
+    .sidebar-card .head{
+      padding: 14px;
+      display:flex; gap:12px; align-items:center;
+      background:
+        radial-gradient(circle at 10% 10%, rgba(235,136,16,.18), transparent 45%),
+        radial-gradient(circle at 90% 30%, rgba(11,122,131,.16), transparent 55%),
+        linear-gradient(180deg, rgba(15,23,42,.02), rgba(15,23,42,0));
+    }
+    .avatar{
+      width:48px; height:48px; border-radius:18px;
+      display:flex; align-items:center; justify-content:center;
+      background: rgba(11,122,131,.10);
+      color: var(--edu-primary);
+      border: 1px solid rgba(11,122,131,.18);
+      flex: 0 0 auto;
+    }
+    .user-name{ font-weight: 900; line-height:1.05; }
+    .user-role{
+      display:inline-flex; align-items:center; gap:.4rem;
+      margin-top:6px;
+      padding: .26rem .6rem;
+      border-radius:999px;
+      background: rgba(235,136,16,.14);
+      border: 1px solid rgba(235,136,16,.22);
+      color: var(--edu-accent);
+      font-weight: 900;
+      font-size:.78rem;
+      width: fit-content;
+    }
+    .sidebar-card .body{ padding: 12px 14px 14px; border-top: 1px solid var(--edu-border); }
+    .kv{ display:flex; justify-content:space-between; gap:10px; font-size:.90rem; color:var(--edu-muted); padding: 7px 0; }
+    .kv strong{ color: var(--edu-text); font-weight: 800; }
+
+    .seg-tabs{
+      display:flex; gap:10px; padding:10px;
+      background:#fff;
+      border:1px solid var(--edu-border);
+      border-radius:999px;
+      box-shadow: var(--edu-shadow-soft);
+      margin-bottom:12px;
+    }
+    .seg-tabs button{
+      flex:1; border:0; border-radius:999px;
+      padding:.55rem .8rem;
+      font-weight: 900;
+      color: var(--edu-muted);
+      background: transparent;
+    }
+    .seg-tabs button.active{
+      color: var(--edu-primary);
+      background: rgba(11,122,131,.10);
+      border: 1px solid rgba(11,122,131,.18);
+    }
+
+    /* ===== MENU 3 NIVELES ===== */
+    .menu{ display:flex; flex-direction:column; gap:8px; padding-bottom: 12px; }
+
+    .menu-item{
+      border-radius: var(--edu-radius-lg);
+      border: 1px solid transparent;
+      overflow:hidden;
+      transition: background .12s ease, border-color .12s ease, transform .12s ease;
+    }
+    .menu-item:hover{
+      background: rgba(15,23,42,.03);
+      border-color: rgba(230,232,239,.90);
+      transform: translateY(-1px);
+    }
+    .menu-item.active{
+      background: rgba(11,122,131,.10);
+      border-color: rgba(11,122,131,.20);
+    }
+
+    .menu-row{
+      display:flex; align-items:center; gap:12px;
+      padding: 10px 12px;
+      cursor:pointer;
+      user-select:none;
+    }
+    .mi-ico{
+      width: 42px; height: 42px; border-radius: 16px;
+      display:flex; align-items:center; justify-content:center;
+      background: rgba(11,122,131,.10);
+      border: 1px solid rgba(11,122,131,.18);
+      color: var(--edu-primary);
+      flex: 0 0 auto;
+    }
+    .mi-text{ min-width:0; flex:1; }
+    .mi-title{ font-weight: 950; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.1; }
+    .mi-sub{ font-size:.82rem; color:var(--edu-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+
+    .mi-right{ display:flex; align-items:center; gap:8px; flex:0 0 auto; }
+
+    .kpi-chip{
+      display:inline-flex; align-items:center; gap:.4rem;
+      padding: .26rem .55rem;
+      border-radius:999px;
+      background: rgba(11,122,131,.10);
+      border: 1px solid rgba(11,122,131,.18);
+      color: var(--edu-primary);
+      font-weight: 900;
+      font-size:.78rem;
+      white-space:nowrap;
+    }
+    .kpi-chip.warn{
+      background: rgba(235,136,16,.14);
+      border-color: rgba(235,136,16,.24);
+      color: var(--edu-accent);
+    }
+    .caret{
+      width: 36px; height: 36px; border-radius: 12px;
+      display:flex; align-items:center; justify-content:center;
+      background: rgba(15,23,42,.03);
+      border: 1px solid rgba(230,232,239,.90);
+      color: var(--edu-muted);
+    }
+
+    .submenu{
+      padding: 4px 12px 12px 60px;
+      display:none;
+      flex-direction:column;
+      gap:6px;
+    }
+    .submenu.open{ display:flex; }
+
+    .subitem{
+      border-radius: 14px;
+      border: 1px solid rgba(230,232,239,.90);
+      background:#fff;
+      padding: 9px 10px;
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      cursor:pointer;
+      transition: transform .12s ease, box-shadow .12s ease;
+    }
+    .subitem:hover{ transform: translateY(-1px); box-shadow: 0 10px 18px rgba(15,23,42,.06); }
+    .subitem .label{ display:flex; align-items:center; gap:10px; min-width:0; flex:1; }
+    .subitem .dot{
+      width:10px; height:10px; border-radius:999px;
+      background: rgba(11,122,131,.22);
+      border: 1px solid rgba(11,122,131,.24);
+      flex: 0 0 auto;
+    }
+    .subitem .text{ font-weight: 900; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .subitem .mini{
+      font-size:.78rem; font-weight:900; color: var(--edu-muted);
+      background: rgba(15,23,42,.04);
+      border: 1px solid rgba(230,232,239,.90);
+      padding: .18rem .5rem;
+      border-radius:999px;
+      white-space:nowrap;
+    }
+
+    .subsub{
+      padding: 6px 0 0 22px;
+      display:none;
+      flex-direction:column;
+      gap:6px;
+    }
+    .subsub.open{ display:flex; }
+    .subsub a{
+      text-decoration:none;
+      color: var(--edu-text);
+      border-radius: 12px;
+      padding: 8px 10px;
+      border: 1px solid rgba(230,232,239,.90);
+      background: rgba(246,247,251,.80);
+      font-weight: 900;
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+    }
+    .subsub a:hover{
+      background: rgba(11,122,131,.08);
+      border-color: rgba(11,122,131,.18);
+      color: var(--edu-primary);
+    }
+    .subsub a.active{
+      background: rgba(11,122,131,.10);
+      border-color: rgba(11,122,131,.20);
+      color: var(--edu-primary);
+    }
+
+    /* Sidebar mini */
+    .sidebar.mini .sidebar-card,
+    .sidebar.mini .seg-tabs,
+    .sidebar.mini .mi-text,
+    .sidebar.mini .mi-right .kpi-chip{ display:none; }
+    .sidebar.mini .menu-row{ justify-content:center; padding: 10px 8px; }
+    .sidebar.mini .caret{ display:none; }
+    .sidebar.mini .submenu{ display:none !important; }
+
+    /* ===== MAIN ===== */
+    .main{ flex:1; padding: 18px 18px 46px; }
+    .surface{
+      background: var(--edu-surface);
+      border: 1px solid var(--edu-border);
+      border-radius: var(--edu-radius-xl);
+      box-shadow: var(--edu-shadow-soft);
+    }
+  </style>
+</head>
+
+<body>
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="container-fluid h-100 px-3">
+      <div class="d-flex align-items-center justify-content-between h-100 gap-2">
+        <div class="d-flex align-items-center gap-2">
+          <button id="btnSidebar" class="topbar-btn" type="button" aria-label="Menú">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+
+          <div class="d-flex align-items-center gap-3">
+            <span class="brand-mark"><i class="fa-solid fa-building-columns"></i></span>
+            <div>
+              <div class="brand-title">Universidad EIA</div>
+              <div class="brand-sub">Portal académico y gestión</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="topbar-search position-relative d-none d-lg-block">
+          <i class="fa-solid fa-magnifying-glass search-ico"></i>
+          <input class="form-control" placeholder="Buscar módulo, proceso o documento…" aria-label="Buscar">
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+          <div class="dropdown">
+            <button class="role-pill" data-bs-toggle="dropdown" type="button">
+              <i class="fa-solid fa-user-tag"></i>
+              <span id="activeRole">Decano</span>
+              <i class="fa-solid fa-chevron-down small"></i>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+              <li><button class="dropdown-item role-item" data-role="Estudiante"><i class="fa-solid fa-graduation-cap me-2"></i>Estudiante</button></li>
+              <li><button class="dropdown-item role-item" data-role="Docente"><i class="fa-solid fa-chalkboard-user me-2"></i>Docente</button></li>
+              <li><button class="dropdown-item role-item" data-role="Coordinador"><i class="fa-solid fa-diagram-project me-2"></i>Coordinador</button></li>
+              <li><button class="dropdown-item role-item" data-role="Decano"><i class="fa-solid fa-building-columns me-2"></i>Decano</button></li>
+            </ul>
+          </div>
+
+          <button class="topbar-btn position-relative" data-bs-toggle="tooltip" data-bs-title="Notificaciones">
+            <i class="fa-regular fa-bell"></i>
+            <span class="badge-dot">1</span>
+          </button>
+          <button class="topbar-btn" data-bs-toggle="tooltip" data-bs-title="Mensajes"><i class="fa-regular fa-envelope"></i></button>
+          <button class="topbar-btn" data-bs-toggle="tooltip" data-bs-title="Atajos"><i class="fa-solid fa-layer-group"></i></button>
+          <button class="topbar-btn" data-bs-toggle="tooltip" data-bs-title="Perfil"><i class="fa-solid fa-circle-user"></i></button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <div class="layout">
+    <!-- SIDEBAR -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-card">
+        <div class="head">
+          <div class="avatar"><i class="fa-solid fa-user"></i></div>
+          <div class="w-100">
+            <div class="user-name">Hola, Yurian Andrea<br/>Hidalgo Velásquez</div>
+            <div class="user-role"><i class="fa-solid fa-badge-check"></i><span id="roleBadge">Decano</span></div>
+          </div>
+        </div>
+        <div class="body">
+          <div class="kv"><span>Correo</span><strong>maria.lopez@educatic.com.co</strong></div>
+          <div class="kv"><span>Celular</span><strong>3165239755</strong></div>
+        </div>
+      </div>
+
+      <div class="seg-tabs">
+        <button id="tabMenu" class="active" type="button">Menú</button>
+        <button id="tabAyudas" type="button">Ayudas</button>
+      </div>
+
+      <div id="menuRoot" class="menu"></div>
+
+      <div id="helpRoot" class="d-none">
+        <div class="p-3 rounded-4 border bg-white" style="border-color: var(--edu-border); box-shadow: var(--edu-shadow-soft);">
+          <div class="fw-bold mb-1"><i class="fa-solid fa-circle-info me-2" style="color: var(--edu-primary);"></i>Centro de ayuda</div>
+          <div class="text-secondary">Guías rápidas, rutas de proceso y soporte directo.</div>
+          <div class="d-grid gap-2 mt-3">
+            <button class="btn btn-light rounded-4 fw-bold"><i class="fa-solid fa-book-open me-2"></i>Guías</button>
+            <button class="btn btn-light rounded-4 fw-bold"><i class="fa-solid fa-headset me-2"></i>Soporte</button>
+            <button class="btn btn-light rounded-4 fw-bold"><i class="fa-solid fa-bolt me-2"></i>Atajos</button>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN (placeholder) -->
+    <main class="main">
+      <div class="surface p-4">
+        <h3 class="fw-black" style="font-weight: 900; color: var(--edu-primary);">Aprobación</h3>
+        <div class="text-secondary">Esta área se integra con tu contenido actual (breadcrumbs, KPIs y tabla).</div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const MENU = [
+      { id:"inicio", title:"Inicio", subtitle:"Resumen y accesos", icon:"fa-house", kpis:[{text:"1 novedad", kind:"warn"}],
+        children:[
+          { id:"inicio_dash", title:"Tablero", count:"", children:[{id:"inicio_dash_resumen", title:"Resumen ejecutivo"},{id:"inicio_dash_alertas", title:"Alertas"}]},
+          { id:"inicio_novedades", title:"Novedades", count:"1", children:[{id:"inicio_novedades_feed", title:"Feed"},{id:"inicio_novedades_eventos", title:"Eventos"}]}
+        ]
+      },
+      { id:"academico", title:"Académico", subtitle:"Procesos académicos", icon:"fa-graduation-cap", kpis:[{text:"4 pendientes", kind:"warn"}],
+        children:[
+          { id:"aca_plan", title:"Plan de trabajo", count:"4", children:[{id:"aca_plan_aprob", title:"Aprobación"},{id:"aca_plan_segui", title:"Seguimiento"},{id:"aca_plan_hist", title:"Histórico"}]},
+          { id:"aca_prog", title:"Programación", count:"", children:[{id:"aca_prog_hor", title:"Horarios"},{id:"aca_prog_esp", title:"Espacios"},{id:"aca_prog_doc", title:"Docentes"}]}
+        ]
+      },
+      { id:"gestion", title:"Gestión", subtitle:"Seguimiento y control", icon:"fa-diagram-project", kpis:[{text:"2 alertas", kind:"warn"}],
+        children:[
+          { id:"ges_proy", title:"Proyectos", count:"2", children:[{id:"ges_proy_tab", title:"Tablero"},{id:"ges_proy_rep", title:"Reportes"}]},
+          { id:"ges_fin", title:"Finanzas", count:"", children:[{id:"ges_fin_flu", title:"Flujo de caja"},{id:"ges_fin_pre", title:"Presupuesto"}]}
+        ]
+      },
+      { id:"servicios", title:"Servicios", subtitle:"Soporte y conocimiento", icon:"fa-headset", kpis:[{text:"7 tickets", kind:""}],
+        children:[
+          { id:"ser_soporte", title:"Soporte", count:"7", children:[{id:"ser_soporte_tic", title:"Tickets"},{id:"ser_soporte_sla", title:"SLA"}]},
+          { id:"ser_kb", title:"Conocimiento", count:"", children:[{id:"ser_kb_base", title:"Base"},{id:"ser_kb_guias", title:"Guías"}]}
+        ]
+      },
+      { id:"lms", title:"LMS", subtitle:"Aprendizaje digital", icon:"fa-laptop-code", kpis:[{text:"3 cursos", kind:""}],
+        children:[
+          { id:"lms_cursos", title:"Cursos", count:"3", children:[{id:"lms_cursos_mis", title:"Mis cursos"},{id:"lms_cursos_eval", title:"Evaluaciones"}]},
+          { id:"lms_contenido", title:"Contenido", count:"", children:[{id:"lms_cont_rec", title:"Recursos"},{id:"lms_cont_scorm", title:"Paquetes SCORM"}]}
+        ]
+      }
+    ];
+
+    const LS = {
+      MINI: "eia_sidebar_mini_v1",
+      TAB: "eia_sidebar_tab_v1",
+      EXP: "eia_menu_expanded_v1",
+      ACTIVE: "eia_menu_active_v1",
+      ROLE: "eia_active_role_v1"
+    };
+
+    const sidebar = document.getElementById("sidebar");
+    const btnSidebar = document.getElementById("btnSidebar");
+    const menuRoot = document.getElementById("menuRoot");
+    const helpRoot = document.getElementById("helpRoot");
+    const tabMenu = document.getElementById("tabMenu");
+    const tabAyudas = document.getElementById("tabAyudas");
+    const activeRole = document.getElementById("activeRole");
+    const roleBadge = document.getElementById("roleBadge");
+
+    function getExpanded(){ try { return JSON.parse(localStorage.getItem(LS.EXP) || "[]"); } catch(e){ return []; } }
+    function setExpanded(arr){ localStorage.setItem(LS.EXP, JSON.stringify(arr)); }
+
+    function setActive(id){
+      localStorage.setItem(LS.ACTIVE, id);
+      applyActiveStyles();
+    }
+
+    function applyActiveStyles(){
+      const active = localStorage.getItem(LS.ACTIVE) || "aca_plan_aprob";
+      document.querySelectorAll(".menu-item").forEach(el => el.classList.remove("active"));
+      document.querySelectorAll(".subsub a").forEach(a => a.classList.remove("active"));
+
+      const a = document.querySelector(`[data-leaf="${active}"]`);
+      if(a){
+        a.classList.add("active");
+        const mainId = a.getAttribute("data-main");
+        const mainEl = document.querySelector(`[data-main="${mainId}"]`);
+        if(mainEl) mainEl.classList.add("active");
+      }
+    }
+
+    function render(){
+      const expanded = new Set(getExpanded());
+      menuRoot.innerHTML = "";
+
+      MENU.forEach(main => {
+        const item = document.createElement("div");
+        item.className = "menu-item";
+        item.setAttribute("data-main", main.id);
+
+        const row = document.createElement("div");
+        row.className = "menu-row";
+        row.setAttribute("data-bs-toggle", "tooltip");
+        row.setAttribute("data-bs-placement", "right");
+        row.setAttribute("data-bs-title", main.title);
+
+        const ico = document.createElement("div");
+        ico.className = "mi-ico";
+        ico.innerHTML = `<i class="fa-solid ${main.icon}"></i>`;
+
+        const text = document.createElement("div");
+        text.className = "mi-text";
+        text.innerHTML = `<div class="mi-title">${main.title}</div><div class="mi-sub">${main.subtitle}</div>`;
+
+        const right = document.createElement("div");
+        right.className = "mi-right";
+
+        (main.kpis || []).forEach(k => {
+          const chip = document.createElement("span");
+          chip.className = `kpi-chip ${k.kind === "warn" ? "warn" : ""}`;
+          chip.innerHTML = `<i class="fa-solid fa-signal"></i><span>${k.text}</span>`;
+          right.appendChild(chip);
+        });
+
+        const caret = document.createElement("div");
+        caret.className = "caret";
+        caret.innerHTML = `<i class="fa-solid ${expanded.has(main.id) ? "fa-chevron-up" : "fa-chevron-down"}"></i>`;
+        right.appendChild(caret);
+
+        row.appendChild(ico);
+        row.appendChild(text);
+        row.appendChild(right);
+
+        const submenu = document.createElement("div");
+        submenu.className = "submenu" + (expanded.has(main.id) ? " open" : "");
+
+        (main.children || []).forEach(l2 => {
+          const sub = document.createElement("div");
+          sub.className = "subitem";
+
+          const label = document.createElement("div");
+          label.className = "label";
+          label.innerHTML = `<span class="dot"></span><span class="text">${l2.title}</span>`;
+
+          const meta = document.createElement("div");
+          meta.innerHTML = `<span class="mini">${l2.count ? l2.count : "Abrir"}</span>`;
+
+          sub.appendChild(label);
+          sub.appendChild(meta);
+
+          const subsub = document.createElement("div");
+          subsub.className = "subsub" + (expanded.has(l2.id) ? " open" : "");
+
+          (l2.children || []).forEach(l3 => {
+            const a = document.createElement("a");
+            a.href = "#";
+            a.setAttribute("data-leaf", l3.id);
+            a.setAttribute("data-main", main.id);
+            a.innerHTML = `<span>${l3.title}</span><i class="fa-solid fa-arrow-right-long small"></i>`;
+            a.addEventListener("click", (e) => {
+              e.preventDefault();
+              setActive(l3.id);
+              const exp = new Set(getExpanded());
+              exp.add(main.id);
+              exp.add(l2.id);
+              setExpanded([...exp]);
+              render();
+            });
+            subsub.appendChild(a);
+          });
+
+          sub.addEventListener("click", () => {
+            const exp = new Set(getExpanded());
+            exp.has(l2.id) ? exp.delete(l2.id) : exp.add(l2.id);
+            exp.add(main.id);
+            setExpanded([...exp]);
+            render();
+          });
+
+          submenu.appendChild(sub);
+          submenu.appendChild(subsub);
+        });
+
+        row.addEventListener("click", () => {
+          const exp = new Set(getExpanded());
+          exp.has(main.id) ? exp.delete(main.id) : exp.add(main.id);
+          setExpanded([...exp]);
+          render();
+        });
+
+        item.appendChild(row);
+        item.appendChild(submenu);
+        menuRoot.appendChild(item);
+      });
+
+      applyActiveStyles();
+      refreshTooltips();
+    }
+
+    function applySidebarState(){
+      const isMini = localStorage.getItem(LS.MINI) === "1";
+      sidebar.classList.toggle("mini", isMini);
+      refreshTooltips();
+    }
+
+    btnSidebar.addEventListener("click", () => {
+      const next = sidebar.classList.contains("mini") ? "0" : "1";
+      localStorage.setItem(LS.MINI, next);
+      applySidebarState();
+    });
+
+    function setTab(tab){
+      localStorage.setItem(LS.TAB, tab);
+      const isMenu = tab === "menu";
+      tabMenu.classList.toggle("active", isMenu);
+      tabAyudas.classList.toggle("active", !isMenu);
+      menuRoot.classList.toggle("d-none", !isMenu);
+      helpRoot.classList.toggle("d-none", isMenu);
+    }
+
+    tabMenu.addEventListener("click", () => setTab("menu"));
+    tabAyudas.addEventListener("click", () => setTab("ayudas"));
+
+    function applyRole(){
+      const role = localStorage.getItem(LS.ROLE) || "Decano";
+      activeRole.textContent = role;
+      roleBadge.textContent = role;
+    }
+
+    document.querySelectorAll(".role-item").forEach(btn => {
+      btn.addEventListener("click", () => {
+        localStorage.setItem(LS.ROLE, btn.dataset.role);
+        applyRole();
+      });
+    });
+
+    let tooltipInstances = [];
+    function refreshTooltips(){
+      tooltipInstances.forEach(t => t.dispose());
+      tooltipInstances = [];
+      document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => {
+        tooltipInstances.push(new bootstrap.Tooltip(el));
+      });
+    }
+
+    (function init(){
+      applySidebarState();
+      setTab(localStorage.getItem(LS.TAB) || "menu");
+
+      if(!localStorage.getItem(LS.EXP)) setExpanded(["academico","aca_plan"]);
+      if(!localStorage.getItem(LS.ACTIVE)) localStorage.setItem(LS.ACTIVE, "aca_plan_aprob");
+
+      applyRole();
+      render();
+      refreshTooltips();
+    })();
+  </script>
+</body>
+</html>

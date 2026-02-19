@@ -1,0 +1,2098 @@
+<!doctype html>
+<html lang="es" data-bs-theme="light">  
+<head>  
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Portal Coordinadores – Gestión institucional de convenios</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>
+  <style>
+    :root{
+      --shadow-1:0 8px 24px rgba(0,0,0,.08);
+      --shadow-2:0 12px 28px rgba(0,0,0,.12);
+      --tag-bg: var(--bs-tertiary-bg);
+    }
+    body{background:var(--bs-body-bg)}
+    .app-header{position:sticky;top:0;z-index:1030;background:var(--bs-body-bg);border-bottom:1px solid var(--bs-border-color);box-shadow:0 4px 12px rgba(0,0,0,.04)}
+    .kpi-card{position:relative;border:0;box-shadow:var(--shadow-1);transition:transform .2s ease,box-shadow .2s ease}
+    .kpi-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-2)}
+    .kpi-card .lead{font-weight:600}
+    .guide-card{background:var(--bs-tertiary-bg);border-left:4px solid var(--bs-primary);box-shadow:var(--shadow-1)}
+    /* Horizontal tags bar */
+    .tags-row{display:flex;gap:.75rem;align-items:center;overflow:auto;white-space:nowrap;padding:.25rem .25rem .75rem}
+    .tag-chip{display:inline-flex;align-items:center;gap:.5rem;padding:.5rem .75rem;background:var(--tag-bg);border:1px solid var(--bs-border-color);border-radius:.5rem;text-decoration:none;box-shadow:var(--shadow-1)}
+    .tag-chip .title{font-weight:600}
+    .tag-chip .pill{margin-left:.25rem}
+    .tag-chip.active{outline:2px solid var(--bs-primary)}
+    .section-card{border:1px solid var(--bs-border-color);border-radius:.75rem;box-shadow:var(--shadow-1)}
+    .sticky-tools{position:sticky;top:56px;z-index:10;background:var(--bs-body-bg)}
+    .page{display:none}
+    .page.active{display:block}
+    .table-actions .btn{--bs-btn-padding-y:.25rem;--bs-btn-padding-x:.5rem}
+  
+/* ===== Shell (Topbar + Sidebar) ===== */
+:root{ --shell-topbar:56px; --shell-sidebar:250px; --shell-mini:72px; }
+html, body{ height:100%; overflow-x:hidden; }
+.shell-topbar{ position:sticky; top:0; z-index:1080; height:var(--shell-topbar);
+  background:#212529; color:#fff; border-bottom:1px solid rgba(255,255,255,.08); box-shadow:0 4px 12px rgba(0,0,0,.25); }
+.shell-topbar .btn, .shell-topbar .btn:hover, .shell-topbar .btn:focus{ color:#fff !important; }
+.shell-topbar .dropdown-menu{
+  --bs-dropdown-bg:#2b3035; --bs-dropdown-link-color:#f8f9fa;
+  --bs-dropdown-link-hover-bg:#343a40; --bs-dropdown-link-hover-color:#fff;
+  border-color:rgba(255,255,255,.15);
+}
+.shell-btn{ background:none; border:none; color:#fff; font-size:1.35rem; line-height:1; }
+.shell-role{ display:inline-flex; align-items:center; gap:.35rem; border:1px solid rgba(255,255,255,.2); border-radius:999px; padding:.15rem .5rem; }
+.shell-net{ display:inline-flex; align-items:center; gap:.4rem; border:1px solid rgba(255,255,255,.2); border-radius:999px; padding:.15rem .5rem; font-size:.8rem; }
+
+.shell-sidebar{ position:fixed; inset:var(--shell-topbar) auto 0 0; width:var(--shell-sidebar);
+  background:#1c1f26; color:#dee2e6; z-index:1070;
+  box-shadow: inset -1px 0 0 rgba(255,255,255,.08);
+  transition:transform .28s ease, width .28s ease; }
+.shell-brand{ padding:.5rem .75rem; border-bottom:1px dashed rgba(255,255,255,.12); display:flex; align-items:center; gap:.5rem; }
+.shell-avatar{ width:72px; height:72px; border-radius:50%; background:#0b111b; color:#fff; display:grid; place-items:center; margin:0 auto .5rem; font-weight:700; border:2px solid #fff; }
+.shell-user{ padding:1rem .75rem; border-bottom:1px dashed rgba(255,255,255,.1); text-align:center; }
+.shell-title{ color:#adb5bd; font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; padding:.5rem .75rem; }
+.shell-menu{ display:grid; gap:.25rem; padding:.5rem; }
+.shell-link{ display:flex; align-items:center; gap:.75rem; color:#dee2e6; text-decoration:none; padding:.5rem .75rem; border-radius:.5rem; }
+.shell-link .icon{ width:24px; text-align:center; font-size:1.05rem; }
+.shell-link:hover, .shell-link.active{ background:#0d6efd; color:#fff; }
+.shell-submenu .shell-link{ padding-left:2.5rem; }
+
+.shell-overlay{ position:fixed; inset:var(--shell-topbar) 0 0 0; background:rgba(0,0,0,.45); z-index:1060; display:none; }
+
+/* Content push */
+.shell-main{ margin-top:var(--shell-topbar); margin-left:var(--shell-sidebar); transition:margin-left .28s ease;
+  min-height:calc(100dvh - var(--shell-topbar)); background:var(--bs-body-bg); }
+
+/* States */
+body.sidebar-collapsed .shell-sidebar{ width:var(--shell-mini); }
+body.sidebar-collapsed .shell-main{ margin-left:var(--shell-mini); }
+body.sidebar-collapsed .shell-link .label,
+body.sidebar-collapsed .shell-brand .label,
+body.sidebar-collapsed .shell-title,
+body.sidebar-collapsed .shell-user .info{ display:none !important; }
+body.sidebar-collapsed .shell-link{ justify-content:center; }
+body.sidebar-collapsed .shell-link .icon{ width:24px; }
+body.sidebar-collapsed .shell-user{ padding:.5rem 0 !important; }
+body.sidebar-collapsed .shell-avatar{ width:40px; height:40px; margin:.25rem auto; border-width:1px; }
+body.sidebar-collapsed .shell-brand{ padding:.5rem 0 !important; justify-content:center; }
+body.sidebar-collapsed .shell-menu{ padding:.25rem !important; }
+
+/* Mobile */
+@media (max-width:768px){
+  .shell-sidebar{ transform:translateX(-100%); width:var(--shell-sidebar); }
+  body.sidebar-open .shell-sidebar{ transform:translateX(0); }
+  .shell-main{ margin-left:0; }
+  body.sidebar-open .shell-overlay{ display:block; }
+}
+</style>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+<header class="shell-topbar">
+  <div class="container-fluid d-flex align-items-center gap-2" style="height:var(--shell-topbar)">
+    <button class="shell-btn" id="toggleSidebar" aria-label="Menú" aria-expanded="true"><i class="fa-solid fa-xmark"></i></button>
+    <i class="fa-solid fa-graduation-cap text-primary"></i>
+    <div class="lh-1">
+      <div class="fw-semibold">Prácticas Laborales</div>
+      <div class="text-white-50 small">Portal Coordinador</div>
+    </div>
+    <div class="ms-auto d-flex align-items-center gap-2">
+      <button class="btn btn-sm text-white-50" data-bs-toggle="tooltip" title="Alertas"><i class="fa-regular fa-bell"></i></button>
+      <span id="netPill" class="shell-net"><i class="fa-solid fa-wifi"></i> <span id="netLabel">Online</span></span>
+      <div class="dropdown">
+        <button class="btn btn-sm dropdown-toggle shell-role" data-bs-toggle="dropdown"><i class="fa-solid fa-user-tie"></i> <span id="currentRoleLabel">Coordinador</span></button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item role-option" href="Empresa_Solicita_Practicantes.html" data-role="Empresa">Empresa</a></li>
+          <li><a class="dropdown-item role-option" href="Estudiante_proceso_practica.html" data-role="Estudiante">Estudiante</a></li>
+          <li><a class="dropdown-item role-option" href="Gestion_Aprobacion_Convenios.html" data-role="Coordinador">Coordinador</a></li>
+        </ul>
+      </div>
+      <div class="form-check form-switch m-0 text-white-50" title="Modo oscuro">
+        <input class="form-check-input" type="checkbox" id="darkModeSwitchTop"/>
+        <label class="form-check-label" for="darkModeSwitchTop">Oscuro</label>
+      </div>
+      <button id="btnToggleGuideHeader" class="btn btn-outline-light btn-sm" type="button">
+        <i class="fa-solid fa-book"></i> Mostrar Guía
+      </button>
+    </div>
+  </div>
+</header>
+<div class="shell-overlay" id="overlay"></div>
+
+<aside class="shell-sidebar" id="sidebar">
+  <div class="shell-brand">
+    <i class="fa-solid fa-diagram-project"></i>
+    <span class="label">Gestión de Convenios</span>
+  </div>
+  <div class="shell-user">
+    <div class="shell-avatar" aria-hidden="true">CO</div>
+    <div class="info">
+      <div class="fw-semibold">Coordinador</div>
+      <div class="text-white-50 small">Perfil activo</div>
+    </div>
+  </div>
+  <div class="shell-title">Navegación</div>
+  <nav class="shell-menu">
+    <a class="shell-link" href="#bandeja" data-page="bandeja" data-bs-toggle="tooltip" title="Bandeja de convenios">
+      <span class="icon"><i class="fa-solid fa-inbox"></i></span><span class="label">Bandeja</span>
+    </a>
+    <a class="shell-link" href="#docs" data-page="docs" data-bs-toggle="tooltip" title="Documentación jurídica">
+      <span class="icon"><i class="fa-solid fa-file-lines"></i></span><span class="label">Documentación</span>
+    </a>
+    <a class="shell-link" href="#flujo" data-page="flujo" data-bs-toggle="tooltip" title="Flujo de aprobación">
+      <span class="icon"><i class="fa-solid fa-diagram-project"></i></span><span class="label">Flujo</span>
+    </a>
+    <a class="shell-link" href="#repo" data-page="repo" data-bs-toggle="tooltip" title="Repositorio de convenios">
+      <span class="icon"><i class="fa-solid fa-archive"></i></span><span class="label">Repositorio</span>
+    </a>
+
+	
+
+    <a class="shell-link" href="#crearEmpresa" data-page="crearEmpresa" data-bs-toggle="tooltip" title="Crear empresa (convenios)">
+      <span class="icon"><i class="fa-solid fa-building-circle-check"></i></span><span class="label">Crear empresa</span>
+    </a>
+<!-- Seguimiento -->
+<a class="shell-link" href="PL_Gestion_Coordinador_Seguimiento.html"
+   data-bs-toggle="tooltip" title="Seguimiento">
+  <span class="icon"><i class="fa-solid fa-location-dot"></i></span>
+  <span class="label">Seguimiento</span>
+</a>
+
+<!-- Asignación -->
+<a class="shell-link" href="PL_Asignacion_Practica_Coordinador.html"
+   data-bs-toggle="tooltip" title="Asignación">
+  <span class="icon"><i class="fa-solid fa-user-check"></i></span>
+  <span class="label">Asignación</span>
+</a>
+
+<!-- Tableros -->
+<a class="shell-link" href="Tablero_Practicas_Laborales.html"
+   data-bs-toggle="tooltip" title="Tableros">
+  <span class="icon"><i class="fa-solid fa-chart-line"></i></span>
+  <span class="label">Tableros</span>
+</a>
+
+  </nav>
+</aside>
+
+<div class="shell-main">
+
+  <header class="app-header">
+    <div class="container-fluid py-2 d-flex align-items-center gap-2">
+      <i class="bi bi-buildings fs-4 text-primary"></i>
+      <div>
+        <h1 class="h5 mb-0">Portal Coordinadores</h1>
+        <div class="text-body-secondary small">Convenios y Solicitudes de Practicantes</div>
+      </div>
+      <div class="ms-auto d-flex align-items-center gap-3">
+        <button class="btn btn-sm btn-outline-secondary" id="showGuideBtn" type="button"><i class="bi bi-journal-text"></i> Guía</button>
+        <div class="form-check form-switch m-0">
+          <input class="form-check-input" type="checkbox" id="darkModeSwitch"/>
+          <label class="form-check-label" for="darkModeSwitch">Modo oscuro</label>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container-fluid my-3">
+
+    
+    <!-- Guía rápida (ampliada) -->
+    <div class="guide-card p-3 mb-3" id="guideCard">
+      <div class="d-flex align-items-center justify-content-between">
+        <div class="fw-semibold"><i class="bi bi-compass me-1"></i> Guía de uso – Gestión institucional de convenios</div>
+        <button class="btn btn-sm btn-outline-secondary" id="toggleGuide"><span class="d-inline" id="guideState">Ocultar</span> guía</button>
+      </div>
+
+      <div class="row g-2 mt-2">
+        <div class="col-12 col-xl-4">
+          <div class="small">
+            <div class="fw-semibold mb-1"><i class="bi bi-inboxes me-1"></i>Bandeja de convenios</div>
+            <ol class="mb-0 ps-3">
+              <li>Busca el convenio en la lista (se muestra **todo** en una sola página).</li>
+              <li>Haz clic en <i class="bi bi-eye"></i> para **seleccionarlo** y abrir <b>Documentación jurídica</b>.</li>
+              <li>El convenio seleccionado queda guardado y podrás retomar donde ibas.</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="col-12 col-xl-4">
+          <div class="small">
+            <div class="fw-semibold mb-1"><i class="bi bi-file-earmark-text me-1"></i>Documentación jurídica</div>
+            <ol class="mb-0 ps-3">
+              <li>Usa <b>Cargar</b> para adjuntar archivos (simulado).</li>
+              <li>Presiona <b>Aprobar</b> para marcar el documento como válido.</li>
+              <li>Para <b>Rechazar</b>, ingresa una <u>observación obligatoria</u>. Se registra en el historial.</li>
+              <li>Agrega notas en el cuadro de comentarios; quedan en el historial.</li>
+            </ol>
+          </div>
+        </div>
+
+        <div class="col-12 col-xl-4">
+          <div class="small">
+            <div class="fw-semibold mb-1"><i class="bi bi-diagram-3 me-1"></i>Flujo de aprobación</div>
+            <ol class="mb-0 ps-3">
+              <li>Las firmas son <b>secuenciales</b>. Solo se firma la primera pendiente.</li>
+              <li>Puedes <b>Avanzar</b> o <b>Devolver</b> etapas; se registra en comentarios.</li>
+              <li><b>Aprobar convenio</b> requiere <u>todos los documentos aprobados</u> y <u>todas las firmas completas</u>.</li>
+              <li><b>Rechazar convenio</b> solicita motivo y cambia su estado.</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-3 mt-1">
+        <div class="col-12 col-xl-6">
+          <div class="small">
+            <div class="fw-semibold mb-1"><i class="bi bi-archive me-1"></i>Repositorio de Convenios</div>
+            <ul class="mb-0 ps-3">
+              <li>Filtra por <b>Estado, NIT, Empresa, Ciudad</b> y fechas.</li>
+              <li>Las columnas incluyen: Estado, NIT, Empresa, Observaciones, Documentos (ok/total), Correo, Teléfono, Teléfono celular, Ciudad, Inicio y Vencimiento.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="col-12 col-xl-6">
+          <div class="small">
+            <div class="fw-semibold mb-1"><i class="bi bi-lightbulb me-1"></i>Reglas y tips</div>
+            <ul class="mb-0 ps-3">
+              <li>Los <b>KPIs</b> se actualizan en tiempo real con cada acción.</li>
+              <li>La visibilidad de esta guía y el <b>modo oscuro</b> quedan guardados.</li>
+              <li>Si documentos y firmas están listos, el sistema marca el convenio como <b>Vigente</b> automáticamente.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- KPIs -->
+    <section class="mb-2">
+      <div class="row g-3 row-cols-1 row-cols-md-2 row-cols-xl-4">
+        <div class="col">
+          <div class="card kpi-card">
+            <div class="card-body">
+              <div class="d-flex align-items-center justify-content-between">
+                <div class="lead">Convenios</div>
+                <i class="bi bi-journal-text"></i>
+              </div>
+              <div class="display-6" id="kpiTotal">—</div>
+              <div class="text-body-secondary small">Vigentes: <span id="kpiVigentes">—</span> • Por vencer ≤60: <span id="kpiPorVencer">—</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card kpi-card">
+            <div class="card-body">
+              <div class="d-flex align-items-center justify-content-between">
+                <div class="lead">Aprobados</div>
+                <i class="bi bi-check2-circle"></i>
+              </div>
+              <div class="display-6" id="kpiAprobados">—</div>
+              <div class="text-body-secondary small">Documentos OK acumulados</div>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card kpi-card">
+            <div class="card-body">
+              <div class="d-flex align-items-center justify-content-between">
+                <div class="lead">Rechazados</div>
+                <i class="bi bi-x-circle"></i>
+              </div>
+              <div class="display-6" id="kpiRechazados">—</div>
+              <div class="text-body-secondary small">Incluye convenios devueltos</div>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card kpi-card">
+            <div class="card-body">
+              <div class="d-flex align-items-center justify-content-between">
+                <div class="lead">Docs pendientes</div>
+                <i class="bi bi-folder2-open"></i>
+              </div>
+              <div class="display-6" id="kpiDocsPend">—</div>
+              <div class="text-body-secondary small">Suma de pendientes por convenio</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Tags de navegación horizontales -->
+    <div class="tags-row mb-2" id="tags">
+      <a class="tag-chip" data-page="bandeja" href="#bandeja">
+        <i class="bi bi-inboxes"></i>
+        <span class="title">Bandeja de convenios</span>
+        <span class="badge text-bg-primary pill" id="countTag">0</span>
+      </a>
+      <a class="tag-chip" data-page="docs" href="#docs">
+        <i class="bi bi-file-earmark-text"></i>
+        <span class="title">Documentación jurídica</span><span class="small text-body-secondary d-none d-md-inline" id="chipDocsInfo"></span>
+      </a>
+      <a class="tag-chip" data-page="flujo" href="#flujo">
+        <i class="bi bi-diagram-3"></i>
+        <span class="title">Flujo de Aprobación</span><span class="small text-body-secondary d-none d-md-inline" id="chipFlujoInfo"></span>
+      </a>
+      <a class="tag-chip" data-page="repo" href="#repo">
+        <i class="bi bi-archive"></i>
+        <span class="title">Repositorio de Convenios</span>
+      </a>
+
+      <a class="tag-chip" data-page="crearEmpresa" href="#crearEmpresa">
+        <i class="bi bi-building-check"></i>
+        <span class="title">Crear empresa</span>
+      </a>
+<a class="tag-chip" data-page="solicitud" href="#solicitud">
+  <i class="bi bi-person-plus"></i>
+  <span class="title">Solicitud de Practicantes</span>
+</a>
+    </div>
+
+    <!-- ===== PÁGINAS ===== -->
+
+    <!-- Bandeja -->
+    <section id="page-bandeja" class="page active">
+      <div class="section-card">
+        <div class="p-3 border-bottom">
+          <div class="d-flex align-items-center gap-2">
+            <i class="bi bi-inboxes"></i><div class="fw-semibold">Bandeja de convenios (<span id="countLabel">—</span>)</div>
+            <div class="ms-auto small" id="pageLabel">Página 1 de 1</div>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table align-middle mb-0">
+            <thead class="table-light"><tr><th>Empresa / NIT</th><th>Programa / Vigencia</th><th>Estado</th><th>Docs OK</th><th>Firmas</th><th class="text-end">Acciones</th></tr></thead>
+            <tbody id="tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Documentación jurídica -->
+    <section id="page-docs" class="page">
+      <div class="section-card">
+        <div class="p-3 border-bottom d-flex align-items-center gap-2">
+          <i class="bi bi-file-earmark-text"></i>
+          <div class="fw-semibold">Documentación jurídica</div>
+          <div class="ms-auto small" id="docsHeaderInfo">Selecciona un convenio en la Bandeja</div>
+        </div>
+        <div class="p-3 pt-2">
+  <div id="docsCompanyBanner" class="alert alert-info small mb-2" style="display:none"></div>
+</div>
+<div class="p-3" id="docsContent">
+          <div class="alert alert-warning mb-0" id="docsEmpty">Primero selecciona un convenio en la Bandeja.</div>
+          <div id="docsPanel" style="display:none">
+            <div class="small mb-2"><span id="docsBadgeEstado" class="badge text-bg-secondary">—</span> <span class="ms-2" id="docsVigencia">—</span></div>
+            <div class="input-group input-group-sm mb-3"><input type="text" id="nuevoComentario" class="form-control" placeholder="Agregar comentario"><button class="btn btn-outline-primary" id="btnAddComment"><i class="bi bi-chat-dots"></i></button></div>
+            <div class="small mb-2 fw-semibold">Historial</div>
+            <div class="small mb-3" id="comentariosList"></div>
+
+            <div class="table-responsive">
+              <table class="table table-sm align-middle" id="tablaDocs2">
+                <thead class="table-light"><tr><th>Documento</th><th>Archivo</th><th>Últ. carga</th><th>Estado</th><th>Obs.</th><th class="text-end">Acciones</th></tr></thead>
+                <tbody id="tbodyDocs2"></tbody>
+              </table>
+            </div>
+            <div class="small text-body-secondary">Al <b>rechazar</b> es obligatorio registrar observación. El escenario será notificado automáticamente.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Flujo de aprobación -->
+    <section id="page-flujo" class="page">
+      <div class="section-card">
+        <div class="p-3 border-bottom d-flex align-items-center gap-2">
+          <i class="bi bi-diagram-3"></i>
+          <div class="fw-semibold">Flujo de Aprobación</div>
+          <div class="ms-auto small" id="flujoHeaderInfo">Selecciona un convenio en la Bandeja</div>
+        </div>
+        <div class="p-3 pt-2">
+  <div id="flujoCompanyBanner" class="alert alert-info small mb-2" style="display:none"></div>
+</div>
+<div class="p-3" id="flujoContent">
+          <div class="alert alert-warning mb-0" id="flujoEmpty">Primero selecciona un convenio en la Bandeja.</div>
+          <div id="flujoPanel" style="display:none">
+            <div class="small mb-2"><span id="flujoBadgeEstado" class="badge text-bg-secondary">—</span> <span class="ms-2" id="flujoVigencia">—</span></div>
+            <div id="firmasList2" class="vstack gap-2 mb-3"></div>
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <button class="btn btn-outline-primary btn-sm" id="btnAvanzarEtapa2"><i class="bi bi-arrow-right-circle"></i> Avanzar a siguiente firma</button>
+              <button class="btn btn-outline-warning btn-sm" id="btnDevolverEtapa2"><i class="bi bi-arrow-left-circle"></i> Devolver etapa</button>
+            </div>
+            <div class="d-flex align-items-center gap-2">
+              <button class="btn btn-success btn-sm" id="btnAprobarConvenio2"><i class="bi bi-check2-circle"></i> Aprobar convenio</button>
+              <button class="btn btn-danger btn-sm" id="btnRechazarConvenio2"><i class="bi bi-x-circle"></i> Rechazar convenio</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Repositorio -->
+    <section id="page-repo" class="page">
+      <div class="section-card">
+        <div class="p-3 border-bottom d-flex align-items-center gap-2">
+          <i class="bi bi-archive"></i><div class="fw-semibold">Repositorio de Convenios</div>
+        </div>
+        <div class="p-3 sticky-tools">
+          <div class="row g-2">
+            <div class="col-12 col-md-3">
+              <label class="form-label small mb-1">Estado</label>
+              <select id="f_estado" class="form-select form-select-sm">
+                <option value="">Todos</option>
+                <option>En trámite</option>
+                <option>Vigente</option>
+                <option>Por vencer</option>
+                <option>Vencido</option>
+                <option>Rechazado</option>
+              </select>
+            </div>
+
+            <div class="col-12 col-md-3">
+              <label class="form-label small mb-1">Tipo de convenio</label>
+              <select id="f_tipo" class="form-select form-select-sm">
+                <option value="">Todos</option>
+              </select>
+            </div>
+
+            <div class="col-6 col-md-3">
+              <label class="form-label small mb-1">NIT</label>
+              <input id="f_nit" class="form-control form-control-sm" placeholder="Buscar NIT">
+            </div>
+            <div class="col-6 col-md-3">
+              <label class="form-label small mb-1">Empresa</label>
+              <input id="f_empresa" class="form-control form-control-sm" placeholder="Nombre de empresa">
+            </div>
+            <div class="col-12 col-md-3">
+              <label class="form-label small mb-1">Ciudad</label>
+              <input id="f_ciudad" class="form-control form-control-sm" placeholder="Ciudad">
+            </div>
+
+            <div class="col-6 col-md-3">
+              <label class="form-label small mb-1">Fecha inicio (desde)</label>
+              <input id="f_ini" type="date" class="form-control form-control-sm">
+            </div>
+            <div class="col-6 col-md-3">
+              <label class="form-label small mb-1">Fecha vencimiento (hasta)</label>
+              <input id="f_fin" type="date" class="form-control form-select-sm form-control-sm">
+            </div>
+            <div class="col-12 col-md-6 d-flex align-items-end justify-content-start gap-2">
+              <button class="btn btn-primary btn-sm" id="btnAplicar"><i class="bi bi-search"></i> Aplicar</button>
+              <button class="btn btn-outline-secondary btn-sm" id="btnLimpiar"><i class="bi bi-eraser"></i> Limpiar</button>
+              <button class="btn btn-outline-success btn-sm" id="btnXLSX"><i class="bi bi-filetype-xlsx"></i> XLSX</button>
+              <button class="btn btn-outline-danger btn-sm" id="btnPDF"><i class="bi bi-filetype-pdf"></i> PDF</button>
+            </div>
+          </div>
+        </div>
+        <div class="table-responsive">
+          <table class="table table-sm align-middle mb-0" id="repoTable">
+            <thead class="table-light">
+              <tr>
+                <th>ESTADO</th>
+                <th>NIT</th>
+                <th>EMPRESA</th>
+                <th>TIPO DE CONVENIO</th>
+                <th>OBSERVACIONES</th>
+                <th>DOCUMENTOS</th>
+                <th>CORREO DEL ESCENARIO</th>
+                <th>TELÉFONO</th>
+                <th>TELÉFONO CELULAR</th>
+                <th>CIUDAD</th>
+                <th>FECHA DE INICIO</th>
+                <th>FECHA DE VENCIMIENTO</th>
+              </tr>
+            </thead>
+            <tbody id="repoTbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- Crear empresa (mismo flujo de convenios_creacion_empresa) -->
+    <section id="page-crearEmpresa" class="page">
+      <div class="section-card p-3">
+        <div class="d-flex align-items-center gap-2 mb-3">
+          <i class="bi bi-building-check"></i>
+          <div class="fw-semibold">Crear empresa</div>
+          <div class="ms-auto small text-body-secondary">Registro / Convenios</div>
+        </div>
+
+        <div class="section-card p-0 overflow-hidden" style="max-width:1100px;margin:0 auto;">
+          <div class="p-4 border-bottom" style="background:var(--bs-body-bg);">
+            <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+              <div>
+                <div class="h5 m-0 fw-bold">Información básica</div>
+                <div class="small text-body-secondary">Registro de empresa para creación de convenio (mockup)</div>
+              </div>
+              <span class="badge text-bg-primary">Coordinador</span>
+            </div>
+          </div>
+
+          <div class="p-4">
+            <form id="ce_docForm" novalidate>
+              <div class="row g-3 align-items-end">
+                <div class="col-12 col-md-6">
+                  <label class="form-label small text-body-secondary mb-1">Tipo de identificación</label>
+                  <select id="ce_tipoId" class="form-select" required>
+                    <option value="" selected disabled>Seleccione…</option>
+                    <option value="RUT">Registro Único Tributario</option>
+                    <option value="NIT">Número de Identificación Tributario</option>
+                  </select>
+                  <div class="invalid-feedback">Selecciona el tipo de identificación.</div>
+                </div>
+
+                <div class="col-12 col-md-6">
+                  <label class="form-label small text-body-secondary mb-1">Documento</label>
+                  <div class="input-group">
+                    <input id="ce_documento" class="form-control" placeholder="Documento" inputmode="numeric" autocomplete="off" required>
+                    <button class="btn btn-outline-secondary" type="button" id="ce_btnDocIcon" aria-label="Verificar">
+                      <i class="bi bi-person"></i>
+                    </button>
+                    <div class="invalid-feedback">Ingresa el documento.</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mt-3">
+                <div id="ce_docMsg" class="alert py-2 mb-0 d-none" role="status" aria-live="polite"></div>
+                <div class="small text-body-secondary mt-2">
+                  Al escribir el documento, el sistema verifica automáticamente cuando sales del campo. (Mockup)
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div id="ce_moreFields" class="section-card mt-3 d-none" style="max-width:1100px;margin:0 auto;">
+          <div class="p-4">
+            <div class="row g-3">
+              <div class="col-12 col-lg-6">
+                <div class="mb-2 fw-semibold">Información básica</div>
+
+                <div class="mb-3">
+                  <label class="form-label"><span class="text-danger">*</span> Razón social</label>
+                  <div class="input-group">
+                    <input class="form-control" id="ce_razonSocial" required placeholder="Razón social">
+                    <span class="input-group-text"><i class="bi bi-card-text"></i></span>
+                    <div class="invalid-feedback">Obligatorio.</div>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">Teléfono fijo</label>
+                  <div class="input-group">
+                    <input class="form-control" id="ce_telFijo" placeholder="Teléfono fijo">
+                    <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label"><span class="text-danger">*</span> Dirección</label>
+                  <div class="row g-2">
+                    <div class="col-12 col-md-4">
+                      <select class="form-select" id="ce_dirTipo" required>
+                        <option value="" selected disabled>Seleccione…</option>
+                        <option>Calle</option><option>Carrera</option><option>Avenida</option><option>Transversal</option>
+                      </select>
+                      <div class="invalid-feedback">Obligatorio.</div>
+                    </div>
+                    <div class="col-4 col-md-2"><input class="form-control" id="ce_dirNum1" placeholder="0" required></div>
+                    <div class="col-8 col-md-2"><input class="form-control" id="ce_dirLetra1" placeholder="Letras"></div>
+                    <div class="col-12 col-md-4">
+                      <select class="form-select" id="ce_dirComp" required>
+                        <option value="" selected disabled>Seleccione…</option>
+                        <option>Sur</option><option>Norte</option><option>Este</option><option>Oeste</option>
+                      </select>
+                      <div class="invalid-feedback">Obligatorio.</div>
+                    </div>
+                    <div class="col-4 col-md-2"><input class="form-control" id="ce_dirNum2" placeholder="0" required></div>
+                    <div class="col-8 col-md-2"><input class="form-control" id="ce_dirLetra2" placeholder="Letras"></div>
+                    <div class="col-4 col-md-2"><input class="form-control" id="ce_dirNum3" placeholder="0"></div>
+                    <div class="col-8 col-md-4"><input class="form-control" id="ce_dirOtros" placeholder="Otros"></div>
+                    <div class="col-12">
+                      <select class="form-select" id="ce_dirCiudad" required>
+                        <option value="" selected disabled>Seleccione…</option>
+                        <option>Medellín</option><option>Bogotá</option><option>Cali</option><option>Barranquilla</option>
+                      </select>
+                      <div class="invalid-feedback">Obligatorio.</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mb-2 fw-semibold mt-4"><span class="text-danger">*</span> Sector</div>
+                <div class="row g-2">
+                  <div class="col-12 col-md-6">
+                    <select class="form-select" id="ce_sector" required>
+                      <option value="" selected>Sin definir</option>
+                      <option>Servicios</option><option>Industria</option><option>Comercio</option><option>Tecnología</option>
+                    </select>
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <select class="form-select" id="ce_subSector">
+                      <option value="" selected>Sub Sector</option>
+                      <option>Educación</option><option>Finanzas</option><option>Manufactura</option><option>Logística</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-12 col-lg-6">
+                <div class="mb-2 fw-semibold">&nbsp;</div>
+
+                <div class="mb-3">
+                  <label class="form-label">Página web</label>
+                  <div class="input-group">
+                    <input class="form-control" id="ce_web" placeholder="Página web">
+                    <span class="input-group-text"><i class="bi bi-link-45deg"></i></span>
+                  </div>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label">Tipo empresa</label>
+                  <select class="form-select" id="ce_tipoEmpresa">
+                    <option value="" selected>Tipo empresa…</option>
+                    <option>Privada</option><option>Pública</option><option>Mixta</option><option>ONG</option>
+                  </select>
+                </div>
+
+                <div class="mt-4">
+                  <h2 class="h5 mb-3 fw-bold">Contacto Responsable</h2>
+
+                  <div class="row g-2">
+                    <div class="col-12 col-md-6">
+                      <label class="form-label"><span class="text-danger">*</span> Tipo documento</label>
+                      <select class="form-select" id="ce_respTipoDoc" required>
+                        <option value="" selected disabled>Seleccione…</option>
+                        <option>Cédula de ciudadanía</option>
+                        <option>Cédula de extranjería</option>
+                        <option>Pasaporte</option>
+                      </select>
+                      <div class="invalid-feedback">Obligatorio.</div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                      <label class="form-label"><span class="text-danger">*</span> Documento</label>
+                      <div class="input-group">
+                        <input class="form-control" id="ce_respDoc" required placeholder="Documento">
+                        <span class="input-group-text"><i class="bi bi-person"></i></span>
+                        <div class="invalid-feedback">Obligatorio.</div>
+                      </div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                      <label class="form-label"><span class="text-danger">*</span> Nombres</label>
+                      <div class="input-group">
+                        <input class="form-control" id="ce_respNombres" required placeholder="Nombres">
+                        <span class="input-group-text"><i class="bi bi-card-text"></i></span>
+                        <div class="invalid-feedback">Obligatorio.</div>
+                      </div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                      <label class="form-label"><span class="text-danger">*</span> Apellidos</label>
+                      <div class="input-group">
+                        <input class="form-control" id="ce_respApellidos" required placeholder="Apellidos">
+                        <span class="input-group-text"><i class="bi bi-card-text"></i></span>
+                        <div class="invalid-feedback">Obligatorio.</div>
+                      </div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                      <label class="form-label">Teléfono fijo</label>
+                      <div class="input-group">
+                        <input class="form-control" id="ce_respTel" placeholder="Teléfono fijo">
+                        <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                      </div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                      <label class="form-label">Celular</label>
+                      <div class="input-group">
+                        <input class="form-control" id="ce_respCel" placeholder="Celular">
+                        <span class="input-group-text"><i class="bi bi-phone"></i></span>
+                      </div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                      <label class="form-label"><span class="text-danger">*</span> Email</label>
+                      <div class="input-group">
+                        <input class="form-control" type="email" id="ce_respEmail" required placeholder="Email">
+                        <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                        <div class="invalid-feedback">Ingresa un correo válido.</div>
+                      </div>
+                    </div>
+
+                    <div class="col-12 col-md-6">
+                      <label class="form-label"><span class="text-danger">*</span> Cargo</label>
+                      <select class="form-select" id="ce_respCargo" required>
+                        <option value="" selected disabled>Seleccione…</option>
+                        <option>Representante legal</option>
+                        <option>Gestor de convenios</option>
+                        <option>Recursos Humanos</option>
+                        <option>Otro</option>
+                      </select>
+                      <div class="invalid-feedback">Obligatorio.</div>
+                    </div>
+
+                    <div class="col-12">
+                      <div class="form-check mt-2">
+                        <input class="form-check-input" type="checkbox" id="ce_habeas" required>
+                        <label class="form-check-label" for="ce_habeas">
+                          Autorización Habeas Data <a href="#" onclick="return false;">Ver más…</a>
+                        </label>
+                        <div class="invalid-feedback">Debes aceptar la autorización.</div>
+                      </div>
+                    </div>
+
+                    <div class="col-12 mt-2">
+                      <div class="p-3" style="background:rgba(2,6,23,.04); border-radius:12px;">
+                        <div class="d-flex justify-content-end">
+                          <button class="btn btn-primary" id="ce_btnEnviar" type="button">
+                            <i class="bi bi-send me-1"></i> Enviar
+                          </button>
+                        </div>
+                        <div class="small text-body-secondary mt-2">
+                          Al enviar se registrará la empresa y se mostrarán credenciales (mockup).
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal: Credenciales de acceso (Empresa) -->
+      <div class="modal fade" id="ce_credModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content" style="border-radius:16px; overflow:hidden;">
+            <div class="modal-header" style="background:rgba(13,110,253,.08);">
+              <h5 class="modal-title d-flex align-items-center gap-2">
+                <i class="bi bi-person-check text-primary"></i>
+                Credenciales de acceso (Empresa)
+              </h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body">
+              <p class="mb-3 text-body-secondary">
+                La empresa fue registrada correctamente. Usa estas credenciales para iniciar sesión como <b>Empresa</b>. (Mockup)
+              </p>
+
+              <div class="p-3" style="background:rgba(2,6,23,.04); border-radius:12px;">
+                <div class="row g-2">
+                  <div class="col-12 col-md-6">
+                    <div class="small text-body-secondary">Usuario</div>
+                    <div class="d-flex align-items-center justify-content-between gap-2">
+                      <div class="fw-semibold" id="ce_credUser">—</div>
+                      <button class="btn btn-sm btn-outline-secondary" type="button" data-copy="ce_credUser" title="Copiar usuario">
+                        <i class="bi bi-clipboard"></i>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <div class="small text-body-secondary">Contraseña</div>
+                    <div class="d-flex align-items-center justify-content-between gap-2">
+                      <div class="fw-semibold" id="ce_credPass">—</div>
+                      <button class="btn btn-sm btn-outline-secondary" type="button" data-copy="ce_credPass" title="Copiar contraseña">
+                        <i class="bi bi-clipboard"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="small text-body-secondary mt-3">
+                Recomendación: guarda estas credenciales en un lugar seguro. En este mockup también se almacenan en tu navegador.
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Cerrar</button>
+              <a class="btn btn-primary" href="login_cuenta_local.html">
+                <i class="bi bi-box-arrow-in-right me-1"></i> Ir a iniciar sesión
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+
+
+<!-- Solicitud de Practicantes -->
+<section id="page-solicitud" class="page">
+  <div class="section-card p-3">
+    <div class="d-flex align-items-center gap-2 mb-3">
+      <i class="bi bi-person-plus"></i>
+      <div class="fw-semibold">Solicitud de Practicantes</div>
+      <div class="ms-auto small text-body-secondary">Formulario</div>
+    </div>
+
+    <!-- Sub-tabs (simulan las pestañas del módulo Empresa) -->
+    <div class="d-flex gap-2 flex-wrap mb-3">
+      <button class="btn btn-outline-secondary btn-sm" type="button" id="btnTabMisConvenios">
+        <i class="bi bi-collection"></i> Mis convenios
+      </button>
+      <button class="btn btn-primary btn-sm" type="button" disabled>
+        <i class="bi bi-person-plus"></i> Solicitud de Practicantes
+      </button>
+      <button class="btn btn-outline-secondary btn-sm" type="button" id="btnTabMisSolicitudes">
+        <i class="bi bi-list-task"></i> Mis solicitudes
+      </button>
+    </div>
+
+    <form id="frmSolicitud" class="needs-validation" novalidate>
+      <div class="row g-3">
+        <!-- Datos de dependencia -->
+        <div class="col-12 col-xl-6">
+          <div class="card h-100">
+            <div class="card-header"><i class="bi bi-building-add"></i> Datos de la dependencia que solicita</div>
+            <div class="card-body">
+              <div class="mb-2">
+                <label class="form-label">Área o Dependencia</label>
+                <input id="sDep" class="form-control" required/>
+                <div class="invalid-feedback">Obligatorio</div>
+              </div>
+              <div class="row g-2">
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Nombre completo de quien solicita</label>
+                  <input id="sNom" class="form-control" required/>
+                  <div class="invalid-feedback">Obligatorio</div>
+                </div>
+                <div class="col-6 col-md-3">
+                  <label class="form-label">Teléfono</label>
+                  <input id="sTel" class="form-control" required/>
+                  <div class="invalid-feedback">Obligatorio</div>
+                </div>
+                <div class="col-6 col-md-3">
+                  <label class="form-label">Correo</label>
+                  <input id="sMail" type="email" class="form-control" required/>
+                  <div class="invalid-feedback">Correo inválido</div>
+                </div>
+              </div>
+              <div class="row g-3 mt-1">
+                <div class="col-12 col-md-6">
+                  <label class="form-label">Nombre de la empresa</label>
+                  <input id="sEmpNombre" class="form-control" required/>
+                  <div class="invalid-feedback">Obligatorio</div>
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label">NIT de la empresa</label>
+                  <input id="sEmpNit" class="form-control" required/>
+                  <div class="invalid-feedback">Obligatorio</div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Necesidad -->
+        <div class="col-12 col-xl-6">
+          <div class="card h-100">
+            <div class="card-header"><i class="bi bi-clipboard2-plus"></i> Necesidad</div>
+            <div class="card-body">
+              <div class="row g-2">
+                <div class="col-6">
+                  <label class="form-label">Fecha requerida</label>
+                  <input id="sFecha" type="date" class="form-control" required/>
+                  <div class="invalid-feedback">Obligatorio</div>
+                </div>
+                <div class="col-6">
+                  <label class="form-label">Tipo de práctica</label>
+                  <select id="sTipo" class="form-select" required>
+                    <option value="">Seleccione</option>
+                    <option>Escenario interno</option>
+                    <option>Contrato de aprendizaje SENA</option>
+                    <option>Practicas por Resolución</option>
+                    <option>Convenio de cooperación voluntariado</option>
+                    <option>Pasantía remunerada</option>
+                    <option>Convenio Docencia Servicio</option>
+                  </select>
+                  <div class="invalid-feedback">Selecciona un tipo</div>
+                </div>
+              </div>
+
+              <div class="row g-2 mt-1">
+                <div class="col-8">
+                  <label class="form-label">Programa académico</label>
+                  <select id="sPrograma" class="form-select" required>
+                    <option value="">Seleccione</option>
+                  </select>
+                  <div class="invalid-feedback">Seleccione un programa</div>
+                </div>
+                <div class="col-4">
+                  <label class="form-label">Cantidad</label>
+                  <input id="sCant" type="number" min="1" class="form-control" required/>
+                  <div class="invalid-feedback">Ingrese una cantidad válida</div>
+                </div>
+              </div>
+
+              <div class="mt-2">
+                <label class="form-label">Funciones / Perfil requerido</label>
+                <textarea id="sDesc" class="form-control" rows="3" required></textarea>
+                <div class="invalid-feedback">Describe las funciones / perfil</div>
+              </div>
+
+              <div class="alert alert-warning alert-inline mt-3 d-none" id="alertConvenio">
+                No encontramos un convenio <b>vigente</b>. Puedes <b>iniciar trámite de convenio</b> o <b>usar Carta (excepción)</b> para continuar.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex align-items-center gap-2 mt-3">
+        <button id="btnSolBorrador" class="btn btn-outline-secondary" type="button">
+          <i class="bi bi-save"></i> Guardar borrador
+        </button>
+        <button id="btnSolEnviar" class="btn btn-primary" type="submit">
+          <i class="bi bi-send"></i> Enviar solicitud
+        </button>
+      </div>
+    </form>
+  </div>
+</section>
+
+
+<!-- Mis solicitudes -->
+<section id="page-solicitudes" class="page">
+  <div class="section-card">
+    <div class="p-3 border-bottom d-flex align-items-center gap-2">
+      <i class="bi bi-list-task"></i>
+      <div class="fw-semibold">Mis solicitudes</div>
+      <div class="ms-auto small" id="lblPaginaSol">Página 1 de 1</div>
+    </div>
+
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead class="table-light">
+          <tr>
+
+            <th>#</th>
+            <th>Dependencia</th>
+            <th>Empresa</th>
+            <th>NIT</th>
+            <th>Programa</th>
+            <th>Tipo práctica</th>
+            <th>Fecha requerida</th>
+            <th>Cantidad</th>
+            <th>Estado</th>
+            <th>Asignados</th>
+            <th class="text-end">Acciones</th>
+          </tr>
+        </thead>
+        <tbody id="tbodySol"></tbody>
+      </table>
+    </div>
+
+    <div class="p-3 border-top d-flex align-items-center justify-content-between flex-wrap gap-2">
+      <div class="small text-body-secondary">Total: <span id="solTotal">0</span></div>
+      <div class="btn-group btn-group-sm" role="group" aria-label="Paginación solicitudes">
+        <button class="btn btn-outline-secondary" id="solPrev"><i class="bi bi-chevron-left"></i></button>
+        <button class="btn btn-outline-secondary" id="solNext"><i class="bi bi-chevron-right"></i></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Modal: detalle solicitud -->
+<div class="modal fade" id="solModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-person-plus me-1"></i>Detalle de solicitud</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-2 small">
+          <div class="col-12 col-md-6"><div class="fw-semibold">Dependencia</div><div id="mDep">—</div></div>
+          <div class="col-12 col-md-6"><div class="fw-semibold">Solicitante</div><div id="mNom">—</div></div>
+          <div class="col-12 col-md-4"><div class="fw-semibold">Teléfono</div><div id="mTel">—</div></div>
+          <div class="col-12 col-md-4"><div class="fw-semibold">Correo</div><div id="mMail">—</div></div>
+          <div class="col-12 col-md-6"><div class="fw-semibold">Nombre de la empresa</div><div id="mEmpNombre">—</div></div>
+          <div class="col-12 col-md-6"><div class="fw-semibold">NIT de la empresa</div><div id="mEmpNit">—</div></div>
+
+          <div class="col-12 col-md-4"><div class="fw-semibold">Fecha requerida</div><div id="mFecha">—</div></div>
+
+          <div class="col-12 col-md-6"><div class="fw-semibold">Tipo de práctica</div><div id="mTipo">—</div></div>
+          <div class="col-12 col-md-6"><div class="fw-semibold">Programa</div><div id="mPrograma">—</div></div>
+          <div class="col-12 col-md-3"><div class="fw-semibold">Cantidad</div><div id="mCant">—</div></div>
+          <div class="col-12 col-md-3"><div class="fw-semibold">Estado</div><div id="mEstado">—</div></div>
+          <div class="col-12 col-md-6"><div class="fw-semibold">Asignados</div><div id="mAsignados">—</div></div>
+
+          <div class="col-12"><div class="fw-semibold">Funciones / Perfil</div><div id="mDesc" class="text-body-secondary">—</div></div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
+
+  </main>
+
+  <!-- Toast -->
+  <div class="position-fixed bottom-0 end-0 p-3" style="z-index:1080">
+    <div id="toast" class="toast align-items-center text-bg-primary border-0" role="status" aria-live="polite" aria-atomic="true">
+      <div class="d-flex"><div class="toast-body" id="toastMsg">Hecho</div><button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+  <script>
+    // ===== Utils & Toast =====
+    const toastEl=document.getElementById('toast');
+    const toastMsg=document.getElementById('toastMsg');
+    const toast=new bootstrap.Toast(toastEl);
+    const showToast=(m,variant='primary')=>{ toastEl.className='toast align-items-center text-bg-'+variant+' border-0'; toastMsg.textContent=m; toast.show(); };
+    const fmt=(d)=> new Date(d).toLocaleDateString('es-CO');
+    const daysTo=(dateStr)=> { const ms=new Date(dateStr)-new Date(); return Math.ceil(ms/86400000); };
+
+    // ===== Dark mode & Guide =====
+    const showGuideBtn=document.getElementById('showGuideBtn');
+    const darkSwitch=document.getElementById('darkModeSwitch');
+    if(localStorage.getItem('cgp.dark')==='1'){ document.documentElement.setAttribute('data-bs-theme','dark'); darkSwitch.checked=true; }
+    darkSwitch.addEventListener('change', (e)=>{ localStorage.setItem('cgp.dark', e.target.checked?'1':'0'); document.documentElement.setAttribute('data-bs-theme', e.target.checked?'dark':'light'); });
+    const guide=document.getElementById('guideCard');
+    const toggleGuideBtn=document.getElementById('toggleGuide');
+    const guideState=document.getElementById('guideState');
+    const hiddenGuide = localStorage.getItem('hideGuide')==='1';
+    function updateGuideUI(){
+      const isHidden = guide.style.display==='none';
+      if(guideState) guideState.textContent = isHidden? 'Mostrar':'Ocultar';
+      if(showGuideBtn) showGuideBtn.innerHTML = (isHidden? '<i class="bi bi-eye"></i> Mostrar guía' : '<i class="bi bi-eye-slash"></i> Ocultar guía');
+    }
+    if(hiddenGuide){ guide.style.display='none'; } else { guide.style.display='block'; }
+    updateGuideUI();
+    const toggleGuide=()=>{
+      const hidden = guide.style.display==='none';
+      guide.style.display = hidden? 'block':'none';
+      localStorage.setItem('hideGuide', hidden? '0':'1');
+      updateGuideUI();
+    };
+    // (Los listeners de guía se sincronizan en initGuideSync() al final del archivo)
+
+    // ===== Data (seed) =====
+    const KEY='cgp.convenios.v4';
+    const DATA = JSON.parse(localStorage.getItem(KEY)||'{}');
+    // Tipos de convenio (catálogo solicitado por el cliente)
+    const TIPO_CONVENIO_MAP = {
+      1: 'Convenio de Cooperación Unificado',
+      2: 'Convenio Docencia Servicio',
+      3: 'Convenio Marco Regiones',
+      4: 'Carta de excepción',
+      5: 'Convenio marco de cooperación interinstitucional',
+      6: 'Resolución',
+      7: 'Convenio de Cooperación solo para contratos de aprendizaje',
+      8: 'Convenio de Cooperación solo para prácticas voluntariado gratuitas'
+    };
+    function tipoConvenioLabel(id){
+      return TIPO_CONVENIO_MAP[id] || '—';
+    }
+    function tipoConvenioBadge(id){
+      const label = tipoConvenioLabel(id);
+
+      const short = (id==7)
+        ? 'Cooperación – Aprendizaje'
+        : (id==8)
+          ? 'Cooperación – Voluntariado'
+          : label;
+
+      const title = (id==7 || id==8) ? label : '';
+
+      return `<span class="text-body" ${title?`title="${title}"`:''}>
+                ${short}
+              </span>`;
+    }
+
+    if(!DATA.convenios){
+      const roles = [
+        'Abogado gestión de convenios','Coordinación General de Prácticas','Coordinación de Prácticas',
+        'Decanatura 1','Decanatura 2','Decanatura 3','Decanatura 4',
+        'Dirección jurídica','Secretaría general','Vicerrectoría académica','Rectoría',
+        'Representante legal (escenario)'
+      ];
+      const docsBase = ['RUT','Cámara de Comercio','ARL','Cédula Rep. Legal'];
+      const ciudades = ['Medellín','Bogotá','Cali','Barranquilla','Manizales','Pereira'];
+      DATA.convenios = Array.from({length:42},(_,i)=>{
+        const estadoList=['En trámite','Vigente','Por vencer','Vencido','Rechazado'];
+        const estado=estadoList[i%estadoList.length];
+        const desde=new Date(); desde.setMonth(desde.getMonth()-6);
+        const hasta=new Date(); hasta.setDate(hasta.getDate()+ (i%5===3? -10 : (10*(i%8))));
+        const docs = docsBase.map(n=>({ nombre:n, archivo: null, fecha: null, estado: 'Pendiente', observacion: '' }));
+        const firmas = roles.map((r,idx)=>({ rol:r, firmado: idx< (i%4===0? 2: (i%3===0? 5: 0)), fecha: idx< (i%4===0? 2: (i%3===0? 5: 0)) ? new Date().toISOString(): null }));
+        const empresaNum = i+1;
+        return {
+          id:'CV-'+String(empresaNum).padStart(3,'0'),
+          empresa:'Empresa '+empresaNum,
+          nit:'90'+(2000000+i),
+          programa:['Sistemas','Industrial','Administración','Contaduría'][i%4],
+          tipoConvenioId: (i%8)+1,
+          desde:desde.toISOString().slice(0,10),
+          hasta:hasta.toISOString().slice(0,10),
+          estado,
+          docs,
+          firmas,
+          comentarios:[{ts:new Date().toISOString(), actor:'Sistema', texto:'Trámite creado'}],
+          contacto:{
+            correo:`contacto${empresaNum}@empresa.com`,
+            telefono:`30012345${String(empresaNum).padStart(2,'0')}`,
+            telefonoCelular:`30198765${String(empresaNum).padStart(2,'0')}`,
+            ciudad: ciudades[i%ciudades.length]
+          }
+        };
+      });
+      save();
+    }
+    function save(){ localStorage.setItem(KEY, JSON.stringify(DATA)); }
+    function byId(id){ return DATA.convenios.find(c=>c.id===id); }
+
+    // ===== Global state (convenio actual) =====
+    let currentId = localStorage.getItem('cgp.current') || null;
+    function setCurrent(id){
+      currentId = id;
+      localStorage.setItem('cgp.current', id || '');
+      setSelectedCompanyVisuals();
+    }
+
+    // ===== Selected company visualization =====
+    function setSelectedCompanyVisuals() {
+      const docsChipInfo = document.getElementById('chipDocsInfo');
+      const flujoChipInfo = document.getElementById('chipFlujoInfo');
+      const docsBanner = document.getElementById('docsCompanyBanner');
+      const flujoBanner = document.getElementById('flujoCompanyBanner');
+      if (!currentId) {
+        if (docsChipInfo) { docsChipInfo.textContent = ''; docsChipInfo.classList.add('d-none'); }
+        if (flujoChipInfo) { flujoChipInfo.textContent = ''; flujoChipInfo.classList.add('d-none'); }
+        if (docsBanner) docsBanner.style.display = 'none';
+        if (flujoBanner) flujoBanner.style.display = 'none';
+        return;
+      }
+      const c = byId(currentId);
+      if (!c) return;
+      const label = ` · ${c.empresa} (NIT ${c.nit})`;
+      if (docsChipInfo) { docsChipInfo.textContent = label; docsChipInfo.classList.remove('d-none'); }
+      if (flujoChipInfo) { flujoChipInfo.textContent = label; flujoChipInfo.classList.remove('d-none'); }
+      const estadoHtml = badgeEstado(c.estado);
+      if (docsBanner) {
+        docsBanner.innerHTML = `Empresa seleccionada: <b>${c.empresa}</b> (NIT ${c.nit}) — Estado: ${estadoHtml}`;
+        docsBanner.style.display = 'block';
+      }
+      if (flujoBanner) {
+        flujoBanner.innerHTML = `Empresa seleccionada: <b>${c.empresa}</b> (NIT ${c.nit}) — Estado: ${estadoHtml}`;
+        flujoBanner.style.display = 'block';
+      }
+    }
+
+
+    // ===== KPIs =====
+    function refreshKPIs(){
+      const list=DATA.convenios;
+      const k=(p)=> list.filter(p).length;
+      document.getElementById('kpiTotal').textContent = list.length;
+      document.getElementById('kpiAprobados').textContent = k(c=>c.estado==='Vigente' || c.estado==='Aprobado');
+      document.getElementById('kpiRechazados').textContent = k(c=>c.estado==='Rechazado');
+      document.getElementById('kpiVigentes').textContent = k(c=>c.estado==='Vigente');
+      document.getElementById('kpiPorVencer').textContent = k(c=>daysTo(c.hasta)<=60 && daysTo(c.hasta)>=0);
+      document.getElementById('kpiDocsPend').textContent = list.reduce((a,c)=> a + c.docs.filter(d=>d.estado!=='Aprobado').length, 0);
+      document.getElementById('countLabel').textContent=list.length;
+      document.getElementById('countTag').textContent=list.length;
+    }
+
+    // ===== Bandeja (single page) =====
+    function badgeEstado(estado){
+  const map = {
+    'En trámite':'text-bg-warning text-dark',
+    'Aprobado':'text-bg-primary',
+    'Rechazado':'text-bg-danger',
+    'Vigente':'text-bg-success',
+    'Por vencer':'text-bg-info',
+    'Vencido':'text-bg-dark',
+    'Cerrado':'text-bg-secondary'
+  };
+
+  const cls = map[estado] || 'text-bg-light';
+  return `<span class="badge ${cls}">${estado}</span>`;
+}
+
+    function docsOk(c){ return c.docs.filter(d=>d.estado==='Aprobado').length; }
+    function diasSemaforo(c){ const d=daysTo(c.hasta); return `<span class="badge ${d<0?'text-bg-dark':(d<=30?'text-bg-danger':(d<=60?'text-bg-warning text-dark':'text-bg-success'))}">${d}</span>`; }
+
+    function renderTable(){
+      const data=DATA.convenios;
+      document.getElementById('pageLabel').textContent='Página 1 de 1';
+      const tbody=document.getElementById('tbody'); tbody.innerHTML='';
+      data.forEach(c=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML=`
+          <td><div class="fw-semibold">${c.empresa}</div><div class="small text-body-secondary">NIT ${c.nit}</div></td>
+          <td><div>${c.programa||'—'}</div><div class="small text-body-secondary">${fmt(c.desde)} → ${fmt(c.hasta)} ${diasSemaforo(c)}</div></td>
+          <td>${badgeEstado(c.estado)}</td>
+          <td>${docsOk(c)}/${c.docs.length}</td>
+          <td>${c.firmas.filter(f=>!f.firmado).length}</td>
+          <td class="text-end table-actions"><button class="btn btn-outline-secondary btn-sm" data-id="${c.id}" title="Seleccionar y abrir Documentación"><i class="bi bi-eye"></i></button></td>`;
+        tr.querySelector('button').addEventListener('click',()=>{ setCurrent(c.id); navigate('docs'); });
+        tbody.appendChild(tr);
+      });
+    }
+
+    // ===== Documentación jurídica (page) =====
+    function renderDocsPage(){
+      setSelectedCompanyVisuals();
+      const empty = document.getElementById('docsEmpty');
+      const panel = document.getElementById('docsPanel');
+      const header = document.getElementById('docsHeaderInfo');
+      if(!currentId){ empty.style.display='block'; panel.style.display='none'; header.textContent='Selecciona un convenio en la Bandeja'; showToast('Selecciona un convenio en la Bandeja','danger'); setSelectedCompanyVisuals(); return; }
+      const c=byId(currentId); if(!c){ empty.style.display='block'; panel.style.display='none'; header.textContent='Convenio no encontrado'; return; }
+      empty.style.display='none'; panel.style.display='block'; header.textContent = `${c.id} – ${c.empresa}`;
+      document.getElementById('docsBadgeEstado').innerHTML = badgeEstado(c.estado);
+      document.getElementById('docsVigencia').textContent = `${fmt(c.desde)} → ${fmt(c.hasta)} (${daysTo(c.hasta)} días)`;
+      // comentarios
+      const box=document.getElementById('comentariosList');
+      box.innerHTML = c.comentarios.slice().reverse().map(cm=>`<div>• <b>${cm.actor}</b> (${fmt(cm.ts)}): ${cm.texto}</div>`).join('') || '<div class="text-secondary">Sin comentarios</div>';
+      // documentos
+      const tbody=document.getElementById('tbodyDocs2'); tbody.innerHTML='';
+      c.docs.forEach((d,idx)=>{
+        const tr=document.createElement('tr');
+        tr.innerHTML=`
+          <td>${d.nombre}</td>
+          <td>${d.archivo? `<a href="#" class="link-secondary">${d.archivo}</a>` : '<span class="text-secondary">Sin archivo</span>'}</td>
+          <td>${d.fecha? fmt(d.fecha) : '—'}</td>
+          <td>${d.estado==='Aprobado'? '<span class="badge text-bg-success">Aprobado</span>' : (d.estado==='Rechazado'? '<span class="badge text-bg-danger">Rechazado</span>' : '<span class="badge text-bg-secondary">Pendiente</span>')}</td>
+          <td>${d.observacion? `<span class="text-secondary" title="${d.observacion}">…</span>` : '—'}</td>
+          <td class="text-end">
+            <div class="btn-group btn-group-sm" role="group">
+              <label class="btn btn-outline-secondary mb-0"><i class="bi bi-upload"></i> Cargar<input type="file" hidden data-upload="${idx}"></label>
+              <button class="btn btn-outline-success" data-approve="${idx}"><i class="bi bi-check2"></i></button>
+              <button class="btn btn-outline-danger" data-reject="${idx}"><i class="bi bi-x"></i></button>
+            </div>
+          </td>`;
+        tr.querySelector('[data-upload]').addEventListener('change', (e)=>{ const f=e.target.files?.[0]; if(!f) return; d.archivo=f.name; d.fecha=new Date().toISOString(); d.estado='Pendiente'; d.observacion=''; save(); renderDocsPage(); refreshKPIs(); showToast('Archivo cargado'); });
+        tr.querySelector('[data-approve]').addEventListener('click', ()=>{ d.estado='Aprobado'; d.observacion=''; save(); renderDocsPage(); refreshKPIs(); showToast(`Documento “${d.nombre}” aprobado`,'secondary'); autoAdvanceIfReady(c); });
+        tr.querySelector('[data-reject]').addEventListener('click', ()=>{ const obs=prompt('Observación (obligatoria):'); if(!obs || !obs.trim()){ showToast('Debes ingresar una observación','danger'); return; } d.estado='Rechazado'; d.observacion=obs.trim(); save(); renderDocsPage(); refreshKPIs(); showToast(`Documento “${d.nombre}” rechazado`,'secondary'); });
+        tbody.appendChild(tr);
+      });
+      // comentario rápido
+      document.getElementById('btnAddComment').onclick = ()=>{
+        const t=document.getElementById('nuevoComentario').value.trim(); if(!t) return;
+        c.comentarios.push({ts:new Date().toISOString(), actor:'Jurídica', texto:t}); document.getElementById('nuevoComentario').value='';
+        save(); renderDocsPage(); showToast('Comentario agregado','secondary');
+      };
+    }
+
+    // ===== Flujo de aprobación (page) =====
+    function renderFirmasList(div,c){
+      div.innerHTML='';
+      c.firmas.forEach((f,idx)=>{
+        const row=document.createElement('div'); row.className='d-flex align-items-center justify-content-between border rounded p-2';
+        row.innerHTML=`<div class="d-flex align-items-center gap-2"><i class="bi ${f.firmado? 'bi-check2-circle text-success':'bi-circle text-secondary'}"></i><div><div class="fw-semibold">${idx+1}. ${f.rol}</div><div class="small text-body-secondary">${f.firmado? 'Firmado el '+fmt(f.fecha) : 'Pendiente'}</div></div></div><div class="btn-group btn-group-sm"><button class="btn btn-outline-primary" data-sign="${idx}"><i class="bi bi-pen"></i></button></div>`;
+        row.querySelector('[data-sign]').addEventListener('click', ()=>{
+          const firstPending = c.firmas.findIndex(x=>!x.firmado);
+          if(firstPending!==idx){ showToast('Debes seguir el orden de firmas','danger'); return; }
+          f.firmado=true; f.fecha=new Date().toISOString(); save(); renderFlujoPage(); refreshKPIs(); showToast(`${f.rol} firmó`,'secondary'); autoAdvanceIfReady(c);
+        });
+        div.appendChild(row);
+      });
+    }
+    function renderFlujoPage(){
+      setSelectedCompanyVisuals();
+      const empty = document.getElementById('flujoEmpty');
+      const panel = document.getElementById('flujoPanel');
+      const header = document.getElementById('flujoHeaderInfo');
+      if(!currentId){ empty.style.display='block'; panel.style.display='none'; header.textContent='Selecciona un convenio en la Bandeja'; showToast('Selecciona un convenio en la Bandeja','danger'); setSelectedCompanyVisuals(); return; }
+      const c=byId(currentId); if(!c){ empty.style.display='block'; panel.style.display='none'; header.textContent='Convenio no encontrado'; return; }
+      empty.style.display='none'; panel.style.display='block'; header.textContent = `${c.id} – ${c.empresa}`;
+      document.getElementById('flujoBadgeEstado').innerHTML = badgeEstado(c.estado);
+      document.getElementById('flujoVigencia').textContent = `${fmt(c.desde)} → ${fmt(c.hasta)} (${daysTo(c.hasta)} días)`;
+      renderFirmasList(document.getElementById('firmasList2'), c);
+      // botones
+      document.getElementById('btnAvanzarEtapa2').onclick = ()=>{
+        const i=c.firmas.findIndex(f=>!f.firmado); if(i===-1){ showToast('No hay firmas pendientes','secondary'); return; }
+        c.comentarios.push({ts:new Date().toISOString(), actor:'Sistema', texto:`Avanzado a etapa: ${c.firmas[i].rol}`}); save(); renderFlujoPage(); showToast('Avanzado a la siguiente etapa','secondary');
+      };
+      document.getElementById('btnDevolverEtapa2').onclick = ()=>{
+        const i=c.firmas.findIndex(f=>!f.firmado); const target = i>0? i-1 : 0; c.firmas.forEach((f,idx)=>{ if(idx>=i) return; if(idx>=target) { f.firmado=false; f.fecha=null; } });
+        c.comentarios.push({ts:new Date().toISOString(), actor:'Jurídica', texto:`Devolución a etapa: ${c.firmas[target].rol}`}); save(); renderFlujoPage(); showToast('Etapa devuelta','warning');
+      };
+      document.getElementById('btnAprobarConvenio2').onclick = ()=>{
+        const docsOkAll=c.docs.every(d=>d.estado==='Aprobado'); const firmasOk=c.firmas.every(f=>f.firmado);
+        if(!docsOkAll){ showToast('Faltan documentos aprobados','danger'); return; }
+        if(!firmasOk){ showToast('Faltan firmas','danger'); return; }
+        c.estado='Vigente'; save(); refreshKPIs(); renderFlujoPage(); renderTable(); showToast('Convenio aprobado – Vigente','success');
+      };
+      document.getElementById('btnRechazarConvenio2').onclick = ()=>{
+        const obs=prompt('Motivo de rechazo (obligatorio):'); if(!obs || !obs.trim()){ showToast('Ingresa un motivo','danger'); return; }
+        c.estado='Rechazado'; c.comentarios.push({ts:new Date().toISOString(), actor:'Jurídica', texto:'Rechazo convenio: '+obs.trim()}); save(); refreshKPIs(); renderFlujoPage(); renderTable(); showToast('Convenio rechazado','secondary');
+      };
+    }
+
+    // ===== Business rules =====
+    function autoAdvanceIfReady(c){
+      const docsOkAll = c.docs.every(d=>d.estado==='Aprobado');
+      const firmasOk = c.firmas.every(f=>f.firmado);
+      if(docsOkAll && firmasOk){ c.estado='Vigente'; save(); refreshKPIs(); renderTable(); showToast('Convenio aprobado – Vigente','success'); }
+    }
+
+    // ===== Repositorio (tabla con filtros) =====
+
+    function repoTipoCell(c){
+      // Compatibilidad: si ya había data en localStorage sin tipoConvenioId
+      let id = c.tipoConvenioId;
+      if(!id){
+        const n = parseInt(String(c.id||'').split('-')[1]||'1',10);
+        id = ((n-1)%8)+1;
+      }
+      return tipoConvenioBadge(id);
+    }
+
+    function repoRow(c){
+      const obs = c.docs.map(d=>d.observacion).filter(Boolean).join(' | ') || (c.comentarios.slice(-1)[0]?.texto || '');
+      const documentos = `${c.docs.filter(d=>d.estado==='Aprobado').length}/${c.docs.length}`;
+      return `<tr>
+        <td>${badgeEstado(c.estado)}</td>
+        <td>${c.nit}</td>
+        <td>${c.empresa}</td>
+        <td>${repoTipoCell(c)}</td>
+        <td class="text-truncate" style="max-width:240px" title="${obs}">${obs || '—'}</td>
+        <td>${documentos} <button class="btn btn-sm btn-outline-secondary ms-2" data-docsdl="${c.id}" title="Ver y descargar documentos"><i class="bi bi-download"></i></button></td>
+        <td>${c.contacto.correo}</td>
+        <td>${c.contacto.telefono}</td>
+        <td>${c.contacto.telefonoCelular ?? '—'}</td>
+        <td>${c.contacto.ciudad}</td>
+        <td>${fmt(c.desde)}</td>
+        <td>${fmt(c.hasta)}</td>
+      </tr>`;
+    }
+
+    
+    // Llenar filtro "Tipo de convenio" (igual patrón que Estado)
+    const fTipo = document.getElementById('f_tipo');
+    if (fTipo) {
+      fTipo.innerHTML = `<option value="">Todos</option>`;
+      Object.entries(TIPO_CONVENIO_MAP).forEach(([id, label]) => {
+        const opt = document.createElement('option');
+        opt.value = id;
+        opt.textContent = label;
+        fTipo.appendChild(opt);
+      });
+    }
+
+
+    function applyRepo(){
+      const estado = document.getElementById('f_estado').value;
+      const nit = (document.getElementById('f_nit').value||'').toLowerCase();
+      const empresa = (document.getElementById('f_empresa').value||'').toLowerCase();
+      const ciudad = (document.getElementById('f_ciudad').value||'').toLowerCase();
+      const ini = document.getElementById('f_ini').value;
+      const fin = document.getElementById('f_fin').value;
+      const tipo = document.getElementById('f_tipo').value;
+
+      const tb = document.getElementById('repoTbody'); tb.innerHTML='';
+      DATA.convenios.filter(c=>{
+        if(estado && c.estado!==estado) return false;
+        if (tipo) {
+          let id = c.tipoConvenioId;
+          if (!id) {
+            const n = parseInt(String(c.id || '').split('-')[1] || '1', 10);
+            id = ((n - 1) % 8) + 1;
+          }
+          if (String(id) !== String(tipo)) return false;
+      }
+
+        if(nit && !c.nit.toLowerCase().includes(nit)) return false;
+        if(empresa && !c.empresa.toLowerCase().includes(empresa)) return false;
+        if(ciudad && !c.contacto.ciudad.toLowerCase().includes(ciudad)) return false;
+        if(ini && c.desde < ini) return false;
+        if(fin && c.hasta > fin) return false;
+        return true;
+      }).forEach(c=> tb.insertAdjacentHTML('beforeend', repoRow(c)));
+      // Attach download listeners
+      tb.querySelectorAll('[data-docsdl]').forEach(btn=>{
+        btn.addEventListener('click', ()=>{
+          const c = byId(btn.getAttribute('data-docsdl'));
+          if(!c) return;
+          renderDocsModal(c);
+          const modal = new bootstrap.Modal(document.getElementById('docsModal'));
+          modal.show();
+        });
+      });
+    }
+
+    document.getElementById('btnAplicar').addEventListener('click', applyRepo);
+    document.getElementById('btnLimpiar').addEventListener('click', ()=>{
+      ['f_estado','f_tipo', 'f_nit','f_empresa','f_ciudad','f_ini','f_fin'].forEach(id=> document.getElementById(id).value='');
+      applyRepo();
+    });
+    document.getElementById('btnXLSX').addEventListener('click', ()=> showToast('Exportar a XLSX (simulado)','secondary'));
+    document.getElementById('btnPDF').addEventListener('click', ()=> showToast('Exportar a PDF (simulado)','secondary'));
+
+    
+    function downloadDocsList(c){
+      if(!c) return;
+      const lines = [
+        `Lista de documentos requeridos – ${c.empresa} (NIT ${c.nit})`,
+        ``,
+        `1) RUT`,
+        `2) Cámara de Comercio`,
+        `3) ARL`,
+        `4) Documento Representante`,
+        `5) Carta Intensión`
+      ];
+      const blob = new Blob([lines.join('\n')], {type: 'text/plain;charset=utf-8'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Documentos_${c.id}_${c.empresa.replaceAll(' ','_')}.txt`;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(()=>{
+        URL.revokeObjectURL(url);
+        a.remove();
+      }, 0);
+      showToast('Lista de documentos descargada','secondary');
+    }
+
+
+    // ===== Repo Docs Modal helpers =====
+    const DOC_NAMES = ['RUT','Cámara de Comercio','ARL','Documento Representante','Carta Intensión'];
+
+    function docFileName(docName, c){
+      const base = docName.replaceAll(' ','_').replaceAll('á','a').replaceAll('é','e').replaceAll('í','i').replaceAll('ó','o').replaceAll('ú','u').replaceAll('ñ','n');
+      return `${c.id}_${c.empresa.replaceAll(' ','_')}_${base}.txt`;
+    }
+    function docContent(docName, c){
+      return [
+        `Documento: ${docName}`,
+        `Empresa: ${c.empresa}`,
+        `NIT: ${c.nit}`,
+        `Convenio: ${c.id}`,
+        ``,
+        `* Este es un archivo de muestra generado desde el repositorio.`
+      ].join('\\n');
+    }
+    function renderDocsModal(c){
+      const list = document.getElementById('docsList');
+      const sub = document.getElementById('docsModalSub');
+      list.innerHTML='';
+      sub.textContent = `Empresa: ${c.empresa} (NIT ${c.nit})`;
+      DOC_NAMES.forEach(name=>{
+        const li = document.createElement('li');
+        li.className = 'list-group-item d-flex align-items-center justify-content-between';
+        li.innerHTML = `<div><i class="bi bi-file-earmark-text me-2"></i><b>${name}</b></div>
+                        <div class="btn-group btn-group-sm">
+                          <button class="btn btn-outline-primary" data-dl="${name}"><i class="bi bi-download"></i> Descargar</button>
+                        </div>`;
+        li.querySelector('[data-dl]').addEventListener('click', ()=>{
+          const blob = new Blob([docContent(name,c)], {type:'text/plain;charset=utf-8'});
+          saveAs(blob, docFileName(name,c));
+        });
+        list.appendChild(li);
+      });
+      // Zip all
+      const zipBtn = document.getElementById('btnZipAll');
+      zipBtn.onclick = async ()=>{
+        const zip = new JSZip();
+        DOC_NAMES.forEach(name=>{
+          zip.file(docFileName(name,c), docContent(name,c));
+        });
+        const blob = await zip.generateAsync({type:'blob'});
+        saveAs(blob, `Documentos_${c.id}_${c.empresa.replaceAll(' ','_')}.zip`);
+        showToast('ZIP descargado','secondary');
+      };
+    }
+
+    // ===== Solicitud de Practicantes + Mis solicitudes (compartido con módulo Empresa) =====
+const EMPRESA_STORE_KEY = 'empresa.portal.v12';
+function loadEmpresaStore(){
+  try{ return JSON.parse(localStorage.getItem(EMPRESA_STORE_KEY) || '{}') || {}; }catch(e){ return {}; }
+}
+function saveEmpresaStore(store){
+  localStorage.setItem(EMPRESA_STORE_KEY, JSON.stringify(store || {}));
+}
+function getSolicitudes(){
+  const s = loadEmpresaStore();
+  if(!Array.isArray(s.solicitudes)) s.solicitudes = [];
+  // guardamos por si venía vacío / mal formado
+  saveEmpresaStore(s);
+  return s.solicitudes;
+}
+function pushSolicitud(sol){
+  const s = loadEmpresaStore();
+  if(!Array.isArray(s.solicitudes)) s.solicitudes = [];
+  s.solicitudes.unshift(sol); // más reciente arriba
+  saveEmpresaStore(s);
+}
+function nextSolicitudId(){
+  const y = new Date().getFullYear();
+  const rnd = Math.floor(Math.random()*9000)+1000;
+  return `SOL-${y}-${rnd}`;
+}
+function badgeSolicitudEstado(estado){
+  const map = {
+    'Borrador':'text-bg-secondary',
+    'Enviada':'text-bg-info',
+    'Recibida por Coordinador':'text-bg-primary',
+    'En proceso':'text-bg-warning text-dark',
+    'Con candidatos':'text-bg-success',
+    'Cerrada':'text-bg-dark',
+    'En espera de convenio':'text-bg-danger'
+  };
+
+  const cls = map[estado] || 'text-bg-secondary';
+  return `<span class="badge ${cls}">${estado || '—'}</span>`;
+}
+
+let _solicitudInited = false;
+function initSolicitudPage(){
+  if(_solicitudInited) return;
+  _solicitudInited = true;
+
+  // Sub-tabs
+  const btnMisConv = document.getElementById('btnTabMisConvenios');
+  const btnMisSol = document.getElementById('btnTabMisSolicitudes');
+  if(btnMisConv) btnMisConv.addEventListener('click', ()=> navigate('bandeja'));
+  if(btnMisSol) btnMisSol.addEventListener('click', ()=> navigate('solicitudes'));
+
+  // Programas (simple demo)
+  const PROGRAMAS = [
+    'Ingeniería de Sistemas','Ingeniería Industrial','Ingeniería Civil',
+    'Enfermería','Fisioterapia',
+    'Administración de Empresas','Contaduría',
+    'Lic. Matemáticas','Lic. Lengua'
+  ];
+  const selProg = document.getElementById('sPrograma');
+  if(selProg && selProg.options.length<=1){
+    PROGRAMAS.forEach(p=>{
+      const opt=document.createElement('option');
+      opt.value=p; opt.textContent=p;
+      selProg.appendChild(opt);
+    });
+  }
+
+  // Guardar borrador
+  const btnB = document.getElementById('btnSolBorrador');
+  if(btnB){
+    btnB.addEventListener('click', ()=>{
+      const sol = collectSolicitudForm('Borrador');
+      pushSolicitud(sol);
+      showToast('Borrador guardado','secondary');
+      renderSolicitudes(); // refresca si el usuario ya abrió Mis solicitudes
+    });
+  }
+
+  // Validación + submit (Enviar)
+  const form = document.getElementById('frmSolicitud');
+  if(form){
+    form.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      e.stopPropagation();
+      if(!form.checkValidity()){
+        form.classList.add('was-validated');
+        showToast('Revisa los campos obligatorios','warning');
+        return;
+      }
+      form.classList.add('was-validated');
+
+      const sol = collectSolicitudForm('Enviada');
+      pushSolicitud(sol);
+
+      showToast('Solicitud enviada','success');
+      // Llevar al listado como en "Empresa"
+      navigate('solicitudes');
+      // limpiar (opcional, pero mantiene el mockup ordenado)
+      try{ form.reset(); form.classList.remove('was-validated'); }catch(err){}
+    });
+  }
+}
+
+function collectSolicitudForm(estado){
+  const val = (id)=> (document.getElementById(id)?.value || '').trim();
+  const sol = {
+    id: nextSolicitudId(),
+    createdAt: new Date().toISOString(),
+    dependencia: val('sDep'),
+    solicitante: val('sNom'),
+    telefono: val('sTel'),
+    correo: val('sMail'),
+
+    empresaNombre: val('sEmpNombre'),
+    empresaNit: val('sEmpNit'),
+
+    fechaRequerida: val('sFecha'),
+    tipoPractica: val('sTipo'),
+    programa: val('sPrograma'),
+    cantidad: Number(val('sCant')||0) || 0,
+    descripcion: val('sDesc'),
+    estado: estado || 'Enviada',
+    asignados: 0
+  };
+  return sol;
+}
+
+// ===== Mis solicitudes =====
+let _solicitudesInited = false;
+let _solPage = 1;
+const _solPageSize = 8;
+
+function initSolicitudesPage(){
+  // solo “wirear” una vez los botones
+  if(!_solicitudesInited){
+    _solicitudesInited = true;
+    const prev = document.getElementById('solPrev');
+    const next = document.getElementById('solNext');
+    if(prev) prev.addEventListener('click', ()=>{ _solPage = Math.max(1, _solPage-1); renderSolicitudes(); });
+    if(next) next.addEventListener('click', ()=>{ _solPage = _solPage+1; renderSolicitudes(); });
+  }
+  renderSolicitudes();
+}
+
+function renderSolicitudes(){
+  const list = getSolicitudes();
+  const total = list.length;
+  const totalPages = Math.max(1, Math.ceil(total/_solPageSize));
+  _solPage = Math.min(_solPage, totalPages);
+
+  const lbl = document.getElementById('lblPaginaSol');
+  const totalEl = document.getElementById('solTotal');
+  if(lbl) lbl.textContent = `Página ${_solPage} de ${totalPages}`;
+  if(totalEl) totalEl.textContent = total;
+
+  const tbody = document.getElementById('tbodySol');
+  if(!tbody) return;
+  tbody.innerHTML = '';
+
+  if(total===0){
+    tbody.innerHTML = `<tr><td colspan="11" class="text-center text-body-secondary py-4">Aún no hay solicitudes registradas.</td></tr>`;
+    return;
+  }
+
+  const start = (_solPage-1)*_solPageSize;
+  const slice = list.slice(start, start+_solPageSize);
+  slice.forEach((s, idx)=>{
+    const tr = document.createElement('tr');
+    const n = start + idx + 1;
+    tr.innerHTML = `
+      <td class="text-body-secondary">${n}</td>
+      <td>
+        <div class="fw-semibold">${s.dependencia || '—'}</div>
+        <div class="small text-body-secondary">${s.id}</div>
+      </td>
+      <td>${s.empresaNombre || '—'}</td>
+      <td>${s.empresaNit || '—'}</td>
+      <td>${s.programa || '—'}</td>
+      <td>${s.tipoPractica || '—'}</td>
+      <td>${s.fechaRequerida ? fmt(s.fechaRequerida) : '—'}</td>
+      <td>${s.cantidad || 0}</td>
+      <td>${badgeSolicitudEstado(s.estado)}</td>
+      <td>${s.asignados || 0}</td>
+      <td class="text-end">
+        <button class="btn btn-outline-secondary btn-sm" data-sol="${s.id}" title="Ver detalle">
+          <i class="bi bi-eye"></i>
+        </button>
+      </td>
+    `;
+    tr.querySelector('[data-sol]').addEventListener('click', ()=>{
+      openSolicitudModal(s.id);
+    });
+    tbody.appendChild(tr);
+  });
+}
+
+function openSolicitudModal(id){
+  const s = getSolicitudes().find(x=>x.id===id);
+  if(!s) return;
+  const set = (elId, v)=>{ const el=document.getElementById(elId); if(el) el.innerHTML = v; };
+  set('mDep', s.dependencia || '—');
+  set('mNom', s.solicitante || '—');
+  set('mTel', s.telefono || '—');
+  set('mMail', s.correo || '—');
+  set('mEmpNombre', s.empresaNombre || '—');
+  set('mEmpNit', s.empresaNit || '—');
+  set('mFecha', s.fechaRequerida ? fmt(s.fechaRequerida) : '—');
+  set('mTipo', s.tipoPractica || '—');
+  set('mPrograma', s.programa || '—');
+  set('mCant', String(s.cantidad || 0));
+  set('mEstado', badgeSolicitudEstado(s.estado));
+  set('mAsignados', String(s.asignados || 0));
+  set('mDesc', (s.descripcion||'—').replaceAll('\n','<br>'));
+
+  const modal = new bootstrap.Modal(document.getElementById('solModal'));
+  modal.show();
+}
+
+
+
+    // ===== Crear empresa (mismo flujo de convenios_creacion_empresa) =====
+    let _crearEmpresaInited = false;
+    function initCrearEmpresa(){
+      if(_crearEmpresaInited) return;
+      _crearEmpresaInited = true;
+
+      // Credenciales mock por empresa (persistente en navegador)
+      const CREDS_KEY = 'mock_empresas_creds_v1';
+      function getCreds(){ try{ const raw = localStorage.getItem(CREDS_KEY); if(raw) return JSON.parse(raw);}catch(e){} return {}; }
+      function setCreds(obj){ try{ localStorage.setItem(CREDS_KEY, JSON.stringify(obj)); }catch(e){} }
+      function genPassword(len=10){
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%';
+        let out = ''; for(let i=0;i<len;i++) out += chars[Math.floor(Math.random()*chars.length)];
+        return out;
+      }
+      function genUser(doc){
+        const tail = (doc||'').replace(/\D/g,'').slice(-4) || String(Math.floor(Math.random()*9000)+1000);
+        return 'empresa' + tail;
+      }
+      function copyCred(id){
+        const el = document.getElementById(id);
+        if(!el) return;
+        const txt = el.textContent || '';
+        navigator.clipboard?.writeText(txt).then(()=> showToast('Copiado al portapapeles','secondary'))
+          .catch(()=> showToast('No se pudo copiar','danger'));
+      }
+      // Botones copiar
+      document.querySelectorAll('[data-copy]').forEach(b=>{
+        b.addEventListener('click', ()=> copyCred(b.getAttribute('data-copy')));
+      });
+
+      // Mock "base de datos" local (persistente en navegador)
+      const STORE_KEY = 'mock_empresas_docs_v1';
+      function getStore(){
+        try{ const raw = localStorage.getItem(STORE_KEY); if(raw) return JSON.parse(raw); }catch(e){}
+        return ['45123123','101792216321']; // semillas de ejemplo
+      }
+      function setStore(arr){ try{ localStorage.setItem(STORE_KEY, JSON.stringify(arr)); }catch(e){} }
+
+      const tipoId = document.getElementById('ce_tipoId');
+      const documento = document.getElementById('ce_documento');
+      const msg = document.getElementById('ce_docMsg');
+      const more = document.getElementById('ce_moreFields');
+
+      function resetAfterDoc(){
+        msg.classList.add('d-none');
+        msg.className = 'alert py-2 mb-0 d-none';
+        msg.textContent = '';
+        more.classList.add('d-none');
+      }
+
+      tipoId?.addEventListener('change', ()=>{
+        resetAfterDoc();
+        if(documento) documento.value = '';
+        documento?.focus();
+      });
+
+      function verifyDoc(){
+        if(!tipoId.value || !documento.value.trim()) return;
+
+        const docs = getStore();
+        const doc = documento.value.trim();
+
+        msg.classList.remove('d-none');
+        msg.className = 'alert alert-info py-2 mb-0';
+        msg.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Verificando documento…';
+
+        window.setTimeout(()=>{
+          const exists = docs.includes(doc);
+          if(exists){
+            msg.className = 'alert alert-danger py-2 mb-0';
+            msg.innerHTML = '<i class="bi bi-exclamation-triangle me-1"></i> Este documento ya existe.';
+            more.classList.add('d-none');
+            showToast('Documento existente','danger');
+          }else{
+            msg.className = 'alert alert-success py-2 mb-0';
+            msg.innerHTML = '<i class="bi bi-check-circle me-1"></i> Documento disponible. Completa el registro para continuar.';
+            more.classList.remove('d-none');
+            showToast('Documento disponible','success');
+          }
+        }, 450);
+      }
+
+      documento?.addEventListener('blur', verifyDoc);
+      documento?.addEventListener('keydown', (e)=>{ if(e.key==='Enter'){ e.preventDefault(); documento.blur(); }});
+      document.getElementById('ce_btnDocIcon')?.addEventListener('click', verifyDoc);
+
+      // Enviar (mock)
+      document.getElementById('ce_btnEnviar')?.addEventListener('click', ()=>{
+        const required = ['ce_razonSocial','ce_dirTipo','ce_dirNum1','ce_dirComp','ce_dirNum2','ce_dirCiudad','ce_respTipoDoc','ce_respDoc','ce_respNombres','ce_respApellidos','ce_respEmail','ce_respCargo','ce_habeas'];
+        let ok = true;
+        required.forEach(id=>{
+          const el = document.getElementById(id);
+          if(!el) return;
+          if(el.type === 'checkbox'){ if(!el.checked) ok=false; }
+          else if(!String(el.value||'').trim()) ok=false;
+        });
+
+        // marcar validez visual
+        document.getElementById('ce_docForm')?.classList.add('was-validated');
+        document.querySelectorAll('#ce_moreFields input, #ce_moreFields select').forEach(()=>{});
+        // si hay campos requeridos, el navegador mostrará invalid-feedback con was-validated en el contenedor
+        document.getElementById('ce_moreFields')?.querySelectorAll('form')?.forEach(f=>f.classList.add('was-validated'));
+
+        // forzar estilo bootstrap: agregamos was-validated al contenedor
+        document.getElementById('ce_moreFields')?.classList.add('was-validated');
+
+        if(!ok){
+          showToast('Faltan campos obligatorios','danger');
+          return;
+        }
+
+        const docs = getStore();
+        const doc = documento.value.trim();
+        if(!docs.includes(doc)){ docs.push(doc); setStore(docs); }
+
+        const creds = getCreds();
+        const key = doc;
+        if(!creds[key]){
+          creds[key] = { user: genUser(doc), pass: genPassword(10) };
+          setCreds(creds);
+        }
+
+        document.getElementById('ce_credUser').textContent = creds[key].user;
+        document.getElementById('ce_credPass').textContent = creds[key].pass;
+
+        showToast('Empresa registrada (mockup)','success');
+        const modalEl = document.getElementById('ce_credModal');
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        modal.show();
+      });
+
+      resetAfterDoc();
+    }
+
+
+
+// ===== Router =====
+    const pages = {
+      bandeja: document.getElementById('page-bandeja'),
+      docs: document.getElementById('page-docs'),
+      flujo: document.getElementById('page-flujo'),
+      repo: document.getElementById('page-repo'),
+      crearEmpresa: document.getElementById('page-crearEmpresa'),
+      solicitud: document.getElementById('page-solicitud'),
+      solicitudes: document.getElementById('page-solicitudes')
+    };
+    function navigate(name){
+      setSelectedCompanyVisuals();
+      // update hash
+      if(location.hash.replace('#','')!==name) location.hash = name;
+      // activate chip
+      document.querySelectorAll('.tag-chip').forEach(a=> a.classList.toggle('active', a.dataset.page===name));
+      // show only active page
+      Object.entries(pages).forEach(([k,el])=> el.classList.toggle('active', k===name));
+      // render specific content
+      if(name==='docs') renderDocsPage();
+      if(name==='flujo') renderFlujoPage();
+      if(name==='repo') applyRepo();
+      if(name==='crearEmpresa') initCrearEmpresa();
+      if(name==='bandeja') renderTable();
+      if(name==='solicitud') initSolicitudPage();
+      if(name==='solicitudes') initSolicitudesPage();
+    }
+    window.addEventListener('hashchange', ()=>{
+      const target = (location.hash||'#bandeja').replace('#','');
+      navigate(pages[target]?target:'bandeja');
+    });
+
+    // ===== Init =====
+    function init(){
+      setSelectedCompanyVisuals();
+      refreshKPIs();
+      renderTable();
+      applyRepo();
+      const start = (location.hash||'#bandeja').replace('#','');
+      navigate(pages[start]?start:'bandeja');
+      // restore current if any
+      if(currentId && start!=='bandeja'){ navigate('docs'); }
+    }
+    init();
+  </script>
+
+  <!-- Modal: Documentos del convenio -->
+  <div class="modal fade" id="docsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="bi bi-folder2-open me-1"></i>Documentos del convenio</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-2 small text-body-secondary" id="docsModalSub">Empresa: —</div>
+          <ul class="list-group" id="docsList">
+            <!-- Filled dynamically -->
+          </ul>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cerrar</button>
+          <button type="button" class="btn btn-success" id="btnZipAll"><i class="bi bi-archive"></i> Descargar todo (.zip)</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+</div><!-- /.shell-main -->
+<script>
+(function(){
+  const body=document.body;
+  const btn=document.getElementById('toggleSidebar');
+  const overlay=document.getElementById('overlay');
+  const LS_KEY='sidebar-state';
+  const ROLE_KEY='active-role';
+  const THEME_KEY='ui.theme';
+  const darkTop=document.getElementById('darkModeSwitchTop');
+  const darkOld=document.getElementById('darkModeSwitch'); // ya existe en esta página
+  const guideBtnTop=document.getElementById('btnToggleGuideHeader');
+  const guideCard=document.getElementById('guideCard');
+  const showGuideBtn=document.getElementById('showGuideBtn');
+  const toggleGuideBtn=document.getElementById('toggleGuide');
+  const isMobile=()=> window.matchMedia('(max-width:768px)').matches;
+
+  // ---- Buttons & ARIA
+  function setBtn(){
+    const isOpen=body.classList.contains('sidebar-open');
+    const isCollapsed=body.classList.contains('sidebar-collapsed');
+    const html = isMobile() ? (isOpen?'<i class="fa-solid fa-xmark"></i>':'<i class="fa-solid fa-bars"></i>')
+                            : (isCollapsed?'<i class="fa-solid fa-bars"></i>':'<i class="fa-solid fa-xmark"></i>');
+    if(btn){ btn.innerHTML = html; btn.setAttribute('aria-expanded', (isMobile()?isOpen:!isCollapsed) ? 'true':'false'); }
+  }
+  function applyDesktopState(){
+    const saved = localStorage.getItem(LS_KEY) || 'expanded'; // abierto por defecto
+    if(saved==='collapsed') body.classList.add('sidebar-collapsed');
+    else body.classList.remove('sidebar-collapsed');
+  }
+  function openMobile(){ body.classList.add('sidebar-open'); }
+  function closeMobile(){ body.classList.remove('sidebar-open'); }
+  function toggle(){
+    if(isMobile()){
+      body.classList.contains('sidebar-open') ? closeMobile() : openMobile();
+    } else {
+      body.classList.toggle('sidebar-collapsed');
+      localStorage.setItem(LS_KEY, body.classList.contains('sidebar-collapsed')?'collapsed':'expanded');
+    }
+    setBtn();
+  }
+
+  // ---- Tooltips
+  function initTooltips(){
+    document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el=>{ try{ new bootstrap.Tooltip(el);}catch(e){} });
+  }
+
+  // ---- Theme sync (top switch + existing page switch)
+  function applyTheme(t){
+    const theme=(t==='dark')?'dark':'light';
+    document.documentElement.setAttribute('data-bs-theme', theme);
+    if(darkTop) darkTop.checked = (theme==='dark');
+    if(darkOld) darkOld.checked = (theme==='dark');
+    localStorage.setItem(THEME_KEY, theme);
+  }
+  function initTheme(){
+    const saved=localStorage.getItem(THEME_KEY) || document.documentElement.getAttribute('data-bs-theme') || 'light';
+    applyTheme(saved);
+    if(darkTop) darkTop.addEventListener('change', ()=> applyTheme(darkTop.checked?'dark':'light'));
+    if(darkOld) darkOld.addEventListener('change', ()=> applyTheme(darkOld.checked?'dark':'light'));
+  }
+
+  // ---- Role + Navigation
+  function initRole(){
+    const roleLabel=document.getElementById('currentRoleLabel');
+    const applyRole=(r)=>{ if(roleLabel) roleLabel.textContent=r; localStorage.setItem(ROLE_KEY, r); };
+    applyRole(localStorage.getItem(ROLE_KEY)||'Coordinador');
+    document.querySelectorAll('.role-option').forEach(a=>{
+      a.addEventListener('click',(e)=>{
+        const r=a.getAttribute('data-role');
+        const url=a.getAttribute('href');
+        if(r) applyRole(r);
+        const newTab = e.metaKey || e.ctrlKey || a.target === '_blank';
+        if(url && url!=='#' && !newTab){
+          e.preventDefault();
+          window.location.assign(url);
+        }
+      });
+    });
+  }
+
+  // ---- Net status
+  function initNet(){
+    const pill=document.getElementById('netPill'); const lbl=document.getElementById('netLabel');
+    const update=()=>{ const on=navigator.onLine; if(lbl) lbl.textContent=on?'Online':'Offline'; if(pill) pill.className='shell-net ' + (on?'text-bg-success':'text-bg-danger'); };
+    window.addEventListener('online',update); window.addEventListener('offline',update); update();
+  }
+
+  // ---- Guide sync (header button + existing page toggles)
+  function initGuideSync(){
+    const KEY='hideGuide';
+    function apply(){
+      const hidden = localStorage.getItem(KEY)==='1';
+      if(guideCard) guideCard.style.display = hidden? 'none':'block';
+      if(guideBtnTop) guideBtnTop.innerHTML = hidden? '<i class="fa-solid fa-book"></i> Mostrar Guía' : '<i class="fa-solid fa-book-open"></i> Ocultar Guía';
+      if(showGuideBtn) showGuideBtn.innerHTML = hidden? '<i class="bi bi-eye"></i> Mostrar guía' : '<i class="bi bi-eye-slash"></i> Ocultar guía';
+      if(toggleGuideBtn){ const st=document.getElementById('guideState'); if(st) st.textContent = hidden? 'Mostrar':'Ocultar'; }
+    }
+    if(guideBtnTop){ guideBtnTop.addEventListener('click', ()=>{ const hidden=localStorage.getItem(KEY)==='1'; localStorage.setItem(KEY, hidden?'0':'1'); apply(); }); }
+    if(showGuideBtn){ showGuideBtn.addEventListener('click', ()=>{ const hidden=localStorage.getItem(KEY)==='1'; localStorage.setItem(KEY, hidden?'0':'1'); apply(); }); }
+    if(toggleGuideBtn){ toggleGuideBtn.addEventListener('click', ()=>{ const hidden=localStorage.getItem(KEY)==='1'; localStorage.setItem(KEY, hidden?'0':'1'); apply(); }); }
+    apply();
+  }
+
+  // ---- Activate current link based on hash
+  function highlightByHash(){
+    const name=(location.hash||'#bandeja').replace('#','');
+    document.querySelectorAll('.shell-link').forEach(a=> a.classList.toggle('active', a.getAttribute('data-page')===name));
+  }
+  window.addEventListener('hashchange', highlightByHash);
+
+  // ---- Init
+  function init(){
+    if(isMobile()){ closeMobile(); } else { applyDesktopState(); }
+    if(btn) btn.addEventListener('click', toggle);
+    if(overlay) overlay.addEventListener('click', ()=>{ if(isMobile()){ closeMobile(); setBtn(); } });
+    window.addEventListener('resize', ()=>{ if(isMobile()){ closeMobile(); } else { body.classList.remove('sidebar-open'); applyDesktopState(); } setBtn(); });
+    initTooltips(); initTheme(); initRole(); initNet(); initGuideSync(); setBtn(); highlightByHash();
+  }
+  init();
+})();
+
+
+
+  // 🔹 Forzar rol Coordinador en esta página
+  (function enforcePageRole(){
+    const ROLE_KEY = 'active-role';
+    const PAGE_ROLE = 'Coordinador';
+    localStorage.setItem(ROLE_KEY, PAGE_ROLE);
+
+    // Actualiza la etiqueta visible en la barra superior
+    const dropdownBtn = document.querySelector('.dropdown-toggle');
+    if (dropdownBtn) dropdownBtn.innerHTML = '<i class="fa-solid fa-user-tie"></i> ' + PAGE_ROLE;
+
+    // Actualiza la información lateral
+    const infoRole = document.querySelector('.shell-user .fw-semibold');
+    if (infoRole) infoRole.textContent = PAGE_ROLE;
+
+    // Actualiza el texto "Perfil activo"
+    const infoSub = document.querySelector('.shell-user .text-white-50.small');
+    if (infoSub) infoSub.textContent = 'Perfil activo';
+
+    // Actualiza las iniciales del avatar
+    const avatar = document.querySelector('.shell-avatar');
+    if (avatar) avatar.textContent = 'CO';
+  })();
+
+
+</script>
+
+
+</html>

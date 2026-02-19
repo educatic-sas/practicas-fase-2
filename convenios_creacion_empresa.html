@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Convenios — Información básica</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    :root{
+      --brand:#0b5ed7;
+      --brand-2:#0847a8;
+      --brand-soft:rgba(11,94,215,.10);
+      --ink:#0b1220;
+    }
+    body{background:#f6f8fc;color:var(--ink);min-height:100vh;}
+
+    .topbar{background:#fff;border-bottom:2px solid rgba(11,94,215,.18);}
+    .brand{display:flex;align-items:center;gap:.75rem;text-decoration:none;}
+    .brand svg{height:44px;width:auto;}
+    .nav-links a{text-decoration:none;color:#1c2230;font-weight:500;padding:.5rem .75rem;border-radius:.75rem;}
+    .nav-links a:hover{background:var(--brand-soft);color:var(--brand);}
+    .btn-brand{
+      --bs-btn-bg:var(--brand);
+      --bs-btn-border-color:var(--brand);
+      --bs-btn-hover-bg:var(--brand-2);
+      --bs-btn-hover-border-color:var(--brand-2);
+      --bs-btn-color:#fff;
+      border-radius:999px;padding:.5rem 1rem;
+      box-shadow:0 10px 22px rgba(11,94,215,.16);
+      white-space:nowrap;
+    }
+
+    .page-wrap{padding:26px 0 40px;}
+    .filters-card{
+      background:#fff;border:1px solid rgba(2,6,23,.08);
+      border-radius:14px;box-shadow:0 12px 30px rgba(2,6,23,.06);
+      padding:18px;
+    }
+    .filters-title{font-weight:700;font-size:1.25rem;margin-bottom:14px;}
+    .filter-item{
+      border:1px solid rgba(11,94,215,.16);
+      background:rgba(11,94,215,.08);
+      border-radius:10px;padding:12px 14px;
+      display:flex;align-items:center;justify-content:space-between;
+      margin-bottom:12px;color:var(--brand);font-weight:500;
+    }
+    .filter-search{border-radius:10px;padding:.65rem .8rem;}
+    .btn-apply{
+      --bs-btn-bg:var(--brand);
+      --bs-btn-border-color:var(--brand);
+      --bs-btn-hover-bg:var(--brand-2);
+      --bs-btn-hover-border-color:var(--brand-2);
+      --bs-btn-color:#fff;
+      border-radius:10px;padding:.55rem 1.1rem;
+    }
+
+    .cards-area{display:flex;align-items:center;justify-content:center;gap:22px;min-height:560px;}
+    .nav-arrow{
+      width:54px;height:54px;border-radius:50%;border:0;
+      background:rgba(11,94,215,.20);display:grid;place-items:center;
+      color:var(--brand);
+      box-shadow:0 10px 18px rgba(11,94,215,.10);
+    }
+    .nav-arrow:hover{background:rgba(11,94,215,.28);}
+
+    .activity-card{
+      width:330px;background:#fff;border-radius:14px;
+      border:1px solid rgba(2,6,23,.08);
+      box-shadow:0 12px 30px rgba(2,6,23,.08);
+      overflow:hidden;
+    }
+    .activity-head{background:#d7d7d7;height:205px;position:relative;display:grid;place-items:center;}
+    .pill-area{
+      position:absolute;left:14px;top:12px;background:var(--brand);color:#fff;
+      padding:.35rem .65rem;border-radius:8px;font-size:.85rem;font-weight:600;
+      box-shadow:0 10px 18px rgba(11,94,215,.22);
+    }
+    .ph-img{
+      width:86px;height:60px;border:3px solid rgba(2,6,23,.55);
+      border-radius:4px;display:grid;place-items:center;
+      color:rgba(2,6,23,.55);background:rgba(255,255,255,.15);
+    }
+    .activity-body{padding:14px 16px 16px;}
+    .activity-title{font-weight:800;font-size:1.02rem;margin:6px 0 12px;}
+    .meta{display:grid;grid-template-columns:1fr 1fr;gap:10px 14px;font-size:.92rem;color:rgba(2,6,23,.70);}
+    .meta .k{font-weight:600;color:rgba(2,6,23,.78);}
+    .meta i{color:var(--brand);margin-right:.35rem;}
+    .btn-more{
+      margin-top:14px;float:right;border-radius:999px;padding:.45rem .95rem;
+      background:var(--brand);border:1px solid var(--brand);color:#fff;
+    }
+    .btn-more:hover{background:var(--brand-2);border-color:var(--brand-2);}
+
+    .to-top{
+      position:fixed;right:22px;bottom:22px;width:44px;height:44px;border-radius:12px;border:0;
+      background:rgba(11,94,215,.18);color:var(--brand);
+      display:grid;place-items:center;
+      box-shadow:0 12px 24px rgba(11,94,215,.12);
+    }
+    .to-top:hover{background:rgba(11,94,215,.26);}
+
+    @media (max-width:1200px){
+      .cards-area{flex-wrap:wrap;gap:18px;min-height:auto;}
+      .nav-arrow{display:none;}
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="container-fluid py-2 d-flex align-items-center gap-3">
+      <a class="brand" href="#" onclick="return false;">
+        <svg viewBox="0 0 220 70" aria-label="Marca" role="img">
+          <defs>
+            <linearGradient id="g" x1="0" x2="1">
+              <stop offset="0" stop-color="#0b5ed7"/>
+              <stop offset="1" stop-color="#0847a8"/>
+            </linearGradient>
+          </defs>
+          <circle cx="30" cy="35" r="24" fill="url(#g)" opacity="0.95"></circle>
+          <path d="M18 40c9-14 23-20 36-18" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round"/></svg>
+      </a>
+
+      <nav class="nav-links d-none d-lg-flex align-items-center gap-1 ms-auto me-3">
+        <a href="#" onclick="return false;">Buzón</a>
+        <a href="convenios_creacion_empresa.html" style="background:var(--brand-soft);color:var(--brand);">Convenios</a>
+        <a href="#" onclick="return false;">Contacto</a>
+        <a href="#" onclick="return false;">Certificados</a>
+        <a href="#" onclick="return false;">Inscripciones</a>
+        <a href="#" onclick="return false;">Citas</a>
+        <a href="#" onclick="return false;">Pagos</a>
+      </nav>
+
+      <div class="ms-auto ms-lg-0">
+        <a class="btn btn-brand btn-sm" href="login_cuenta_local.html">Iniciar sesión con cuenta local</a>
+      </div>
+    </div>
+  </header>
+
+  
+  
+  <main class="container-fluid page-wrap">
+    <div class="container">
+
+      <div class="filters-card p-0 overflow-hidden" style="max-width:1100px;margin:0 auto;">
+        <div class="p-4 border-bottom" style="background:#fff;">
+          <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <h1 class="h4 m-0" style="font-weight:700;">Información básica</h1>
+            <!-- (Ignorar botón de iniciar sesión: no aplica al flujo) -->
+          </div>
+        </div>
+
+        <div class="p-4" style="background:#fff;">
+          <form id="docForm" novalidate>
+            <div class="row g-3 align-items-end">
+              <div class="col-12 col-md-6">
+                <label class="form-label small text-muted mb-1">Tipo de identificación</label>
+                <select id="tipoId" class="form-select" required>
+                  <option value="" selected disabled>Seleccione…</option>
+                  <option value="RUT">Registro Único Tributario</option>
+                  <option value="NIT">Número de Identificación Tributario</option>
+                </select>
+                <div class="invalid-feedback">Selecciona el tipo de identificación.</div>
+              </div>
+
+              <div class="col-12 col-md-6">
+                <label class="form-label small text-muted mb-1">Documento</label>
+                <div class="input-group">
+                  <input id="documento" class="form-control" placeholder="Documento" inputmode="numeric" autocomplete="off" required>
+                  <button class="btn btn-outline-secondary" type="button" id="btnDocIcon" aria-label="Verificar">
+                    <i class="bi bi-person"></i>
+                  </button>
+                  <div class="invalid-feedback">Ingresa el documento.</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-3">
+              <div id="docMsg" class="alert py-2 mb-0 d-none" role="status" aria-live="polite"></div>
+              <div class="small text-muted mt-2">
+                Al escribir el documento, el sistema verifica automáticamente cuando sales del campo. (Mockup)
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- SECCIÓN DESPLEGABLE: aparece cuando el documento NO existe -->
+      <div id="moreFields" class="filters-card mt-3 d-none" style="max-width:1100px;margin:0 auto;">
+        <div class="p-4">
+          <div class="row g-3">
+            <!-- Columna izquierda -->
+            <div class="col-12 col-lg-6">
+              <div class="mb-2 fw-semibold">Información básica</div>
+
+              <div class="mb-3">
+                <label class="form-label"><span class="text-danger">*</span> Razón social</label>
+                <div class="input-group">
+                  <input class="form-control" id="razonSocial" required placeholder="Razón social">
+                  <span class="input-group-text"><i class="bi bi-card-text"></i></span>
+                  <div class="invalid-feedback">Obligatorio.</div>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Teléfono fijo</label>
+                <div class="input-group">
+                  <input class="form-control" id="telFijo" placeholder="Teléfono fijo">
+                  <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label"><span class="text-danger">*</span> Dirección</label>
+                <div class="row g-2">
+                  <div class="col-12 col-md-4">
+                    <select class="form-select" id="dirTipo" required>
+                      <option value="" selected disabled>Seleccione…</option>
+                      <option>Calle</option><option>Carrera</option><option>Avenida</option><option>Transversal</option>
+                    </select>
+                    <div class="invalid-feedback">Obligatorio.</div>
+                  </div>
+                  <div class="col-4 col-md-2"><input class="form-control" id="dirNum1" placeholder="0" required></div>
+                  <div class="col-8 col-md-2"><input class="form-control" id="dirLetra1" placeholder="Letras"></div>
+                  <div class="col-12 col-md-4">
+                    <select class="form-select" id="dirComp" required>
+                      <option value="" selected disabled>Seleccione…</option>
+                      <option>Sur</option><option>Norte</option><option>Este</option><option>Oeste</option>
+                    </select>
+                    <div class="invalid-feedback">Obligatorio.</div>
+                  </div>
+                  <div class="col-4 col-md-2"><input class="form-control" id="dirNum2" placeholder="0" required></div>
+                  <div class="col-8 col-md-2"><input class="form-control" id="dirLetra2" placeholder="Letras"></div>
+                  <div class="col-4 col-md-2"><input class="form-control" id="dirNum3" placeholder="0"></div>
+                  <div class="col-8 col-md-4"><input class="form-control" id="dirOtros" placeholder="Otros"></div>
+                  <div class="col-12"><select class="form-select" id="dirCiudad" required>
+                    <option value="" selected disabled>Seleccione…</option>
+                    <option>Medellín</option><option>Bogotá</option><option>Cali</option><option>Barranquilla</option>
+                  </select>
+                  <div class="invalid-feedback">Obligatorio.</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="mb-2 fw-semibold mt-4"><span class="text-danger">*</span> Sector</div>
+              <div class="row g-2">
+                <div class="col-12 col-md-6">
+                  <select class="form-select" id="sector" required>
+                    <option value="" selected>Sin definir</option>
+                    <option>Servicios</option><option>Industria</option><option>Comercio</option><option>Tecnología</option>
+                  </select>
+                </div>
+                <div class="col-12 col-md-6">
+                  <select class="form-select" id="subSector">
+                    <option value="" selected>Sub Sector</option>
+                    <option>Educación</option><option>Finanzas</option><option>Manufactura</option><option>Logística</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Columna derecha -->
+            <div class="col-12 col-lg-6">
+              <div class="mb-2 fw-semibold">&nbsp;</div>
+
+              <div class="mb-3">
+                <label class="form-label">Página web</label>
+                <div class="input-group">
+                  <input class="form-control" id="web" placeholder="Página web">
+                  <span class="input-group-text"><i class="bi bi-link-45deg"></i></span>
+                </div>
+              </div>
+
+              <div class="mb-3">
+                <label class="form-label">Tipo empresa</label>
+                <select class="form-select" id="tipoEmpresa">
+                  <option value="" selected>Tipo empresa…</option>
+                  <option>Privada</option><option>Pública</option><option>Mixta</option><option>ONG</option>
+                </select>
+              </div>
+
+              <div class="mt-4">
+                <h2 class="h5 mb-3" style="font-weight:700;">Contacto Responsable</h2>
+
+                <div class="row g-2">
+                  <div class="col-12 col-md-6">
+                    <label class="form-label"><span class="text-danger">*</span> Tipo documento</label>
+                    <select class="form-select" id="respTipoDoc" required>
+                      <option value="" selected disabled>Seleccione…</option>
+                      <option>Cédula de ciudadanía</option>
+                      <option>Cédula de extranjería</option>
+                      <option>Pasaporte</option>
+                    </select>
+                    <div class="invalid-feedback">Obligatorio.</div>
+                  </div>
+
+                  <div class="col-12 col-md-6">
+                    <label class="form-label"><span class="text-danger">*</span> Documento</label>
+                    <div class="input-group">
+                      <input class="form-control" id="respDoc" required placeholder="Documento">
+                      <span class="input-group-text"><i class="bi bi-person"></i></span>
+                      <div class="invalid-feedback">Obligatorio.</div>
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-md-6">
+                    <label class="form-label"><span class="text-danger">*</span> Nombres</label>
+                    <div class="input-group">
+                      <input class="form-control" id="respNombres" required placeholder="Nombres">
+                      <span class="input-group-text"><i class="bi bi-card-text"></i></span>
+                      <div class="invalid-feedback">Obligatorio.</div>
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-md-6">
+                    <label class="form-label"><span class="text-danger">*</span> Apellidos</label>
+                    <div class="input-group">
+                      <input class="form-control" id="respApellidos" required placeholder="Apellidos">
+                      <span class="input-group-text"><i class="bi bi-card-text"></i></span>
+                      <div class="invalid-feedback">Obligatorio.</div>
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Teléfono fijo</label>
+                    <div class="input-group">
+                      <input class="form-control" id="respTel" placeholder="Teléfono fijo">
+                      <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-md-6">
+                    <label class="form-label">Celular</label>
+                    <div class="input-group">
+                      <input class="form-control" id="respCel" placeholder="Celular">
+                      <span class="input-group-text"><i class="bi bi-phone"></i></span>
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-md-6">
+                    <label class="form-label"><span class="text-danger">*</span> Email</label>
+                    <div class="input-group">
+                      <input class="form-control" type="email" id="respEmail" required placeholder="Email">
+                      <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+                      <div class="invalid-feedback">Ingresa un correo válido.</div>
+                    </div>
+                  </div>
+
+                  <div class="col-12 col-md-6">
+                    <label class="form-label"><span class="text-danger">*</span> Cargo</label>
+                    <select class="form-select" id="respCargo" required>
+                      <option value="" selected disabled>Seleccione…</option>
+                      <option>Representante legal</option>
+                      <option>Gestor de convenios</option>
+                      <option>Recursos Humanos</option>
+                      <option>Otro</option>
+                    </select>
+                    <div class="invalid-feedback">Obligatorio.</div>
+                  </div>
+
+                  <div class="col-12">
+                    <div class="form-check mt-2">
+                      <input class="form-check-input" type="checkbox" id="habeas" required>
+                      <label class="form-check-label" for="habeas">
+                        Autorización Habeas Data <a href="#" onclick="return false;">Ver más…</a>
+                      </label>
+                      <div class="invalid-feedback">Debes aceptar la autorización.</div>
+                    </div>
+                  </div>
+
+                  <div class="col-12 mt-2">
+                    <div class="p-3" style="background:rgba(2,6,23,.04); border-radius:12px;">
+                      <div class="d-flex justify-content-end">
+                        <button class="btn btn-brand" id="btnEnviar" type="button">Enviar</button>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- Modal: Credenciales de acceso (Empresa) -->
+  <div class="modal fade" id="credModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content" style="border-radius:16px; overflow:hidden;">
+        <div class="modal-header" style="background:rgba(11,94,215,.08);">
+          <h5 class="modal-title d-flex align-items-center gap-2">
+            <i class="bi bi-person-check text-primary"></i>
+            Credenciales de acceso (Empresa)
+          </h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+        </div>
+        <div class="modal-body">
+          <p class="mb-3 text-muted">
+            Tu empresa fue registrada correctamente. Usa estas credenciales para iniciar sesión como <b>Empresa</b>.
+            (Mockup)
+          </p>
+
+          <div class="p-3" style="background:rgba(2,6,23,.04); border-radius:12px;">
+            <div class="row g-2">
+              <div class="col-12 col-md-6">
+                <div class="small text-muted">Usuario</div>
+                <div class="d-flex align-items-center justify-content-between gap-2">
+                  <div class="fw-semibold" id="credUser">—</div>
+                  <button class="btn btn-sm btn-outline-secondary" type="button" onclick="copyCred('credUser')" title="Copiar usuario">
+                    <i class="bi bi-clipboard"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="small text-muted">Contraseña</div>
+                <div class="d-flex align-items-center justify-content-between gap-2">
+                  <div class="fw-semibold" id="credPass">—</div>
+                  <button class="btn btn-sm btn-outline-secondary" type="button" onclick="copyCred('credPass')" title="Copiar contraseña">
+                    <i class="bi bi-clipboard"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="small text-muted mt-3">
+            Recomendación: guarda estas credenciales en un lugar seguro. En este mockup también se almacenan en tu navegador.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-outline-secondary" type="button" data-bs-dismiss="modal">Cerrar</button>
+          <a class="btn btn-brand" href="login_cuenta_local.html">
+            <i class="bi bi-box-arrow-in-right me-1"></i> Ir a iniciar sesión
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+
+  <button class="to-top" type="button" aria-label="Subir" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+    <i class="bi bi-chevron-up fs-4"></i>
+  </button>
+
+  <div class="position-fixed bottom-0 end-0 p-3" style="z-index:1080">
+    <div id="toast" class="toast align-items-center text-bg-primary border-0" role="status" aria-live="polite" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body" id="toastMsg">OK</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Cerrar"></button>
+      </div>
+    </div>
+  </div>
+
+  
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const toastEl=document.getElementById('toast');
+    const toastMsg=document.getElementById('toastMsg');
+    const toast=new bootstrap.Toast(toastEl);
+
+    function showToast(msg, kind='primary'){
+      toastEl.className='toast align-items-center text-bg-'+kind+' border-0';
+      toastMsg.textContent = msg;
+      toast.show();
+    }
+
+
+    // Credenciales mock por empresa (persistente en navegador)
+    const CREDS_KEY = 'mock_empresas_creds_v1';
+    function getCreds(){
+      try{
+        const raw = localStorage.getItem(CREDS_KEY);
+        if(raw) return JSON.parse(raw);
+      }catch(e){}
+      return {};
+    }
+    function setCreds(obj){
+      try{ localStorage.setItem(CREDS_KEY, JSON.stringify(obj)); }catch(e){}
+    }
+    function genPassword(len=10){
+      const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%';
+      let out = '';
+      for(let i=0;i<len;i++) out += chars[Math.floor(Math.random()*chars.length)];
+      return out;
+    }
+    function genUser(doc){
+      const tail = (doc||'').replace(/\D/g,'').slice(-4) || String(Math.floor(Math.random()*9000)+1000);
+      return 'empresa' + tail;
+    }
+    function copyCred(id){
+      const el = document.getElementById(id);
+      if(!el) return;
+      const txt = el.textContent || '';
+      navigator.clipboard?.writeText(txt).then(()=>{
+        showToast('Copiado al portapapeles', 'secondary');
+      }).catch(()=> showToast('No se pudo copiar', 'danger'));
+    }
+    // Mock "base de datos" local (persistente en navegador)
+    const STORE_KEY = 'mock_empresas_docs_v1';
+    function getStore(){
+      try{
+        const raw = localStorage.getItem(STORE_KEY);
+        if(raw) return JSON.parse(raw);
+      }catch(e){}
+      // semillas para probar: uno "existe" y otro "nuevo"
+      return ['45123123','101792216321'];
+    }
+    function setStore(arr){
+      try{ localStorage.setItem(STORE_KEY, JSON.stringify(arr)); }catch(e){}
+    }
+
+    const tipoId = document.getElementById('tipoId');
+    const documento = document.getElementById('documento');
+    const msg = document.getElementById('docMsg');
+    const more = document.getElementById('moreFields');
+
+    function resetAfterDoc(){
+      msg.classList.add('d-none');
+      msg.className = 'alert py-2 mb-0 d-none';
+      msg.textContent = '';
+      more.classList.add('d-none');
+      // limpia validaciones del resto del formulario (si ya lo abrió antes)
+      document.querySelectorAll('#moreFields .was-validated').forEach(x=>x.classList.remove('was-validated'));
+    }
+
+    tipoId?.addEventListener('change', ()=>{
+      resetAfterDoc();
+      if(documento) documento.value = '';
+      documento?.focus();
+    });
+
+    function verifyDoc(){
+      // Requisitos mínimos
+      if(!tipoId.value || !documento.value.trim()){
+        return;
+      }
+
+      // Simula verificación automática (sin botón)
+      const docs = getStore();
+      const doc = documento.value.trim();
+
+      msg.classList.remove('d-none');
+      msg.className = 'alert alert-info py-2 mb-0';
+      msg.innerHTML = '<i class="bi bi-hourglass-split me-1"></i> Verificando documento…';
+
+      // mock delay
+      window.setTimeout(()=>{
+        const exists = docs.includes(doc);
+
+        if(exists){
+          msg.className = 'alert alert-danger py-2 mb-0';
+          msg.innerHTML = '<i class="bi bi-exclamation-triangle me-1"></i> Este documento ya existe. Si tu empresa ya está registrada, revisa la información o contacta soporte.';
+          more.classList.add('d-none');
+          showToast('Documento existente', 'danger');
+        }else{
+          msg.className = 'alert alert-success py-2 mb-0';
+          msg.innerHTML = '<i class="bi bi-check-circle me-1"></i> Documento disponible. Completa el registro para continuar.';
+          more.classList.remove('d-none');
+          showToast('Documento disponible', 'success');
+        }
+      }, 450);
+    }
+
+    // Verifica al salir del campo (blur), como en tu referencia
+    documento?.addEventListener('blur', verifyDoc);
+    // También si presiona Enter
+    documento?.addEventListener('keydown', (e)=>{ if(e.key === 'Enter'){ e.preventDefault(); documento.blur(); } });
+    // Botón con ícono (solo refuerza verificación, pero no es obligatorio)
+    document.getElementById('btnDocIcon')?.addEventListener('click', verifyDoc);
+
+    // Enviar (mock): guarda el documento en "BD" local y muestra confirmación
+    document.getElementById('btnEnviar')?.addEventListener('click', ()=>{
+      const required = ['razonSocial','dirTipo','dirNum1','dirComp','dirNum2','dirCiudad','respTipoDoc','respDoc','respNombres','respApellidos','respEmail','respCargo','habeas'];
+      let ok = true;
+      required.forEach(id=>{
+        const el = document.getElementById(id);
+        if(!el) return;
+        if(el.type === 'checkbox'){
+          if(!el.checked) ok = false;
+        }else{
+          if(!String(el.value||'').trim()) ok = false;
+        }
+      });
+
+      // Validación Bootstrap básica
+      const forms = document.querySelectorAll('#moreFields form, #docForm');
+      forms.forEach(f=>f.classList.add('was-validated'));
+
+      if(!ok){
+        showToast('Faltan campos obligatorios', 'danger');
+        return;
+      }
+
+      const docs = getStore();
+      const doc = documento.value.trim();
+      if(!docs.includes(doc)){
+        docs.push(doc);
+        setStore(docs);
+      }
+      showToast('Registro enviado (mockup)', 'success');
+
+      // Generar y mostrar credenciales (mock)
+      const creds = getCreds();
+      const key = doc; // usar documento como llave
+      if(!creds[key]){
+        creds[key] = { user: genUser(doc), pass: genPassword(10) };
+        setCreds(creds);
+      }
+
+      document.getElementById('credUser').textContent = creds[key].user;
+      document.getElementById('credPass').textContent = creds[key].pass;
+
+      const modalEl = document.getElementById('credModal');
+      const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+      modal.show();
+    });
+
+    // Inicial
+    resetAfterDoc();
+  </script>
+</body>
+</html>
+
